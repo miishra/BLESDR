@@ -1,0 +1,6 @@
+/home/mishra/sdrs/BLESDR/build/CMakeFiles/iq2pcap.dir
+/home/mishra/sdrs/BLESDR/build/CMakeFiles/edit_cache.dir
+/home/mishra/sdrs/BLESDR/build/CMakeFiles/rebuild_cache.dir
+/home/mishra/sdrs/BLESDR/build/blesdr-tools/CMakeFiles/blesdr.dir
+/home/mishra/sdrs/BLESDR/build/blesdr-tools/CMakeFiles/edit_cache.dir
+/home/mishra/sdrs/BLESDR/build/blesdr-tools/CMakeFiles/rebuild_cache.dir

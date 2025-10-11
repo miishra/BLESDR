@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <vector>
 #include <functional>
+#include <cstddef>   // for std::size_t
 
 #define MAX_NUM_PHY_SAMPLE 1520
 #define MAX_NUM_CHAR_CMD (256)
