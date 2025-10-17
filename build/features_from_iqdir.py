@@ -94,6 +94,33 @@ def save_hist(feature_name, values, outdir, bins=60):
     plt.close(fig)
     return path
 
+def gate_burst(x, fs, pre_us=40, post_us=40, smooth_us=8, thr_db_above=6):
+    """Return a slice tightly around the signal burst (keeps pre/post pads)."""
+    env = np.abs(x)
+    # Smooth envelope
+    k = max(1, int(round(smooth_us*1e-6*fs)))
+    if k > 1:
+        win = np.ones(k)/k
+        env = np.convolve(env, win, mode="same")
+    # Threshold relative to noise floor (median)
+    nf = np.median(env) + 1e-12
+    thr = nf * (10**(thr_db_above/20))
+    on = np.where(env >= thr)[0]
+    if on.size == 0:
+        return x  # fall back
+    i0, i1 = on[0], on[-1]
+    pad_pre  = int(round(pre_us*1e-6*fs))
+    pad_post = int(round(post_us*1e-6*fs))
+    a = max(0, i0 - pad_pre); b = min(len(x), i1 + pad_post + 1)
+    return x[a:b]
+
+def cfo_std_symbol_rate(x, fs):
+    """Less noisy CFO spread: measure at ~1 Msps (BLE-1M), not every sample."""
+    sps = max(2, int(round(fs/1e6)))
+    ph = np.angle(x[1:] * np.conj(x[:-1]))
+    ph_ds = ph[::sps]
+    return float((fs/(2*np.pi)) * np.std(ph_ds))
+
 def sanitize(name: str) -> str:
     return name.replace("/", "_").replace(" ", "_")
 
@@ -123,8 +150,12 @@ def main():
         if iq.size < 4:
             continue
         # float32 interleaved (I,Q) => complex64 view is okay
+        # x = iq.view(np.complex64)
+        # feats = packet_features(x, args.fs)
         x = iq.view(np.complex64)
+        x = gate_burst(x, args.fs)     # NEW
         feats = packet_features(x, args.fs)
+        feats["cfo_std_hz_sym"] = cfo_std_symbol_rate(x, args.fs)  # NEW, optional
         feats["file"] = fn.name
         rows.append(feats)
 
