@@ -1,11 +1,32 @@
-// iq2pcap.cpp - Read complex-float I/Q, decode BLE with BLESDR, dump PCAP (DLT 251).
+// iq2pcap.cpp - Read complex-float I/Q, decode BLE with BLESDR, dump PCAP
+// FIXED: write LINKTYPE = DLT 256 (BLUETOOTH_LE_LL_WITH_PHDR) and prepend the
+//        required per-packet pseudo-header so Wireshark recognizes ADV_* PDUs.
+//        Also include the Access Address in the packet bytes (AA + PDU + CRC).
+//
 // Build: your existing CMake target that links with lib/BLESDR*.cpp
 // Usage:
 //   ./iq2pcap --file ble_ch37.dat --fs 4e6 --channel 37 --out out_ch37.pcap [--decim 2] [--dump-iq-dir iq_dir] [--prepad-us 200]
+//
 // Notes:
-//   * If you captured at 4 MS/s, use --decim 2 to feed ~2 MS/s complex into the decoder (what this BLESDR expects).
-//   * This harness assumes BLESDR fires a callback per decoded packet. We slice PCAP bytes from lell_packet.symbols.
+//   * DLT 256 pseudo-header layout (packed, little-endian):
+//       uint8  rf_channel;                // 0..39 (adv: 37/38/39)
+//       int8   signal_power;              // dBm; valid if flags bit 0x0002 set
+//       int8   noise_power;               // dBm; valid if flags bit 0x0004 set
+//       uint8  access_address_offenses;   // valid if flags bit 0x0020 set
+//       uint32 ref_access_address;        // valid if flags bit 0x0010 set
+//       uint16 flags;                     // see bits below
+//       uint8  le_packet[];               // AA + PDU + CRC (no preamble)
+//     Flag bits we use here:
+//       0x0001 => le_packet is de-whitened (we set this)
+//       0x0010 => ref_access_address is valid (we set this)
+//     (We DO NOT claim CRC checked/passed; Wireshark will show CRC Checked: False.)
+//   * Packet bytes written after the pseudo-header are: 4-byte AA + (2+len+3).
+//     Your BLESDR callback already exposes symbols[] = AA(4) + header+payload+CRC.
+//   * If your decoder outputs LSB-first bits inside each byte, bit-reverse each byte
+//     before writing (helper provided below). If AA appears as 0x8e89bed6 in Wireshark,
+//     your bit ordering is fine.
 
+// ------------------ Includes ------------------
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
@@ -23,23 +44,42 @@
 
 #include "lib/BLESDR.hpp"   // adjust include path if needed
 
-// --------- Simple PCAP (DLT 251 = BLUETOOTH_LE_LL) ----------
+// ------------------ Simple PCAP writer ------------------
 namespace pcap {
 static constexpr uint32_t MAGIC   = 0xA1B2C3D4;
 static constexpr uint16_t VMAJOR  = 2;
 static constexpr uint16_t VMINOR  = 4;
 static constexpr uint32_t SNAPLEN = 0xFFFF;
-static constexpr uint32_t LINKTYPE_BLE_LL = 251;
+static constexpr uint32_t LINKTYPE_BLE_LL_WITH_PHDR = 256; // DLT 256
+
+#pragma pack(push, 1)
+struct le_phdr {
+    uint8_t  rf_channel;            // 0..39 (adv: 37/38/39)
+    int8_t   signal_power;          // dBm; valid iff flags & 0x0002
+    int8_t   noise_power;           // dBm; valid iff flags & 0x0004
+    uint8_t  access_address_offenses; // valid iff flags & 0x0020
+    uint32_t ref_access_address;    // valid iff flags & 0x0010 (LE)
+    uint16_t flags;                 // bitfield, see below
+};
+// Flag bits (subset used here)
+static constexpr uint16_t LE_FLAG_DEWHITENED      = 0x0001;
+static constexpr uint16_t LE_FLAG_SIGNAL_VALID    = 0x0002;
+static constexpr uint16_t LE_FLAG_NOISE_VALID     = 0x0004;
+static constexpr uint16_t LE_FLAG_REF_AA_VALID    = 0x0010;
+static constexpr uint16_t LE_FLAG_AA_OFFENSES_OK  = 0x0020;
+static constexpr uint16_t LE_FLAG_CRC_CHECKED     = 0x0400;
+static constexpr uint16_t LE_FLAG_CRC_VALID       = 0x0800;
+#pragma pack(pop)
 
 struct Writer {
     std::FILE* f = nullptr;
     explicit Writer(const std::string& path) {
         f = std::fopen(path.c_str(), "wb");
         if (!f) { throw std::runtime_error("fopen failed: " + path); }
-        // global header
+        // global header (native endian, classic pcap)
         uint32_t magic = MAGIC;
         uint16_t vmaj = VMAJOR, vmin = VMINOR;
-        uint32_t thiszone = 0, sigfigs = 0, snaplen = SNAPLEN, network = LINKTYPE_BLE_LL;
+        uint32_t thiszone = 0, sigfigs = 0, snaplen = SNAPLEN, network = LINKTYPE_BLE_LL_WITH_PHDR;
         std::fwrite(&magic,   4,1,f);
         std::fwrite(&vmaj,    2,1,f);
         std::fwrite(&vmin,    2,1,f);
@@ -66,7 +106,7 @@ struct Writer {
 };
 } // namespace pcap
 
-// ---------- Helpers ----------
+// ------------------ Helpers ------------------
 struct Args {
     std::string file;
     std::string out = "out.pcap";
@@ -75,7 +115,7 @@ struct Args {
     int decim = 2;          // complex decimation (4->2 typical). 1 = no decimation
     size_t chunk = 1'000'000; // complex samples per read
 
-    // New: per-packet IQ dumping
+    // Optional per-packet IQ dumping
     std::string dump_iq_dir = "";  // empty disables
     int prepad_us = 200;           // prepend this many microseconds of IQ before packet
 };
@@ -130,11 +170,23 @@ static size_t decimate_cplx(const float* iq, size_t n_cplx, int N, std::vector<f
     return outIQ.size() / 2; // # of complex samples
 }
 
+// Optional: bit-reverse if your decoder returns LSB-first bits in each byte.
+// If AA shows correctly as 0x8E89BED6 in Wireshark, you probably don't need this.
+static inline uint8_t bitrev8(uint8_t x){
+    x = (uint8_t)((x>>4) | (x<<4));
+    x = (uint8_t)(((x&0xCC)>>2) | ((x&0x33)<<2));
+    x = (uint8_t)(((x&0xAA)>>1) | ((x&0x55)<<1));
+    return x;
+}
+static void bitrev_buf(uint8_t* p, size_t n) {
+    for (size_t i=0;i<n;i++) p[i] = bitrev8(p[i]);
+}
+
 // --------- Packet glue: capture PDUs from BLESDR ----------
 struct PduStore {
-    std::vector< std::vector<uint8_t> > pdus;
-    void clear() { pdus.clear(); }
-    void add(const uint8_t* p, size_t n){ pdus.emplace_back(p, p+n); }
+    std::vector< std::vector<uint8_t> > frames; // full frames written to pcap (phdr + AA+PDU+CRC)
+    void clear() { frames.clear(); }
+    void add(const std::vector<uint8_t>& v){ frames.push_back(v); }
 };
 
 // --------- Ring buffer for I/Q (for per-packet dump) ----------
@@ -175,24 +227,51 @@ struct DumpCtx {
 };
 
 // ========= Attach handler using your class member `callback` =========
-// This fork exposes bytes via lell_packet.symbols[]:
+// BLESDR exposes bytes via lell_packet.symbols[]:
 // symbols[0..3] = AA (LE), symbols[4..] = header+payload+CRC. length = payload length.
-static void attach_packet_handler(BLESDR& b, PduStore& store, DumpCtx* dctx, pcap::Writer& w) {
+static void attach_packet_handler(BLESDR& b, PduStore& store, DumpCtx* dctx, pcap::Writer& w, int rf_channel) {
     static size_t seen = 0;
     b.callback = [&](lell_packet pkt){
-        // 1) PCAP: header(2) + payload(len) + CRC(3) = length + 5 bytes at symbols+4 (AA in [0..3])
-        const uint8_t* ptr = pkt.symbols + 4;
-        size_t len = (size_t)pkt.length + 5;
-        if (len > 0 && len <= MAX_LE_SYMBOLS - 4) {
-            store.add(ptr, len);
-            w.write_pkt(ptr, len);
-            if (seen < 5) {
-                std::fprintf(stderr, "[BLESDR] pkt len=%zu (chan=%u) first16=", len, pkt.channel_idx);
-                for (size_t i=0;i<std::min(len,(size_t)16);++i) std::fprintf(stderr, "%02X", ptr[i]);
-                std::fprintf(stderr, "\n");
-            }
-            ++seen;
+        // Build the DLT 256 pseudo-header
+        pcap::le_phdr ph{};
+        ph.rf_channel = static_cast<uint8_t>(rf_channel); // 37/38/39
+        ph.signal_power = 127;    // unknown (valid bit not set)
+        ph.noise_power  = 127;    // unknown (valid bit not set)
+        ph.access_address_offenses = 0; // unknown (valid bit not set)
+        ph.ref_access_address = 0x8E89BED6u; // advertising AA (little-endian in file)
+        ph.flags = pcap::LE_FLAG_DEWHITENED | pcap::LE_FLAG_REF_AA_VALID;
+        // NOTE: Do not set CRC checked/valid bits unless you compute/verify CRC.
+
+        // Packet data to follow: AA (4) + (header+payload+CRC)
+        const uint8_t* bytes_aa = pkt.symbols;       // 4 bytes AA
+        const uint8_t* bytes_pdu = pkt.symbols + 4;  // header+payload+CRC
+        size_t pdu_len = static_cast<size_t>(pkt.length) + 5; // 2 hdr + payload_len + 3 CRC
+        size_t frame_len = sizeof(ph) + 4 + pdu_len;
+
+        std::vector<uint8_t> frame;
+        frame.resize(frame_len);
+
+        // Copy pseudo-header
+        std::memcpy(frame.data(), &ph, sizeof(ph));
+        // Copy AA + PDU+CRC (already de-whitened by BLESDR)
+        std::memcpy(frame.data()+sizeof(ph), bytes_aa, 4);
+        std::memcpy(frame.data()+sizeof(ph)+4, bytes_pdu, pdu_len);
+
+        // If your decoder outputs LSB-first bits per byte, uncomment this:
+        // bitrev_buf(frame.data()+sizeof(ph), 4 + pdu_len);
+
+        store.add(frame);
+        w.write_pkt(frame.data(), frame.size());
+
+        if (seen < 5) {
+            std::fprintf(stderr, "[BLESDR] wrote frame len=%zu ch=%u AA=%02X%02X%02X%02X first16=",
+                         frame.size(), pkt.channel_idx,
+                         bytes_aa[3], bytes_aa[2], bytes_aa[1], bytes_aa[0]);
+            const uint8_t* dbg = frame.data()+sizeof(ph);
+            for (size_t i=0;i<std::min<size_t>(4+pdu_len,16);++i) std::fprintf(stderr, "%02X", dbg[i]);
+            std::fprintf(stderr, "\n");
         }
+        ++seen;
 
         // 2) Optional: dump interleaved (I,Q) window around this packet
         if (dctx && dctx->enabled && dctx->ring) {
@@ -250,11 +329,11 @@ int main(int argc, char** argv){
     dctx.prepad_us = args.prepad_us;
     dctx.ring      = &ring;
 
-    // Attach the packet handler so every decoded packet goes straight to PCAP (and optionally IQ dump)
-    attach_packet_handler(blesdr, store, dctx.enabled ? &dctx : nullptr, w);
+    // Attach the packet handler so every decoded packet goes straight to PCAP (with pseudo-header)
+    attach_packet_handler(blesdr, store, dctx.enabled ? &dctx : nullptr, w, args.channel);
 
     // Feed chunks to the decoder
-    size_t total_complex = 0, total_complex_fed = 0, total_pdus = 0;
+    size_t total_complex = 0, total_complex_fed = 0, total_frames = 0;
 
     for(;;){
         // bufIQ has 2*chunk floats; read 'args.chunk' complex samples per fread
@@ -264,7 +343,7 @@ int main(int argc, char** argv){
         // Complex decimation (keeps I,Q interleaved)
         size_t n_cplx_out = decimate_cplx(bufIQ.data(), nread, args.decim, workIQ);
 
-        // DC-remove + RMS normalize per component (helps some forks)
+        // DC-remove + RMS normalize per component
         {
             double meanI=0, meanQ=0;
             for (size_t i=0;i<n_cplx_out;i++){ meanI += workIQ[2*i]; meanQ += workIQ[2*i+1]; }
@@ -283,8 +362,8 @@ int main(int argc, char** argv){
         for (size_t i=0;i<n_cplx_out;i++) ring.push(workIQ[2*i], workIQ[2*i+1]);
         blesdr.Receiver((size_t)args.channel, workIQ.data(), n_cplx_out);
 
-        // (PCAP writing happens inside the callback already, but keep a counter)
-        total_pdus += store.pdus.size();
+        // Count frames
+        total_frames += store.frames.size();
         store.clear();
 
         total_complex     += nread;
@@ -294,7 +373,7 @@ int main(int argc, char** argv){
 
     std::cerr << "Done. Complex read: " << total_complex
               << ", complex fed: " << total_complex_fed
-              << ", PDUs (callback count): " << total_pdus
+              << ", frames written: " << total_frames
               << (args.dump_iq_dir.empty() ? "" : (", IQ dump dir: " + args.dump_iq_dir))
               << "\n";
     return 0;
