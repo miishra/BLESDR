@@ -160,7 +160,7 @@ def main():
     ap.add_argument("--k-max", type=int, default=8)
     # Include ALL CFO methods by default in the plotting list (match integrated names)
     ap.add_argument("--plot-features",
-        default="cfo_two_stage_hz,cfo_quick_hz,cfo_centroid_hz,cfo_std_hz,cfo_std_sym_hz,cfo_centroid_hz_signfixed,"
+        default="cfo_two_stage_hz,cfo_quick_hz,cfo_centroid_hz,cfo_std_hz,cfo_std_sym_hz,cfo_centroid_hz_signfixed,cfo_joint_hz,"
                 "iq_gain_alpha,iq_phase_deg_deg,psd_pnr_db,bw_3db_hz",
         help="Comma list of feature names to plot"
     )
@@ -217,7 +217,7 @@ def main():
     # 5) Aggregate per MAC (medians & IQRs)
     # Choose a focused, compact set; include ALL CFO variants we have
     preferred = [
-        "cfo_two_stage_hz", "cfo_quick_hz", "cfo_centroid_hz", "cfo_centroid_hz_signfixed",
+        "cfo_two_stage_hz", "cfo_quick_hz", "cfo_centroid_hz", "cfo_centroid_hz_signfixed", "cfo_joint_hz",
         "cfo_std_hz", "cfo_std_sym_hz",
         "cfo_two_stage_coarse_hz",
         "iq_gain_alpha", "iq_phase_deg_deg", "psd_pnr_db",
@@ -262,7 +262,7 @@ def main():
         plot_feats = [s.strip() for s in args.plot_features.split(",") if s.strip()]
         plot_feats = [c for c in plot_feats if c in feat_cols]
         if not plot_feats:
-            plot_feats = [c for c in ("cfo_two_stage_hz","cfo_quick_hz","cfo_centroid_hz","cfo_centroid_hz_signfixed",) if c in feat_cols]
+            plot_feats = [c for c in ("cfo_two_stage_hz","cfo_quick_hz","cfo_centroid_hz","cfo_centroid_hz_signfixed","cfo_joint_hz",) if c in feat_cols]
 
     if args.plots:
         for c in plot_feats:
