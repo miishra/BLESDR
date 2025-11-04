@@ -31,6 +31,9 @@
 #define Q(l) Quantize(l)
 #define RB_SIZE 1000
 
+// Prefer including the real header instead of this
+// void btle_reverse_whiten(uint8_t chan, uint8_t* data, uint8_t len);
+
 void BLESDR::RB_init(void) {
 	rb_buf = (int16_t *)malloc(RB_SIZE * 2);
 }
@@ -141,96 +144,96 @@ bool BLESDR::DecodePacket(int32_t sample, int srate) {
 }
 
 
-bool BLESDR::DecodeBTLEPacket(int32_t sample, int srate) {
-	int c;
-	//	struct timeval tv;
-	uint8_t packet_data[500];
-	int packet_length;
-	uint32_t packet_crc;
-	uint32_t calced_crc;
-	uint64_t packet_addr_l;
-	uint32_t packet_addr;
-	uint8_t crc[3];
-	uint8_t packet_header_arr[2];
+// bool BLESDR::DecodeBTLEPacket(int32_t sample, int srate) {
+// 	int c;
+// 	//	struct timeval tv;
+// 	uint8_t packet_data[500];
+// 	int packet_length;
+// 	uint32_t packet_crc;
+// 	uint32_t calced_crc;
+// 	uint64_t packet_addr_l;
+// 	uint32_t packet_addr;
+// 	uint8_t crc[3];
+// 	uint8_t packet_header_arr[2];
 
-	g_srate = srate;
+// 	g_srate = srate;
 
-	/* extract address */
-	packet_addr_l = 0;
-	for (c = 0; c < 4; c++) packet_addr_l |= ((uint64_t)SwapBits(ExtractByte((c + 1) * 8))) << (8 * c);
+// 	/* extract address */
+// 	packet_addr_l = 0;
+// 	for (c = 0; c < 4; c++) packet_addr_l |= ((uint64_t)SwapBits(ExtractByte((c + 1) * 8))) << (8 * c);
 
 
-	/* extract pdu header */
-	ExtractBytes(5 * 8, packet_header_arr, 2);
+// 	/* extract pdu header */
+// 	ExtractBytes(5 * 8, packet_header_arr, 2);
 
-	/* whiten header only so we can extract pdu length */
-	btle_reverse_whiten(chan,packet_header_arr, 2);
+// 	/* whiten header only so we can extract pdu length */
+// 	btle_reverse_whiten(chan,packet_header_arr, 2);
 
-	if (packet_addr_l == LE_ADV_AA) {  // Advertisement packet
+// 	if (packet_addr_l == LE_ADV_AA) {  // Advertisement packet
 
-		packet_length = SwapBits(packet_header_arr[1]) & 0x3F;
+// 		packet_length = SwapBits(packet_header_arr[1]) & 0x3F;
 
-		if (packet_length < 2) {
-			return false;
-		}
+// 		if (packet_length < 2) {
+// 			return false;
+// 		}
 
-	}
-	else {
+// 	}
+// 	else {
 
-		packet_length = 0;			// TODO: data packets unsupported
+// 		packet_length = 0;			// TODO: data packets unsupported
 
-	}
+// 	}
 
-	/* extract and whiten pdu+crc */
-	ExtractBytes(5 * 8, packet_data, packet_length + 2 + 3);
-	btle_reverse_whiten(chan,packet_data, packet_length + 2 + 3);
+// 	/* extract and whiten pdu+crc */
+// 	ExtractBytes(5 * 8, packet_data, packet_length + 2 + 3);
+// 	btle_reverse_whiten(chan,packet_data, packet_length + 2 + 3);
 
-	if (packet_addr_l == LE_ADV_AA) {  // Advertisement packet
-		packet_addr = LE_ADV_AA;
-		crc[0] = crc[1] = crc[2] = 0x55;
+// 	if (packet_addr_l == LE_ADV_AA) {  // Advertisement packet
+// 		packet_addr = LE_ADV_AA;
+// 		crc[0] = crc[1] = crc[2] = 0x55;
 
-	}
-	else {
-		crc[0] = crc[1] = crc[2] = 0;		// TODO: data packets unsupported
-	}
+// 	}
+// 	else {
+// 		crc[0] = crc[1] = crc[2] = 0;		// TODO: data packets unsupported
+// 	}
 
-	/* calculate packet crc */
+// 	/* calculate packet crc */
 
-	calced_crc = btle_reverse_crc(packet_data, packet_length + 2, crc);
+// 	calced_crc = btle_reverse_crc(packet_data, packet_length + 2, crc);
 
-	packet_crc = 0;
-	for (c = 0; c < 3; c++) packet_crc = (packet_crc << 8) | packet_data[packet_length + 2 + c];
+// 	packet_crc = 0;
+// 	for (c = 0; c < 3; c++) packet_crc = (packet_crc << 8) | packet_data[packet_length + 2 + c];
 
-	/* BTLE packet found, dump information */
-	if (packet_crc == calced_crc) {
+// 	/* BTLE packet found, dump information */
+// 	if (packet_crc == calced_crc) {
 
-		int i = 0;
-		lell_packet packet;
+// 		int i = 0;
+// 		lell_packet packet;
 
-		packet.access_address = packet_addr;// Advertisement packet
-		packet.channel_idx = chan;
-		packet.adv_type = packet_data[0] & 0xf;
-		packet.adv_tx_add = packet_data[0] & 0x40 ? 1 : 0;
-		packet.adv_rx_add = packet_data[0] & 0x80 ? 1 : 0;
-		packet.flags.as_bits.access_address_ok = (packet.access_address == 0x8e89bed6);//TODO
-		packet.access_address_offenses = 0;//TODO
+// 		packet.access_address = packet_addr;// Advertisement packet
+// 		packet.channel_idx = chan;
+// 		packet.adv_type = packet_data[0] & 0xf;
+// 		packet.adv_tx_add = packet_data[0] & 0x40 ? 1 : 0;
+// 		packet.adv_rx_add = packet_data[0] & 0x80 ? 1 : 0;
+// 		packet.flags.as_bits.access_address_ok = (packet.access_address == 0x8e89bed6);//TODO
+// 		packet.access_address_offenses = 0;//TODO
 
-		packet.symbols[0] = packet_addr;
-		packet.symbols[1] = packet_addr >> 8;
-		packet.symbols[2] = packet_addr >> 16;
-		packet.symbols[3] = packet_addr >> 24;
+// 		packet.symbols[0] = packet_addr;
+// 		packet.symbols[1] = packet_addr >> 8;
+// 		packet.symbols[2] = packet_addr >> 16;
+// 		packet.symbols[3] = packet_addr >> 24;
 
-		packet.length = packet_length;
+// 		packet.length = packet_length;
 
-		for (i = 0; i < packet_length + 2 + 3; i++) {
-			packet.symbols[i + 4] = (SwapBits(packet_data[i]));
-		}
+// 		for (i = 0; i < packet_length + 2 + 3; i++) {
+// 			packet.symbols[i + 4] = (SwapBits(packet_data[i]));
+// 		}
 
-		callback(packet);
-		return true;
-	}
-	else return false;
-}
+// 		callback(packet);
+// 		return true;
+// 	}
+// 	else return false;
+// }
 
 
 void BLESDR::btle_reverse_whiten(uint8_t chan,uint8_t* data, uint8_t len) {
@@ -249,6 +252,188 @@ void BLESDR::btle_reverse_whiten(uint8_t chan,uint8_t* data, uint8_t len) {
 		}
 		data++;
 	}
+}
+
+bool BLESDR::DecodeBTLEPacket(int32_t sample, int srate) {
+    // ---- DEBUG counters ----
+    static unsigned long long g_total_samples_processed = 0ULL;  // assumes per-sample calls
+    static unsigned long long g_packet_seq = 0ULL;
+
+    g_total_samples_processed++;             // count this call as one processed sample
+    unsigned long long entry_sample_idx = g_total_samples_processed;
+
+    int c;
+    //  struct timeval tv;
+    uint8_t packet_data[500];
+    int packet_length;
+    uint32_t packet_crc;
+    uint32_t calced_crc;
+    uint64_t packet_addr_l;
+    uint32_t packet_addr;
+    uint8_t crc[3];
+    uint8_t packet_header_arr[2];
+
+    g_srate = srate;
+
+    // DEBUG: function entry
+    fprintf(stderr,
+            "[DEBUG][Decode] >>> Enter | seq=%llu | total_samples=%llu | srate=%d | chan=%d\n",
+            g_packet_seq + 1ULL, g_total_samples_processed, srate, chan);
+
+    /* extract address */
+    packet_addr_l = 0;
+    for (c = 0; c < 4; c++)
+        packet_addr_l |= ((uint64_t)SwapBits(ExtractByte((c + 1) * 8))) << (8 * c);
+
+    fprintf(stderr,
+            "[DEBUG][Addr ] AccessAddress(raw, swapped bytes) = 0x%08" PRIx64 "\n",
+            (uint64_t)packet_addr_l);
+
+    /* extract pdu header */
+    ExtractBytes(5 * 8, packet_header_arr, 2);
+
+    // Save raw header before whitening (for debug)
+    uint8_t header_raw[2] = { packet_header_arr[0], packet_header_arr[1] };
+
+    /* whiten header only so we can extract pdu length */
+    btle_reverse_whiten(chan, packet_header_arr, 2);
+
+    fprintf(stderr,
+            "[DEBUG][Head ] Header raw:    [%02x %02x]\n"
+            "[DEBUG][Head ] Header white⁻¹:[%02x %02x]\n",
+            header_raw[0], header_raw[1], packet_header_arr[0], packet_header_arr[1]);
+
+    if (packet_addr_l == LE_ADV_AA) {  // Advertisement packet
+        packet_length = SwapBits(packet_header_arr[1]) & 0x3F;
+
+        fprintf(stderr,
+                "[DEBUG][Len  ] ADV header length(field)= %d (0x%02x & 0x3F), type=0x%01x\n",
+                packet_length, SwapBits(packet_header_arr[1]),
+                (packet_header_arr[0] & 0x0F));
+
+        if (packet_length < 2) {
+            fprintf(stderr,
+                    "[DEBUG][Exit ] Packet too short (len=%d). Returning false. "
+                    "samples_total=%llu\n",
+                    packet_length, g_total_samples_processed);
+            return false;
+        }
+    } else {
+        packet_length = 0;  // TODO: data packets unsupported
+        fprintf(stderr,
+                "[DEBUG][Info ] Non-ADV Access Address detected (0x%08" PRIx64
+                "). Data packets unsupported; setting length=%d\n",
+                (uint64_t)packet_addr_l, packet_length);
+    }
+
+    /* extract and whiten pdu+crc */
+    const int bytes_pdu_crc = packet_length + 2 + 3; // PDU header(2) + CRC(3)
+    ExtractBytes(5 * 8, packet_data, bytes_pdu_crc);
+
+    // Keep a copy pre-whitening for debug
+    uint8_t packet_data_raw_preview[16] = {0};
+    const int preview_n = (bytes_pdu_crc < 16) ? bytes_pdu_crc : 16;
+    for (int i = 0; i < preview_n; i++) packet_data_raw_preview[i] = packet_data[i];
+
+    btle_reverse_whiten(chan, packet_data, bytes_pdu_crc);
+
+    fprintf(stderr, "[DEBUG][Whiten] PDU+CRC bytes = %d\n", bytes_pdu_crc);
+    fprintf(stderr, "[DEBUG][Data ] Raw(pre  ) first %dB:", preview_n);
+    for (int i = 0; i < preview_n; i++) fprintf(stderr, " %02x", packet_data_raw_preview[i]);
+    fprintf(stderr, "\n[DEBUG][Data ] White⁻¹(post) first %dB:", preview_n);
+    for (int i = 0; i < preview_n; i++) fprintf(stderr, " %02x", packet_data[i]);
+    fprintf(stderr, "\n");
+
+    if (packet_addr_l == LE_ADV_AA) {  // Advertisement packet
+        packet_addr = LE_ADV_AA;
+        crc[0] = crc[1] = crc[2] = 0x55;
+        fprintf(stderr, "[DEBUG][CRC  ] Using ADV init CRC: 55 55 55\n");
+    } else {
+        crc[0] = crc[1] = crc[2] = 0;  // TODO: data packets unsupported
+        fprintf(stderr, "[DEBUG][CRC  ] Using DATA init CRC: 00 00 00 (unsupported path)\n");
+    }
+
+    /* calculate packet crc */
+    calced_crc = btle_reverse_crc(packet_data, packet_length + 2, crc);
+
+    packet_crc = 0;
+    for (c = 0; c < 3; c++)
+        packet_crc = (packet_crc << 8) | packet_data[packet_length + 2 + c];
+
+    fprintf(stderr,
+            "[DEBUG][CRC  ] Calculated=0x%06x | Received=0x%06x | pdu_len=%d | chan=%d\n",
+            calced_crc, packet_crc, packet_length, chan);
+
+    /* BTLE packet found, dump information */
+    if (packet_crc == calced_crc) {
+        int i = 0;
+        lell_packet packet;
+
+        packet.access_address = packet_addr;  // Advertisement packet
+        packet.channel_idx = chan;
+        packet.adv_type = packet_data[0] & 0xf;
+        packet.adv_tx_add = packet_data[0] & 0x40 ? 1 : 0;
+        packet.adv_rx_add = packet_data[0] & 0x80 ? 1 : 0;
+        packet.flags.as_bits.access_address_ok = (packet.access_address == 0x8e89bed6);  // TODO
+        packet.access_address_offenses = 0;  // TODO
+
+        packet.symbols[0] = packet_addr;
+        packet.symbols[1] = packet_addr >> 8;
+        packet.symbols[2] = packet_addr >> 16;
+        packet.symbols[3] = packet_addr >> 24;
+
+        packet.length = packet_length;
+
+		const int symbols_total_no_preamble = (4 + (packet_length + 2 + 3)) * 8; // 28*8 = 224
+		const int symbols_total_with_preamble = symbols_total_no_preamble + 8;   // +8 bits
+		const double sps = (double)g_srate / 1000000.0; // BLE 1M
+		const int samples_no_preamble = (int)std::lround(symbols_total_no_preamble * sps);
+		const int samples_with_preamble = (int)std::lround(symbols_total_with_preamble * sps);
+
+		fprintf(stderr,
+		"[DEBUG][CFO ] symbols(no_preamble)=%d symbols(with_preamble)=%d | "
+		"sps=%.3f | samples(no_preamble)=%d samples(with_preamble)=%d\n",
+		symbols_total_no_preamble, symbols_total_with_preamble,
+		sps, samples_no_preamble, samples_with_preamble);
+
+        for (i = 0; i < packet_length + 2 + 3; i++) {
+            packet.symbols[i + 4] = (SwapBits(packet_data[i]));
+        }
+
+        // Per-packet summary before callback
+        const int bytes_total_packet =
+            4 /*AA*/ + /*hdr*/ + (packet_length + 2 + 3) /*pdu+crc*/;
+        fprintf(stderr,
+                "[DEBUG][OK   ] CRC match. seq=%llu | len=%d | adv_type=0x%x | "
+                "tx_add=%d rx_add=%d | AA=0x%08x | bytes_total=%d | "
+                "entry_sample=%llu current_total_samples=%llu\n",
+                g_packet_seq + 1ULL, packet_length, packet.adv_type,
+                packet.adv_tx_add, packet.adv_rx_add, packet_addr,
+                bytes_total_packet, entry_sample_idx, g_total_samples_processed);
+
+        // Optional: small hexdump of PDU header+payload (excluding CRC) for context
+        const int dump_bytes = (packet_length + 2 < 24) ? (packet_length + 2) : 24;
+        fprintf(stderr, "[DEBUG][PDU  ] first %dB:", dump_bytes);
+        for (int k = 0; k < dump_bytes; ++k) fprintf(stderr, " %02x", packet_data[k]);
+        fprintf(stderr, "\n");
+
+        callback(packet);
+
+        g_packet_seq++;
+        fprintf(stderr, "[DEBUG][Decode] <<< Exit(SUCCESS) seq=%llu | total_samples=%llu\n",
+                g_packet_seq, g_total_samples_processed);
+        return true;
+    } else {
+        fprintf(stderr,
+                "[DEBUG][FAIL ] CRC mismatch. seq=%llu | calc=0x%06x recv=0x%06x | "
+                "len=%d | entry_sample=%llu current_total_samples=%llu\n",
+                g_packet_seq + 1ULL, calced_crc, packet_crc, packet_length,
+                entry_sample_idx, g_total_samples_processed);
+
+        fprintf(stderr, "[DEBUG][Decode] <<< Exit(FAIL) seq=%llu | total_samples=%llu\n",
+                g_packet_seq + 1ULL, g_total_samples_processed);
+        return false;
+    }
 }
 
 
@@ -280,4 +465,3 @@ uint32_t BLESDR::btle_reverse_crc(const uint8_t* data, uint8_t len, uint8_t* dst
 	for (v = 0; v < 3; v++) crc = (crc << 8) | dst[v];
 	return crc;
 }
-

@@ -415,6 +415,13 @@ static inline float median(std::vector<float> v){
 static inline float cfo_quick(const std::vector<cf>& x, double fs){
     if (x.size()<8) return 0.f;
     auto d = discr(x);
+    double m = 0; for (float v: d) m += v; if (!d.empty()) m/=d.size();
+    double cfo_mean = (fs/(2.0*M_PI))*m;
+    std::fprintf(stderr, "[CFO-DBG] mean discr CFO over x = %.1f Hz (N=%zu)\n", cfo_mean, d.size());
+    std::fprintf(stderr, "[DEBUG][CFO quick] using %zu samples (%zu discr steps)\n",
+                 x.size(), d.size());
+    std::fprintf(stderr, "[CFO-DBG] quick used=%zu discr=%zu\n",
+             x.size(), x.size()? x.size()-1 : 0);
     float med = median(d);
     if (std::fabs(med) > 2.5f){ // near wrap -> LS
         // LS on phase
@@ -608,6 +615,8 @@ static inline float cfo_two_stage(const std::vector<cf>& x, double fs, float& co
     size_t n_settle = (size_t)std::llround(8e-6*fs);
     size_t a = std::min(n_settle, x1.size());
     size_t b = x1.size();
+    std::fprintf(stderr, "[DEBUG][CFO 2stage] coarse=%.1f Hz, total=%zu, LS_window=[%zu..%zu) len=%zu\n",
+                 (double)coarse, x.size(), a, b, (b>a? b-a:0));
     if (b>a+std::max<size_t>(40,(size_t)(120*fs/1e6))){
         std::vector<cf> seg(x1.begin()+a, x1.begin()+b);
         return (float)(coarse + cfo_ls_window(seg, fs));
@@ -934,18 +943,30 @@ static bool find_energy_window(const std::vector<feat::cf>& x, double fs,
                                size_t& a, size_t& b)
 {
     if (x.empty()) return false;
+
+    // Use only the prepad to estimate noise floor
     size_t n0 = std::min(prepad_samps, x.size());
     if (n0 == 0) n0 = std::min<size_t>(200, x.size());
-    double mu=0, s2=0;
-    for (size_t i=0;i<n0;i++){ double a0 = std::abs(x[i]); mu+=a0; s2+=a0*a0; }
+
+    double mu=0, s2=0, amax=0;
+    for (size_t i=0;i<x.size();++i) {
+        double a0 = std::abs(x[i]);
+        if (i < n0) { mu += a0; s2 += a0*a0; }
+        if (a0 > amax) amax = a0;
+    }
     mu/=std::max<size_t>(1,n0); s2/=std::max<size_t>(1,n0);
     double sd = std::sqrt(std::max(0.0, s2 - mu*mu));
+
+    // Robust threshold: if sd≈0 (all zeros), use a fraction of the global peak
     double T = mu + K*sd;
+    if (sd < 1e-9 || T <= 0.0) T = 0.15 * amax;  // 15% of peak as a sane floor
+
     a = 0; b = x.size();
     bool got_a=false, got_b=false;
     for (size_t i=0;i<x.size();++i){ if (std::abs(x[i])>=T){ a=i; got_a=true; break; } }
     for (size_t i=x.size(); i-->0; ){ if (std::abs(x[i])>=T){ b=i+1; got_b=true; break; } }
     if (!(got_a && got_b) || b<=a) return false;
+
     if (pad_samps){
         a = (a>pad_samps)? a-pad_samps : 0;
         b = std::min(b+pad_samps, x.size());
@@ -1071,6 +1092,235 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
             default: break;
         }
 
+        // --- Sanity: is the input un-rotated?
+        if (x.size() >= 8) {
+            // average discriminator over the whole x as a crude CFO proxy
+            double acc = 0.0;
+            size_t cnt = 0;
+            for (size_t i=1;i<x.size();++i) {
+                auto z = x[i] * std::conj(x[i-1]);
+                acc += std::atan2(z.imag(), z.real());
+                cnt++;
+            }
+            double disc_med_hz = (cnt? (acc/cnt) * (dctx.fs_eff/(2.0*M_PI)) : 0.0);
+
+            // print a few raw samples too
+            fprintf(stderr, "[CFO-RAW] x[0..3]=(% .3f,% .3f) (% .3f,% .3f) (% .3f,% .3f) (% .3f,% .3f)\n",
+                    x[0].real(), x[0].imag(), x[1].real(), x[1].imag(),
+                    x[2].real(), x[2].imag(), x[3].real(), x[3].imag());
+            fprintf(stderr, "[CFO-RAW] crude_disc_mean=%.3f Hz (fs=%.0f, N=%zu)\n",
+                    disc_med_hz, dctx.fs_eff, x.size());
+        }
+
+        // --- after you have 'std::vector<feat::cf> x;' and after applying gating ---
+        {
+            // A: basic sizes we believe we used
+            const double fs = dctx.fs_eff;
+            const int sps_i = feat::sps_int(fs);
+            size_t xN = x.size();
+
+            // B: re-find energy rise on the *ungated* assumption using the same routine.
+            //    We approximate prepad the same way we originally computed it.
+            size_t prepad_samps = (size_t)std::llround(dctx.fs_eff * dctx.prepad_us / 1e6);
+            size_t a0=0,b0=0;
+            bool got = find_energy_window(x, fs, prepad_samps, /*K=*/4.0, /*pad=*/0, a0, b0);
+            // NOTE: If x is already gated, a0 will be near 0. That's fine—we treat a0 as "packet start in x".
+            if (!got) { a0 = 0; b0 = xN; }
+
+            auto cfo_quick_dbg = [&](const std::vector<feat::cf>& seg)->double {
+                std::vector<feat::cf> z = seg;
+                // Do NOT normalize away rotation; we want raw rotation
+                // (leave as-is; your feats also leave CFO normalization commented out)
+                return (double)feat::cfo_quick(z, fs);
+            };
+
+            auto cfo_ls_window_dbg = [&](const std::vector<feat::cf>& seg)->double {
+                return (double)feat::cfo_ls_window(seg, fs);
+            };
+
+            // C: CFO on the full x (your production path)
+            double cfo_full_quick = cfo_quick_dbg(x);
+            double cfo_full_ls    = cfo_ls_window_dbg(x);
+
+            // D: Make a "structure" window: [rise+8us, rise+56us] (preamble+AA+hdr)
+            size_t off8   = (size_t)std::llround(8e-6 * fs);
+            size_t span56 = (size_t)std::llround(56e-6 * fs);
+            size_t A = std::min(a0 + off8, xN);
+            size_t B = std::min(A + span56, xN);
+            std::vector<feat::cf> x_struct;
+            if (B > A && B-A >= 32) x_struct.assign(x.begin()+A, x.begin()+B);
+
+            double cfo_struct_quick = (x_struct.empty()? std::numeric_limits<double>::quiet_NaN()
+                                                    : cfo_quick_dbg(x_struct));
+            double cfo_struct_ls    = (x_struct.empty()? std::numeric_limits<double>::quiet_NaN()
+                                                    : cfo_ls_window_dbg(x_struct));
+
+            // E: Small early window (e.g., first 40 us after rise+8us) to avoid heavy payload modulation
+            size_t span40 = (size_t)std::llround(40e-6 * fs);
+            size_t A2 = A;
+            size_t B2 = std::min(A2 + span40, xN);
+            std::vector<feat::cf> x_early;
+            if (B2 > A2 && B2-A2 >= 32) x_early.assign(x.begin()+A2, x.begin()+B2);
+
+            double cfo_early_quick = (x_early.empty()? std::numeric_limits<double>::quiet_NaN()
+                                                    : cfo_quick_dbg(x_early));
+            double cfo_early_ls    = (x_early.empty()? std::numeric_limits<double>::quiet_NaN()
+                                                    : cfo_ls_window_dbg(x_early));
+
+            // F: Extra sanity: average instantaneous rotation (discriminator mean) on full x
+            double cfo_discr_mean = NAN;
+            {
+                auto d = feat::discr(x);
+                if (!d.empty()) {
+                    double m=0; for (float v: d) m += v; m /= d.size();
+                    cfo_discr_mean = (fs/(2.0*M_PI)) * m;
+                }
+            }
+
+            // G: Print ONE line per packet (trim if too chatty)
+            std::fprintf(stderr,
+                "[CFO-DBG] pkt=%zu ch=%d | xN=%zu prepad=%zu a0=%zu "
+                "| FULL: quick=%.1f Hz ls=%.1f Hz discr=%.1f Hz "
+                "| STRUCT(8..56us): quick=%.1f Hz ls=%.1f Hz "
+                "| EARLY(8..48us): quick=%.1f Hz ls=%.1f Hz | sps≈%d\n",
+                dctx.pkt_idx, rf_channel, xN, prepad_samps, a0,
+                cfo_full_quick, cfo_full_ls, cfo_discr_mean,
+                cfo_struct_quick, cfo_struct_ls,
+                cfo_early_quick, cfo_early_ls, sps_i
+            );
+
+            // H: Optional: dump the exact CFO IQ segment to a file for external plotting
+            //    (enable when needed; comment out for normal runs)
+        #if 0
+            {
+                char fname[256];
+                std::snprintf(fname, sizeof(fname), "cfo_win_pkt_%06zu.fc32", dctx.pkt_idx);
+                if (std::FILE* fp = std::fopen(fname, "wb")) {
+                    std::vector<float> tmp; tmp.reserve(2*xN);
+                    for (auto &v: x){ tmp.push_back(v.real()); tmp.push_back(v.imag()); }
+                    std::fwrite(tmp.data(), sizeof(float), tmp.size(), fp);
+                    std::fclose(fp);
+                    std::fprintf(stderr, "[CFO-DBG] dumped IQ window to %s (%zu complex)\n", fname, xN);
+                }
+            }
+        #endif
+        }
+
+        // --- Sanity: dump what CFO sees
+        {
+            using feat::cf;
+            const size_t xN = x.size();
+            const int sps_i = feat::sps_int(dctx.fs_eff);
+
+            // 1) Basic: sizes & first few IQ samples
+            if (xN) {
+                int show = std::min<size_t>(8, xN);
+                std::fprintf(stderr,
+                    "[CFO-DBG] pkt=%zu ch=%d | xN=%zu prepad=%zu a0=%d | "
+                    "FULL: quick=%g Hz ls=%g Hz discr=%g Hz | "
+                    "EARLY(8..48us): quick=%g Hz ls=%g Hz | sps≈%d\n",
+                    dctx.pkt_idx, rf_channel, xN, prepad_samps, 0,
+                    feat::cfo_quick(x, dctx.fs_eff),
+                    feat::cfo_ls_window(x, dctx.fs_eff),
+                    // mean discriminator-based CFO over full window
+                    [&](){
+                        auto d=feat::discr(x);
+                        double m=0; for(float v:d) m+=v;
+                        return d.empty()? 0.0 : (dctx.fs_eff/(2*M_PI))*(m/d.size());
+                    }(),
+                    // early/settled slice ~8..48us
+                    [&](){
+                        size_t a=(size_t)std::llround(8e-6*dctx.fs_eff);
+                        size_t b=std::min(xN, a+(size_t)std::llround(40e-6*dctx.fs_eff));
+                        if (b<=a+4) return 0.0;
+                        std::vector<cf> seg(x.begin()+a, x.begin()+b);
+                        return (double)feat::cfo_quick(seg, dctx.fs_eff);
+                    }(),
+                    [&](){
+                        size_t a=(size_t)std::llround(8e-6*dctx.fs_eff);
+                        size_t b=std::min(xN, a+(size_t)std::llround(40e-6*dctx.fs_eff));
+                        if (b<=a+4) return 0.0;
+                        std::vector<cf> seg(x.begin()+a, x.begin()+b);
+                        return (double)feat::cfo_ls_window(seg, dctx.fs_eff);
+                    }(),
+                    sps_i
+                );
+
+                std::fprintf(stderr, "[CFO-DBG] first IQ: ");
+                for (int i=0;i<show;i++){
+                    std::fprintf(stderr, "(%.4f,%.4f)%s",
+                        (double)x[i].real(), (double)x[i].imag(),
+                        i+1<show? " ":"\n");
+                }
+            }
+
+            // 2) Discriminator sign trace vs expected preamble pattern
+            {
+                auto dph = feat::discr(x);
+                // Symbol-average the discriminator (length ≈ xN/sps)
+                std::vector<double> sym;
+                for (size_t i=0;i+ (size_t)sps_i <= dph.size(); i+= (size_t)sps_i){
+                    double m=0;
+                    for (int k=0;k<sps_i;k++) m += dph[i+k];
+                    sym.push_back(m/sps_i);
+                }
+                // Print first 32 signs (+/-) to see “1010..”
+                std::fprintf(stderr, "[CFO-DBG] discr-sign[32]: ");
+                for (int i=0;i<std::min<size_t>(32, sym.size()); ++i){
+                    std::fprintf(stderr, "%c", sym[i]>=0? '+':'-');
+                }
+                std::fprintf(stderr, "\n");
+            }
+
+            // 3) Optional: dump a tiny CSV around the header for offline plotting
+            // (guard to avoid spamming)
+            if (dctx.pkt_idx < 3) {
+                char fcsv[256];
+                std::snprintf(fcsv, sizeof(fcsv), "cfo_dbg_pkt_%06zu.csv", dctx.pkt_idx);
+                if (std::FILE* fp = std::fopen(fcsv, "w")){
+                    std::fprintf(fp, "n,I,Q,mag,phase\n");
+                    for (size_t n=0;n<xN;n++){
+                        double I=x[n].real(), Q=x[n].imag();
+                        std::fprintf(fp, "%zu,%.9g,%.9g,%.9g,%.9g\n",
+                            n, I, Q, std::hypot(I,Q), std::atan2(Q,I));
+                    }
+                    std::fclose(fp);
+                    std::fprintf(stderr, "[CFO-DBG] wrote %s (xN=%zu)\n", fcsv, xN);
+                }
+            }
+        }
+
+        // --- Sanity dump for the exact IQ we feed to CFO ---
+        auto dbg_firstN = std::min<size_t>(16, x.size());
+        double muI=0, muQ=0, rms=0;
+        for (auto& z : x) { muI+=z.real(); muQ+=z.imag(); rms += (double)std::norm(z); }
+        if (!x.empty()){ muI/=x.size(); muQ/=x.size(); rms = std::sqrt(rms/x.size()); }
+
+        // crude single-bin search for the dominant tone (centroid already computed below, but print a simple peak too)
+        double f_centroid=0, pnr=0, bw3=0;
+        feat::spectral_stats(x, dctx.fs_eff, f_centroid, pnr, bw3);
+
+        // print the *first 16* raw samples with full precision so we can see they change
+        std::fprintf(stderr, "[CFO-DBG] pkt=%zu ch=%d | xN=%zu prepad=%zu | mu=(%.6g, %.6g) rms=%.6g | PSDcent=%.3f Hz PNR=%.2f dB BW3=%.1f Hz\n",
+                    dctx.pkt_idx, rf_channel, x.size(),
+                    (size_t)std::llround(dctx.fs_eff * dctx.prepad_us / 1e6),
+                    muI, muQ, rms, f_centroid, pnr, bw3);
+
+        std::fprintf(stderr, "[CFO-DBG] first16 IQ:");
+        for (size_t i=0;i<dbg_firstN;i++){
+            std::fprintf(stderr, " (%+.6f,%+.6f)", x[i].real(), x[i].imag());
+        }
+        std::fprintf(stderr, "\n");
+
+
+        // --- After gating, before computing CFOs
+        int sps_dbg = feat::sps_int(dctx.fs_eff);
+        std::fprintf(stderr,
+            "[DEBUG][CFO] feed window: samples=%zu symbols≈%d len_us=%.2f (fs=%.0f Hz, sps≈%d)\n",
+            x.size(), (int)std::llround((double)x.size()/std::max(1,sps_dbg)),
+            (double)x.size()*1e6/dctx.fs_eff, dctx.fs_eff, sps_dbg);
+
+
         // Guard
         if (x.size() < 64){
             // write a sparse row and continue
@@ -1095,7 +1345,8 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         }
 
         // --- Compute classical features
-        double fcent=0, pnr_db=0, bw3=0;
+        double fcent=0, pnr_db=0;
+        bw3=0;
         feat::spectral_stats(x, dctx.fs_eff, fcent, pnr_db, bw3);
         double gated_len_us = (double)x.size()*1e6/dctx.fs_eff;
         double alpha=1.0, phi_deg=0.0;
@@ -1178,11 +1429,11 @@ int main(int argc, char** argv){
     dctx.gate_mid_a_us = args.gate_mid_a_us;
     dctx.gate_mid_b_us = args.gate_mid_b_us;
 
-    // init BLE decoder state to match our stream
-    blesdr.RB_init();              // allocate ringbuffer once
-    blesdr.srate = sps;            // samples per symbol (≈2 at 2 MS/s)
-    blesdr.chan  = (uint8_t)args.channel;  // whitening seed for header/payload
-    blesdr.skipSamples = 0;        // (optional) ensure we don't delay early packets
+    // // init BLE decoder state to match our stream
+    // blesdr.RB_init();              // allocate ringbuffer once
+    // blesdr.srate = sps;            // samples per symbol (≈2 at 2 MS/s)
+    // blesdr.chan  = (uint8_t)args.channel;  // whitening seed for header/payload
+    // blesdr.skipSamples = 0;        // (optional) ensure we don't delay early packets
 
     // Attach the packet handler so every decoded packet writes PCAP + features CSV
     attach_packet_handler(blesdr, w, args.channel, dctx);
