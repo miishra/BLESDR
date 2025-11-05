@@ -67,6 +67,14 @@ struct lell_packet {
 	unsigned access_address_offenses;
 	uint32_t refcount;
 
+	// I/Q sample index window for this packet in the original stream.
+	// Half-open range: [sample_start, sample_end)
+	uint64_t sample_start = 0;
+	uint64_t sample_end   = 0;
+
+	// Sample rate used when decoding (Hz), useful for CFO calc downstream.
+	int srate_hz     = 0;
+
 	/* flags */
 	union {
 		struct {
@@ -83,6 +91,8 @@ public:
 
 	double get_channel_freq(int channel_number);
 
+	uint64_t abs_cursor = 0; // absolute IQ sample cursor
+
 	double get_sample_rate() {
 
 		//TODO//
@@ -90,6 +100,13 @@ public:
 	}
 
 	std::function<void(lell_packet)> callback;
+
+	void Configure(int sps, uint8_t chan, int skip) {
+    this->srate       = sps;
+    this->chan        = chan;
+    this->skipSamples = skip;
+    this->RB_init();           // private; callable from within the class
+	}
 
 	std::vector<float> sample_for_ADV_IND(size_t chan, uint8_t data_type, uint8_t* buff, size_t bufflen);
 
