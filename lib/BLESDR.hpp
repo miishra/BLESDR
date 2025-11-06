@@ -93,6 +93,9 @@ public:
 
 	uint64_t abs_cursor = 0; // absolute IQ sample cursor
 
+	void set_abs_cursor(uint64_t v) { abs_cursor = v; }
+	uint64_t get_abs_cursor() const { return abs_cursor; }
+
 	double get_sample_rate() {
 
 		//TODO//

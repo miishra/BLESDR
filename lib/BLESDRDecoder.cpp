@@ -256,125 +256,93 @@ void BLESDR::btle_reverse_whiten(uint8_t chan,uint8_t* data, uint8_t len) {
 }
 
 bool BLESDR::DecodeBTLEPacket(int32_t sample, int srate) {
-    // ---- DEBUG counters (local to function) ----
-    static unsigned long long g_total_samples_processed = 0ULL;  // assumes per-sample calls
-    static unsigned long long g_packet_seq = 0ULL;
-
-    g_total_samples_processed++;
-    unsigned long long entry_sample_idx = g_total_samples_processed;
-
-    // keep latest srate
+    // keep latest sps/frequency hint (you’ve been passing srate here)
     g_srate = srate;
 
     int c;
     uint8_t packet_data[500];
     int packet_length;
-    uint32_t packet_crc;
-    uint32_t calced_crc;
+    uint32_t packet_crc, calced_crc;
     uint64_t packet_addr_l;
     uint32_t packet_addr;
     uint8_t crc[3];
     uint8_t packet_header_arr[2];
 
-    /* extract Access Address (byte-swapped per your existing helpers) */
+    // ---- Access Address ----
     packet_addr_l = 0;
-    for (c = 0; c < 4; c++) {
+    for (c = 0; c < 4; c++)
         packet_addr_l |= ((uint64_t)SwapBits(ExtractByte((c + 1) * 8))) << (8 * c);
-    }
 
-    /* extract + dewhiten header (so we can read length) */
+    // ---- Header (to get length) ----
     ExtractBytes(5 * 8, packet_header_arr, 2);
-    uint8_t header_raw[2] = { packet_header_arr[0], packet_header_arr[1] };
     btle_reverse_whiten(chan, packet_header_arr, 2);
 
     if (packet_addr_l == LE_ADV_AA) {
         packet_length = SwapBits(packet_header_arr[1]) & 0x3F;
-        if (packet_length < 2) {
-            return false; // too short
-        }
+        if (packet_length < 2) return false;
     } else {
-        // DATA packets unsupported in this path
-        packet_length = 0;
+        packet_length = 0; // data packets not handled here
     }
 
-    /* pull PDU(header+payload)+CRC, then dewhiten */
-    const int bytes_pdu_crc = packet_length + 2 + 3; // hdr(2) + CRC(3)
+    // ---- PDU + CRC ----
+    const int bytes_pdu_crc = packet_length + 2 + 3; // hdr(2)+CRC(3)
     ExtractBytes(5 * 8, packet_data, bytes_pdu_crc);
-
-    // (optional) small preview before whitening
-    uint8_t packet_data_raw_preview[16] = {0};
-    const int preview_n = (bytes_pdu_crc < 16) ? bytes_pdu_crc : 16;
-    for (int i = 0; i < preview_n; i++) packet_data_raw_preview[i] = packet_data[i];
-
     btle_reverse_whiten(chan, packet_data, bytes_pdu_crc);
 
-    /* CRC seed */
     if (packet_addr_l == LE_ADV_AA) {
         packet_addr = LE_ADV_AA;
         crc[0] = crc[1] = crc[2] = 0x55;
     } else {
-        crc[0] = crc[1] = crc[2] = 0x00; // unused here
+        crc[0] = crc[1] = crc[2] = 0x00;
     }
 
-    /* calculate + read CRC */
     calced_crc = btle_reverse_crc(packet_data, packet_length + 2, crc);
     packet_crc = 0;
-    for (c = 0; c < 3; c++) {
+    for (c = 0; c < 3; c++)
         packet_crc = (packet_crc << 8) | packet_data[packet_length + 2 + c];
-    }
 
-    // total bits with preamble
+    // ---- Bits → samples (use SPS, not Fs) ----
     const int symbols_total_with_preamble =
-        8        // preamble
-      + 32       // AA
-      + (packet_length + 2 + 3) * 8; // PDU hdr+payload + CRC
+        8 + 32 + (packet_length + 2 + 3) * 8;
 
-    // ---- samples-per-symbol mapping ----
-    // You’ve been using “sps” as samples-per-symbol. For 1M BLE at Fs=2e6, sps≈2.
-    // If you store SPS directly in g_srate, keep it; otherwise, convert here.
-    const double sps = (double)g_srate;  // keep consistent with the rest of your pipeline
-    const uint64_t sample_span = (uint64_t) llround(symbols_total_with_preamble * sps);
+    // Interpret srate: if it looks like Hz (>1000), convert to SPS; else assume it’s already SPS.
+    double sps_d = (srate > 1000) ? ((double)srate / 1e6) : (double)srate;
+    int    sps_i = std::max(2, (int)std::lround(sps_d));  // BLE1M at 2 MS/s → 2
 
-    // Build absolute range BEFORE CRC check so we always advance the cursor
-    const uint64_t sample_start = abs_cursor;           // inclusive
-    const uint64_t sample_end   = sample_start + sample_span; // exclusive
-    abs_cursor = sample_end;                            // advance regardless of CRC
+    const uint64_t sample_span = (uint64_t)symbols_total_with_preamble * (uint64_t)sps_i;
 
-    /* If CRC matches, emit packet */
+    // The ingest loop keeps abs_cursor == ring_abs_head (complex samples).
+    // End at *current* head, start = end - span. Do NOT advance abs_cursor here.
+    const uint64_t sample_end   = abs_cursor;
+    const uint64_t sample_start = (sample_end >= sample_span) ? (sample_end - sample_span) : 0;
+
     if (packet_crc == calced_crc) {
-        lell_packet packet;
-
+        lell_packet packet{};
         packet.access_address = packet_addr;
         packet.channel_idx    = chan;
         packet.adv_type       = packet_data[0] & 0x0F;
         packet.adv_tx_add     = (packet_data[0] & 0x40) ? 1 : 0;
         packet.adv_rx_add     = (packet_data[0] & 0x80) ? 1 : 0;
-
         packet.flags.as_bits.access_address_ok = (packet.access_address == 0x8e89bed6);
         packet.access_address_offenses = 0;
+        packet.length = packet_length;
 
-        // AA (little-endian into the bytestream you expect downstream)
+        // AA (little-endian in your byte stream)
         packet.symbols[0] = (uint8_t)(packet_addr      );
         packet.symbols[1] = (uint8_t)(packet_addr >>  8);
         packet.symbols[2] = (uint8_t)(packet_addr >> 16);
         packet.symbols[3] = (uint8_t)(packet_addr >> 24);
 
-        packet.length = packet_length;
-
-        // Copy PDU(header+payload) + CRC (already dewhitened)
-        for (int i = 0; i < packet_length + 2 + 3; i++) {
+        // PDU+CRC (dewhitened); keep your SwapBits convention
+        for (int i = 0; i < packet_length + 2 + 3; i++)
             packet.symbols[i + 4] = SwapBits(packet_data[i]);
-        }
 
-        // Absolute complex-sample indices for the entire packet window [start,end)
+        // Absolute complex-sample indices for the whole packet window [start,end)
         packet.sample_start = sample_start;
         packet.sample_end   = sample_end;
-        packet.srate_hz     = g_srate; // keep what you’re using downstream (SPS or Fs)
+        packet.srate_hz     = sps_i;  // we store SPS here to match the features side
 
-        // Hand to upper layers (attach_packet_handler will read sample_start/end)
         callback(packet);
-
-        g_packet_seq++;
         return true;
     } else {
         return false;

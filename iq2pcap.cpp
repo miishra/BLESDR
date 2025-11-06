@@ -1013,7 +1013,7 @@ static void apply_gate_mid(std::vector<feat::cf>& x, double fs, size_t prepad_sa
 
 struct DumpCtx {
     bool enabled=false;
-    bool test_mode = true;   // set true to inject the header IQ
+    bool test_mode = false;   // set true to inject the header IQ
     uint64_t ring_abs_head = 0; // complex-sample counter, incremented by producer
     std::string dir;
     int sps=2;
@@ -1466,6 +1466,13 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
             // Now the last 'exact_samps' samples in x are the packet region.
         }
 
+        fprintf(stderr, "[DBG] head=%llu start=%llu end=%llu span=%llu sps=%d\n",
+        (unsigned long long)dctx.ring_abs_head,
+        (unsigned long long)pkt.sample_start,
+        (unsigned long long)pkt.sample_end,
+        (unsigned long long)(pkt.sample_end - pkt.sample_start),
+        feat::sps_int(dctx.fs_eff));
+
         // --- (Optional) DC/RMS norm
         // feat::rm_dc_norm(x);
 
@@ -1631,7 +1638,17 @@ int main(int argc, char** argv){
         // IMPORTANT: keep this in complex-sample units *after* decimation
         dctx.ring_abs_head += n_cplx_out;
 
+        // keep decoder’s cursor in lockstep with the ring
+        blesdr.set_abs_cursor(dctx.ring_abs_head);
+
         blesdr.Receiver((size_t)args.channel, workIQ.data(), n_cplx_out);
+
+        static bool once = false;
+        if (!once) {
+            fprintf(stderr, "[DBG] set_abs_cursor(%llu)\n",
+                    (unsigned long long)dctx.ring_abs_head);
+            once = true;
+        }
 
         total_complex     += nread;
         total_complex_fed += n_cplx_out;

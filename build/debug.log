@@ -1,2 +1,23 @@
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] set_abs_cursor(89440)
 [posthoc] detrend slope = 0 Hz/s, flip=false, wrote: f50_signfixed.csv
 Done. Complex read: 89440, complex fed: 89440, packets (approx): 20, features CSV: f50.csv, PCAP: out.pcap
