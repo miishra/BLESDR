@@ -1368,8 +1368,12 @@ struct DumpCtx {
 //     };
 // }
 
+// ==============================
+// iq2pcap.cpp  (attach handler)
+// ==============================
 static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, DumpCtx& dctx) {
     using feat::cf;
+
     b.callback = [&](lell_packet pkt){
         // --- DLT 256 pseudo-header
         pcap::le_phdr ph{};
@@ -1383,19 +1387,20 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         // --- Packet bytes (AA + PDU)
         const uint8_t* bytes_aa  = pkt.symbols;
         const uint8_t* bytes_pdu = pkt.symbols + 4;
-        size_t pdu_len = static_cast<size_t>(pkt.length) + 5;
-        size_t frame_len = sizeof(ph) + 4 + pdu_len;
+        const size_t   pdu_len   = static_cast<size_t>(pkt.length) + 5; // hdr(2)+payload+CRC(3)
+        const size_t   frame_len = sizeof(ph) + 4 + pdu_len;
 
         std::vector<uint8_t> frame(frame_len);
         std::memcpy(frame.data(), &ph, sizeof(ph));
-        std::memcpy(frame.data()+sizeof(ph), bytes_aa, 4);
-        std::memcpy(frame.data()+sizeof(ph)+4, bytes_pdu, pdu_len);
+        std::memcpy(frame.data()+sizeof(ph),      bytes_aa,  4);
+        std::memcpy(frame.data()+sizeof(ph)+4,    bytes_pdu, pdu_len);
 
-        double ts = w.write_pkt(frame.data(), frame.size());
+        const double ts = w.write_pkt(frame.data(), frame.size());
 
         // --- Minimal CSV meta
-        int pdu_type = (pdu_len>=2) ? (bytes_pdu[0] & 0x0F) : -1;
-        int payload_len = (pdu_len>=2) ? (bytes_pdu[1] & 0x3F) : 0;
+        const int pdu_type    = (pdu_len >= 2) ? (bytes_pdu[0] & 0x0F) : -1;
+        const int payload_len = (pdu_len >= 2) ? (bytes_pdu[1] & 0x3F) : 0;
+
         std::string adv_addr;
         if ((pdu_type==0 || pdu_type==2 || pdu_type==6 || pdu_type==4) && payload_len>=6){
             adv_addr = blehelpers::to_adv_addr(bytes_pdu+2, pdu_type);
@@ -1409,74 +1414,99 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         const size_t bits = 8 + 32 + 16 + 8 * (size_t)pkt.length + 24;
         const size_t sps  = (size_t)std::max(2, dctx.sps);
 
-        // Default exact_samps from the detector (live path).
-        // If your decoder stamped pkt.sample_start/end as absolute complex indices,
-        // this will be the true span; otherwise we fall back to bits*sps.
         size_t exact_samps = 0;
         if (pkt.sample_end > pkt.sample_start) {
             exact_samps = (size_t)(pkt.sample_end - pkt.sample_start);
         }
         if (exact_samps == 0) {
-            exact_samps = bits * sps;  // fallback
+            exact_samps = bits * sps;  // fallback if decoder didn't stamp
         }
-        exact_samps = std::max<size_t>(64, std::min(exact_samps, dctx.ring->cap - 1));
+        if (dctx.ring && dctx.ring->cap > 0) {
+            exact_samps = std::max<size_t>(64, std::min(exact_samps, dctx.ring->cap - 1));
+        }
 
         std::vector<cf> x;
         size_t xN_report = 0;
 
         if (dctx.test_mode) {
-            // ===== Test mode (pre-packaged) =====
-            const size_t N = ble_test_iq::N_COMPLEX;      // 664
-            const size_t N_exact = ble_test_iq::N_EXACT;  // 464
+            // ===== Test mode =====
+            const size_t N       = ble_test_iq::N_COMPLEX;      // 664
+            const size_t N_exact = ble_test_iq::N_EXACT;        // 464
             x = testload::make_vec_from_pairs(ble_test_iq::IQ_PAIRS, N);
-            dctx.fs_eff = ble_test_iq::FS_HZ;  // 2e6
-            dctx.sps    = (int)ble_test_iq::SPS_INT; // 2
+            dctx.fs_eff = ble_test_iq::FS_HZ;                   // 2e6
+            dctx.sps    = (int)ble_test_iq::SPS_INT;            // 2
 
             exact_samps = N_exact;
             xN_report   = x.size();
 
-            // Keep only last exact_samps (make tail==packet)
             if (x.size() > exact_samps) {
                 x.erase(x.begin(), x.end() - exact_samps);
             }
-
-            // No prepad in test mode
             dctx.prepad_us = 0;
 
         } else {
-            // ===== Live mode (ring) =====
-            const size_t prepad_samps = (size_t)std::llround(dctx.fs_eff * dctx.prepad_us / 1e6);
+            // ===== Live mode: slice that ends at pkt.sample_end =====
+            const size_t prepad   = (size_t)llround(dctx.fs_eff * dctx.prepad_us / 1e6);
+            const size_t want     = std::max({ (size_t)64, bits * sps, exact_samps });
+            const uint64_t head   = dctx.ring_abs_head;
 
-            // We want [prepad + exact] newest complex samples from the ring
-            const size_t take_cplx = std::min(prepad_samps + exact_samps, dctx.ring->cap);
+            const size_t dist = (head > pkt.sample_end)
+                              ? (size_t)std::min<uint64_t>(head - pkt.sample_end, dctx.ring->cap - 1)
+                              : 0;
 
-            // Copy *tail* so that the last 'exact_samps' are the packet
+            const size_t need_cplx = std::min(prepad + want + dist, dctx.ring->cap - 1);
+
             std::vector<float> rawIQ;
-            dctx.ring->copy_tail(2 * take_cplx, rawIQ);  // interleaved floats
+            dctx.ring->copy_tail(2 * need_cplx, rawIQ);  // floats (I,Q interleaved)
+
+            // Drop newest ‘dist’ samples so we end exactly at pkt.sample_end
+            if (dist) {
+                const size_t keep_cplx = need_cplx - dist;
+                if (2*keep_cplx < rawIQ.size())
+                    rawIQ.erase(rawIQ.begin() + 2*keep_cplx, rawIQ.end());
+            }
 
             // Convert to complex
-            x.reserve(rawIQ.size()/2);
-            for (size_t i=0;i+1<rawIQ.size(); i+=2) x.emplace_back(rawIQ[i], rawIQ[i+1]);
+            std::vector<feat::cf> xtmp; xtmp.reserve(rawIQ.size()/2);
+            for (size_t i = 0; i + 1 < rawIQ.size(); i += 2)
+                xtmp.emplace_back(rawIQ[i], rawIQ[i+1]);
+
+            // Keep only last exact_samps (the exact packet span)
+            if (xtmp.size() > exact_samps)
+                xtmp.erase(xtmp.begin(), xtmp.end() - exact_samps);
+
+            x.swap(xtmp);
             xN_report = x.size();
 
-            // If the ring returned more than requested (defensive), trim to take_cplx
-            if (x.size() > take_cplx) {
-                x.erase(x.begin(), x.end() - take_cplx);
+            // --- Debug (magnitude-based)
+            double max_mag = 0.0, rms = 0.0;
+            if (!x.empty()) {
+                double sum = 0.0;
+                for (auto &z : x) {
+                    const double m2 = std::norm(z);
+                    if (m2 > max_mag*max_mag) max_mag = std::sqrt(m2);
+                    sum += m2;
+                }
+                rms = std::sqrt(sum / x.size());
             }
-            // Now the last 'exact_samps' samples in x are the packet region.
+            std::fprintf(stderr,
+                "[DBG] head=%llu start=%llu end=%llu dist=%zu xN=%zu max|x|=%g rms=%g first5=[%+.3f%+.3fi, %+.3f%+.3fi, %+.3f%+.3fi, ...]\n",
+                (unsigned long long)dctx.ring_abs_head,
+                (unsigned long long)pkt.sample_start,
+                (unsigned long long)pkt.sample_end,
+                dist, x.size(), max_mag, rms,
+                x.size()>=1?x[0].real():0.0, x.size()>=1?x[0].imag():0.0,
+                x.size()>=2?x[1].real():0.0, x.size()>=2?x[1].imag():0.0,
+                x.size()>=3?x[2].real():0.0, x.size()>=3?x[2].imag():0.0
+            );
+
+            // dctx.prepad_us = 0;
         }
 
-        fprintf(stderr, "[DBG] head=%llu start=%llu end=%llu span=%llu sps=%d\n",
-        (unsigned long long)dctx.ring_abs_head,
-        (unsigned long long)pkt.sample_start,
-        (unsigned long long)pkt.sample_end,
-        (unsigned long long)(pkt.sample_end - pkt.sample_start),
-        feat::sps_int(dctx.fs_eff));
-
-        // --- (Optional) DC/RMS norm
+        // --- Optional: DC/power norm
         // feat::rm_dc_norm(x);
 
-        // --- Gating (index prepad_samps must match what we used above)
+        // --- Gating (index matches prepad we used above)
         const size_t prepad_samps_now = (size_t)std::llround(dctx.fs_eff * dctx.prepad_us / 1e6);
         switch (dctx.gate){
             case GateMode::ENERGY:
@@ -1497,10 +1527,7 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         if (exact_samps > 0 && x.size() >= 8) {
             const size_t use = std::min(exact_samps, x.size());
             std::vector<feat::cf> x_exact(x.end() - use, x.end());
-            // Use your dedicated exact estimators if available:
-            // cfo_exact_quick = feat::cfo_exact_quick(x_exact, dctx.fs_eff);
-            // cfo_exact_ls    = feat::cfo_exact_ls(x_exact, dctx.fs_eff);
-            // Otherwise quick as smoke test:
+            // If specialized exact estimators exist, use them; else quick as smoke test.
             cfo_exact_quick = feat::cfo_quick(x_exact, dctx.fs_eff);
             cfo_exact_ls    = feat::cfo_quick(x_exact, dctx.fs_eff);
         }
@@ -1529,6 +1556,7 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         joint::nesterov_fit(m_pm1, sps_i, dctx.fs_eff, x, p, iters, J,
                             /*BT*/0.5, /*h*/0.5, /*maxI*/35, /*lr*/0.2, /*mu*/0.85);
 
+        // --- CSV row
         FeatureRow row{
             dctx.pkt_idx, ts, rf_channel, pdu_type, adv_addr, aa_be,
             cfo_q, cfo_c, cfo_two, cfo_std_all, cfo_std_sym,
@@ -1539,12 +1567,6 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
 
         if (dctx.featcsv)   dctx.featcsv->row(row);
         if (dctx.feats_all) dctx.feats_all->push(row);
-
-        // std::fprintf(stderr,
-        //   "[CFO-DBG] pkt=%zu ch=%d | len=%d | sps=%d | exact=%zu | xN=%zu | "
-        //   "cfo_q=%.1f cfo_c=%.1f two=%.1f exact=%.1f joint=%.1f\n",
-        //   dctx.pkt_idx, rf_channel, pkt.length, dctx.sps, exact_samps, xN_report,
-        //   cfo_q, cfo_c, cfo_two, cfo_exact_quick, p.fo_hz);
 
         dctx.pkt_idx++;
     };
@@ -1632,16 +1654,32 @@ int main(int argc, char** argv){
         // for (size_t i=0;i<n_cplx_out;i++) ring.push(workIQ[2*i], workIQ[2*i+1]);
         // blesdr.Receiver((size_t)args.channel, workIQ.data(), n_cplx_out);
 
-        // Push into ring, then update absolute head (complex samples), then feed BLESDR
-        for (size_t i=0;i<n_cplx_out;i++) ring.push(workIQ[2*i], workIQ[2*i+1]);
+        // // Push into ring, then update absolute head (complex samples), then feed BLESDR
+        // for (size_t i=0;i<n_cplx_out;i++) ring.push(workIQ[2*i], workIQ[2*i+1]);
 
-        // IMPORTANT: keep this in complex-sample units *after* decimation
+        // // IMPORTANT: keep this in complex-sample units *after* decimation
+        // dctx.ring_abs_head += n_cplx_out;
+
+        // // keep decoder’s cursor in lockstep with the ring
+        // blesdr.set_abs_cursor(dctx.ring_abs_head);
+
+        // --- BEFORE feeding this chunk ---
+        // Snapshot the head *before* we append this chunk to the ring.
+        // All absolute indices in this chunk start at 'head_prev'.
+        const uint64_t head_prev = dctx.ring_abs_head;
+        blesdr.set_abs_cursor(head_prev);
+
+        // 1) Push into ring
+        for (size_t i = 0; i < n_cplx_out; ++i)
+            ring.push(workIQ[2*i], workIQ[2*i+1]);
+
+        // 2) Advance absolute head in COMPLEX samples *after* the push
         dctx.ring_abs_head += n_cplx_out;
 
-        // keep decoder’s cursor in lockstep with the ring
-        blesdr.set_abs_cursor(dctx.ring_abs_head);
-
+        // 3) Decode using this chunk (the decoder now knows absolute indices)
         blesdr.Receiver((size_t)args.channel, workIQ.data(), n_cplx_out);
+
+        // blesdr.Receiver((size_t)args.channel, workIQ.data(), n_cplx_out);
 
         static bool once = false;
         if (!once) {

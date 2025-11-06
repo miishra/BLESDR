@@ -75,6 +75,8 @@ struct lell_packet {
 	// Sample rate used when decoding (Hz), useful for CFO calc downstream.
 	int srate_hz     = 0;
 
+	uint64_t head_at_detect = 0;
+
 	/* flags */
 	union {
 		struct {

@@ -1,23 +1,23 @@
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
-[DBG] head=89440 start=88976 end=89440 span=464 sps=2
+[DBG] head=89440 start=480 end=944 dist=88496 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=2704 end=3168 dist=86272 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=4928 end=5392 dist=84048 xN=464 max|x|=4.37758 rms=0.806444 first5=[+1.062-4.171i, +0.889-4.213i, -0.972-4.213i, ...]
+[DBG] head=89440 start=7152 end=7616 dist=81824 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=9376 end=9840 dist=79600 xN=464 max|x|=4.41704 rms=1.27541 first5=[+2.311+3.712i, +0.889+4.300i, -2.238+3.806i, ...]
+[DBG] head=89440 start=11600 end=12064 dist=77376 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=13824 end=14288 dist=75152 xN=464 max|x|=4.41716 rms=1.61478 first5=[+3.624+2.399i, +3.211+2.943i, +0.389+4.379i, ...]
+[DBG] head=89440 start=16048 end=16512 dist=72928 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=18272 end=18736 dist=70704 xN=464 max|x|=4.41716 rms=1.89539 first5=[+1.062+4.259i, -0.472+4.379i, -3.293+2.943i, ...]
+[DBG] head=89440 start=20496 end=20960 dist=68480 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=22720 end=23184 dist=66256 xN=464 max|x|=4.41716 rms=2.13424 first5=[+2.717-3.329i, +3.211-2.856i, +1.708-3.947i, ...]
+[DBG] head=89440 start=24944 end=25408 dist=64032 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=27168 end=27632 dist=61808 xN=464 max|x|=4.41716 rms=2.35432 first5=[-1.149+4.258i, -1.794+4.033i, -4.030+1.797i, ...]
+[DBG] head=89440 start=29392 end=29856 dist=59584 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=31616 end=32080 dist=57360 xN=464 max|x|=4.41716 rms=2.55505 first5=[-3.709+2.396i, -4.298+0.974i, -3.802-2.157i, ...]
+[DBG] head=89440 start=33840 end=34304 dist=55136 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=36064 end=36528 dist=52912 xN=464 max|x|=4.41716 rms=2.74248 first5=[-1.622+4.104i, -2.238+3.806i, -0.476+4.379i, ...]
+[DBG] head=89440 start=38288 end=38752 dist=50688 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] head=89440 start=40512 end=40976 dist=48464 xN=464 max|x|=4.41716 rms=2.91263 first5=[+4.308-0.209i, +4.294-0.387i, +3.719-2.157i, ...]
+[DBG] head=89440 start=42736 end=43200 dist=46240 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
 [DBG] set_abs_cursor(89440)
 [posthoc] detrend slope = 0 Hz/s, flip=false, wrote: f50_signfixed.csv
 Done. Complex read: 89440, complex fed: 89440, packets (approx): 20, features CSV: f50.csv, PCAP: out.pcap
