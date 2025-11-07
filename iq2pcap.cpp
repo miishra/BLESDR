@@ -1371,8 +1371,168 @@ struct DumpCtx {
 // ==============================
 // iq2pcap.cpp  (attach handler)
 // ==============================
+// add if not already present at top of file
 static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, DumpCtx& dctx) {
     using feat::cf;
+
+    // ---------- helpers (local to this TU) ----------
+    auto vec_rms = [](const std::vector<cf>& x) -> double {
+        if (x.empty()) return 0.0;
+        long double acc = 0;
+        for (const auto& z : x) acc += (long double)std::norm(z);
+        return std::sqrt((double)(acc / x.size()));
+    };
+
+    // Fetch exactly [end_cx - want_cx, end_cx) in *complex* units via tail copy in floats
+    auto slice_exact = [&](uint64_t end_cx, size_t want_cx, std::vector<cf>& out,
+                           uint64_t& lo_cx, uint64_t& hi_cx, double& rms) {
+        out.clear(); lo_cx = hi_cx = 0; rms = 0.0;
+        if (!dctx.ring || dctx.ring->cap == 0 || want_cx == 0) return;
+
+        const uint64_t head_cx = dctx.ring_abs_head;
+        const uint64_t cap_cx  = (uint64_t)(dctx.ring->cap - 1);
+        const uint64_t oldest_cx = (cap_cx && head_cx > cap_cx) ? (head_cx - cap_cx) : 0ull;
+
+        uint64_t start_cx = (end_cx > want_cx) ? (end_cx - want_cx) : 0ull;
+        if (start_cx < oldest_cx) start_cx = oldest_cx;
+        if (end_cx   > head_cx  ) end_cx   = head_cx;
+
+        const uint64_t dist_to_head_cx = (head_cx > end_cx) ? (head_cx - end_cx) : 0ull;
+        uint64_t fetch_cx = (end_cx > start_cx) ? (end_cx - start_cx) : 0ull;
+        fetch_cx += dist_to_head_cx;
+        if (cap_cx && fetch_cx > cap_cx) fetch_cx = cap_cx;
+
+        std::vector<float> iq;
+        dctx.ring->copy_tail(2 * fetch_cx, iq);            // floats
+        if (dist_to_head_cx) {
+            const size_t drop = (size_t)(2 * dist_to_head_cx);
+            if (iq.size() > drop) iq.erase(iq.end() - drop, iq.end());
+        }
+        const size_t need_f = (size_t)(2 * (end_cx - start_cx));
+        if (iq.size() > need_f) iq.erase(iq.begin(), iq.end() - need_f);
+
+        out.reserve(iq.size() / 2);
+        for (size_t i = 0; i + 1 < iq.size(); i += 2) out.emplace_back(iq[i], iq[i + 1]);
+
+        lo_cx = start_cx;
+        hi_cx = end_cx;
+        rms   = vec_rms(out);
+
+        std::fprintf(stderr,
+            "[DBG] exact window head=%llu oldest=%llu base=%llu -> range=[%llu,%llu) xN=%zu rms=%.5g\n",
+            (unsigned long long)head_cx,
+            (unsigned long long)oldest_cx,
+            (unsigned long long)((want_cx>0)?(end_cx - want_cx):end_cx),
+            (unsigned long long)lo_cx, (unsigned long long)hi_cx,
+            out.size(), rms);
+    };
+
+    // Search ±R around end_cx for the max-energy window of size want_cx (all *complex* units)
+    auto slice_snapped = [&](uint64_t end_cx, size_t want_cx, size_t R,
+                             std::vector<cf>& out, uint64_t& lo_cx, uint64_t& hi_cx, double& rms) {
+        out.clear(); lo_cx = hi_cx = 0; rms = 0.0;
+        if (!dctx.ring || dctx.ring->cap == 0 || want_cx == 0) return;
+
+        const uint64_t head_cx   = dctx.ring_abs_head;
+        const uint64_t cap_cx    = (uint64_t)(dctx.ring->cap - 1);
+        const uint64_t oldest_cx = (cap_cx && head_cx > cap_cx) ? (head_cx - cap_cx) : 0ull;
+
+        // Desired search region in complex units
+        uint64_t srch_lo = (end_cx > R) ? (end_cx - R) : 0ull;
+        uint64_t srch_hi = end_cx + R;
+
+        // Ensure we can place a full window anywhere in [srch_lo, srch_hi]
+        if (srch_lo < oldest_cx) srch_lo = oldest_cx;
+        if (srch_hi > head_cx)   srch_hi = head_cx;
+        if (srch_hi <= srch_lo)  return;
+
+        // Build a buffer that surely spans [srch_lo - want_cx, srch_hi] (in floats)
+        const uint64_t want_f   = 2ull * (uint64_t)want_cx;
+        const uint64_t srch_lo_f = 2ull * srch_lo;
+        const uint64_t srch_hi_f = 2ull * srch_hi;
+        const uint64_t head_f    = 2ull * head_cx;
+        const uint64_t cap_f     = 2ull * cap_cx;
+        const uint64_t oldest_f  = 2ull * oldest_cx;
+
+        uint64_t buf_end_f = srch_hi_f;
+        uint64_t buf_beg_f = (srch_lo_f >= want_f) ? (srch_lo_f - want_f) : oldest_f;
+        if (buf_beg_f > buf_end_f) buf_beg_f = srch_lo_f; // defensive
+        uint64_t need_f = (buf_end_f > buf_beg_f) ? (buf_end_f - buf_beg_f) : 0ull;
+
+        const uint64_t dist_to_head_f = (head_f > buf_end_f) ? (head_f - buf_end_f) : 0ull;
+        uint64_t fetch_f = need_f + dist_to_head_f;
+        if (cap_f && fetch_f > cap_f) fetch_f = cap_f;
+
+        std::vector<float> iq;
+        dctx.ring->copy_tail(fetch_f, iq); // floats
+        if (dist_to_head_f && iq.size() > dist_to_head_f)
+            iq.erase(iq.end() - dist_to_head_f, iq.end());
+        if (iq.size() > need_f) iq.erase(iq.begin(), iq.end() - need_f);
+
+        // Sliding RMS over *complex* windows of size 'want_cx' whose end lies in [srch_lo, srch_hi]
+        // Map absolute complex index k ↔ position in iq: pos_f = 2*(k - (buf_beg_f/2))
+        const uint64_t buf_beg_cx = buf_beg_f / 2ull;
+        const size_t   buf_cx     = iq.size() / 2;
+
+        if (buf_cx < want_cx) return;
+
+        // Precompute mag^2 array for sliding sum
+        std::vector<double> m2(buf_cx);
+        for (size_t i = 0, j = 0; i < buf_cx; ++i, j += 2) {
+            const double re = iq[j], im = iq[j + 1];
+            m2[i] = re * re + im * im;
+        }
+
+        // Candidate window ends: k_end ∈ [srch_lo, srch_hi]
+        // Convert to buffer indices
+        const int64_t k0 = (int64_t)(srch_lo - buf_beg_cx);
+        const int64_t k1 = (int64_t)(srch_hi - buf_beg_cx);
+
+        // Sliding sum
+        double cur = 0.0;
+        size_t best_lo = 0, best_hi = 0;
+        double bestE = -1.0;
+
+        auto push = [&](size_t idx){ cur += m2[idx]; };
+        auto pop  = [&](size_t idx){ cur -= m2[idx]; };
+
+        // Initialize at first possible window that ends at max(k0, want_cx)
+        int64_t end_idx = std::max<int64_t>(k0, (int64_t)want_cx);
+        if ((size_t)end_idx > buf_cx) end_idx = (int64_t)buf_cx;
+
+        size_t win_lo = (size_t)(end_idx - (int64_t)want_cx);
+        size_t win_hi = (size_t)end_idx;
+
+        for (size_t i = win_lo; i < win_hi; ++i) push(i);
+        bestE = cur; best_lo = win_lo; best_hi = win_hi;
+
+        for (int64_t e = end_idx + 1; e <= k1 && (size_t)e <= buf_cx; ++e) {
+            // slide by one complex
+            pop((size_t)(e - 1 - (int64_t)want_cx));
+            push((size_t)(e - 1));
+            // prefer later on tie
+            if (cur >= bestE) { bestE = cur; best_lo = (size_t)(e - (int64_t)want_cx); best_hi = (size_t)e; }
+        }
+
+        // Extract best window
+        out.reserve(want_cx);
+        for (size_t i = 0, j = 2 * best_lo; i < want_cx; ++i, j += 2)
+            out.emplace_back(iq[j], iq[j + 1]);
+
+        lo_cx = buf_beg_cx + best_lo;
+        hi_cx = buf_beg_cx + best_hi;
+        rms   = vec_rms(out);
+
+        std::fprintf(stderr,
+            "[DBG] snapped   head=%llu oldest=%llu range=[%llu,%llu) xN=%zu rms=%.5g (from search [%llu,%llu) complex)\n",
+            (unsigned long long)dctx.ring_abs_head,
+            (unsigned long long)((cap_cx && dctx.ring_abs_head > cap_cx)?(dctx.ring_abs_head - cap_cx):0ull),
+            (unsigned long long)lo_cx, (unsigned long long)hi_cx,
+            out.size(), rms,
+            (unsigned long long)srch_lo, (unsigned long long)srch_hi);
+    };
+
+    // --------------------------------------------------
 
     b.callback = [&](lell_packet pkt){
         // --- DLT 256 pseudo-header
@@ -1410,104 +1570,59 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         char sAA[9]; sAA[0] = '\0';
         std::string aa_be = std::string(sAA);
 
-        // --- Feature window sizing
-        const size_t bits = 8 + 32 + 16 + 8 * (size_t)pkt.length + 24;
+        // ---------- feature window sizing ----------
+        const size_t bits = 8 + 32 + 16 + 8 * (size_t)pkt.length + 24; // preamble+AA+hdr+payload+CRC
         const size_t sps  = (size_t)std::max(2, dctx.sps);
+        const size_t W_eval_cx = bits * sps;                            // ~464 at Fs=2e6, sps=2
 
-        size_t exact_samps = 0;
-        if (pkt.sample_end > pkt.sample_start) {
-            exact_samps = (size_t)(pkt.sample_end - pkt.sample_start);
-        }
-        if (exact_samps == 0) {
-            exact_samps = bits * sps;  // fallback if decoder didn't stamp
-        }
-        if (dctx.ring && dctx.ring->cap > 0) {
-            exact_samps = std::max<size_t>(64, std::min(exact_samps, dctx.ring->cap - 1));
-        }
+        // guard vs cap
+        const size_t cap_cx = (dctx.ring && dctx.ring->cap) ? (size_t)(dctx.ring->cap - 1) : W_eval_cx;
+        const size_t W_eval = std::max((size_t)64, std::min(W_eval_cx, cap_cx));
 
-        std::vector<cf> x;
-        size_t xN_report = 0;
+        // ---------- exact vs. snapped pick ----------
+        // exact from decoder’s stamps (complex)
+        std::vector<cf> x_exact; uint64_t ex_lo=0, ex_hi=0; double rms_exact=0.0;
+        slice_exact(pkt.sample_end, W_eval, x_exact, ex_lo, ex_hi, rms_exact);
 
-        if (dctx.test_mode) {
-            // ===== Test mode =====
-            const size_t N       = ble_test_iq::N_COMPLEX;      // 664
-            const size_t N_exact = ble_test_iq::N_EXACT;        // 464
-            x = testload::make_vec_from_pairs(ble_test_iq::IQ_PAIRS, N);
-            dctx.fs_eff = ble_test_iq::FS_HZ;                   // 2e6
-            dctx.sps    = (int)ble_test_iq::SPS_INT;            // 2
+        // wide snap search: allow several packet lengths
+        const size_t R = std::min<size_t>(5 * W_eval, std::max(W_eval, cap_cx / 4));
+        std::vector<cf> x_snap; uint64_t sn_lo=0, sn_hi=0; double rms_snap=0.0;
+        slice_snapped(pkt.sample_end, W_eval, R, x_snap, sn_lo, sn_hi, rms_snap);
 
-            exact_samps = N_exact;
-            xN_report   = x.size();
+        std::fprintf(stderr,
+            "[diag] pkt_idx=%zu ch=%d pdu=%d len=%d | bits=%zu sps=%zu expect=%zu | "
+            "EXACT=[%llu,%llu) rms=%.4g | SNAPPED=[%llu,%llu) rms=%.4g | head=%llu cap=%zu\n",
+            (size_t)dctx.pkt_idx, rf_channel, pdu_type, (int)pkt.length,
+            bits, sps, W_eval,
+            (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
+            (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap,
+            (unsigned long long)dctx.ring_abs_head, cap_cx + 1);
 
-            if (x.size() > exact_samps) {
-                x.erase(x.begin(), x.end() - exact_samps);
-            }
-            dctx.prepad_us = 0;
+        // Choose window by RMS (with flat guard and slight bias to snap)
+        const double FLAT = 0.12;
+        const bool exact_ok = (rms_exact > FLAT) && (x_exact.size() == W_eval);
+        const bool snap_ok  = (rms_snap  > FLAT) && (x_snap.size()  == W_eval);
 
-        } else {
-            // ===== Live mode: slice that ends at pkt.sample_end =====
-            const size_t prepad   = (size_t)llround(dctx.fs_eff * dctx.prepad_us / 1e6);
-            const size_t want     = std::max({ (size_t)64, bits * sps, exact_samps });
-            const uint64_t head   = dctx.ring_abs_head;
-
-            const size_t dist = (head > pkt.sample_end)
-                              ? (size_t)std::min<uint64_t>(head - pkt.sample_end, dctx.ring->cap - 1)
-                              : 0;
-
-            const size_t need_cplx = std::min(prepad + want + dist, dctx.ring->cap - 1);
-
-            std::vector<float> rawIQ;
-            dctx.ring->copy_tail(2 * need_cplx, rawIQ);  // floats (I,Q interleaved)
-
-            // Drop newest ‘dist’ samples so we end exactly at pkt.sample_end
-            if (dist) {
-                const size_t keep_cplx = need_cplx - dist;
-                if (2*keep_cplx < rawIQ.size())
-                    rawIQ.erase(rawIQ.begin() + 2*keep_cplx, rawIQ.end());
-            }
-
-            // Convert to complex
-            std::vector<feat::cf> xtmp; xtmp.reserve(rawIQ.size()/2);
-            for (size_t i = 0; i + 1 < rawIQ.size(); i += 2)
-                xtmp.emplace_back(rawIQ[i], rawIQ[i+1]);
-
-            // Keep only last exact_samps (the exact packet span)
-            if (xtmp.size() > exact_samps)
-                xtmp.erase(xtmp.begin(), xtmp.end() - exact_samps);
-
-            x.swap(xtmp);
-            xN_report = x.size();
-
-            // --- Debug (magnitude-based)
-            double max_mag = 0.0, rms = 0.0;
-            if (!x.empty()) {
-                double sum = 0.0;
-                for (auto &z : x) {
-                    const double m2 = std::norm(z);
-                    if (m2 > max_mag*max_mag) max_mag = std::sqrt(m2);
-                    sum += m2;
-                }
-                rms = std::sqrt(sum / x.size());
-            }
+        std::vector<cf> x; x.reserve(W_eval);
+        if (snap_ok && (!exact_ok || rms_snap >= 1.02 * rms_exact)) {
+            x.swap(x_snap);
             std::fprintf(stderr,
-                "[DBG] head=%llu start=%llu end=%llu dist=%zu xN=%zu max|x|=%g rms=%g first5=[%+.3f%+.3fi, %+.3f%+.3fi, %+.3f%+.3fi, ...]\n",
-                (unsigned long long)dctx.ring_abs_head,
-                (unsigned long long)pkt.sample_start,
-                (unsigned long long)pkt.sample_end,
-                dist, x.size(), max_mag, rms,
-                x.size()>=1?x[0].real():0.0, x.size()>=1?x[0].imag():0.0,
-                x.size()>=2?x[1].real():0.0, x.size()>=2?x[1].imag():0.0,
-                x.size()>=3?x[2].real():0.0, x.size()>=3?x[2].imag():0.0
-            );
-
-            // dctx.prepad_us = 0;
+                "[diag] pick=SNAP exact=[%llu,%llu) rms=%.4g  snap=[%llu,%llu) rms=%.4g  (R=%zu)\n",
+                (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
+                (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap, R);
+        } else {
+            x.swap(x_exact);
+            std::fprintf(stderr,
+                "[diag] pick=EXACT exact=[%llu,%llu) rms=%.4g  snap=[%llu,%llu) rms=%.4g  (R=%zu)\n",
+                (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
+                (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap, R);
         }
 
-        // --- Optional: DC/power norm
-        // feat::rm_dc_norm(x);
-
-        // --- Gating (index matches prepad we used above)
+        // Effective Fs and prepad (you already manage fs_eff externally)
+        dctx.prepad_us = 0;
         const size_t prepad_samps_now = (size_t)std::llround(dctx.fs_eff * dctx.prepad_us / 1e6);
+
+        // --- Gating
         switch (dctx.gate){
             case GateMode::ENERGY:
                 apply_gate_energy(x, dctx.fs_eff, prepad_samps_now, dctx.gate_k, dctx.gate_pad_us);
@@ -1522,14 +1637,13 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
             default: break;
         }
 
-        // --- CFO on the exact packet tail only
+        // --- CFO on exact packet tail (quick + LS)
         double cfo_exact_quick = 0.0, cfo_exact_ls = 0.0;
-        if (exact_samps > 0 && x.size() >= 8) {
-            const size_t use = std::min(exact_samps, x.size());
-            std::vector<feat::cf> x_exact(x.end() - use, x.end());
-            // If specialized exact estimators exist, use them; else quick as smoke test.
-            cfo_exact_quick = feat::cfo_quick(x_exact, dctx.fs_eff);
-            cfo_exact_ls    = feat::cfo_quick(x_exact, dctx.fs_eff);
+        if (!x.empty()) {
+            const size_t use = std::min(x.size(), W_eval);
+            std::vector<cf> x_exact_tail(x.end() - use, x.end());
+            cfo_exact_quick = feat::cfo_quick(x_exact_tail, dctx.fs_eff);
+            cfo_exact_ls    = feat::cfo_quick(x_exact_tail, dctx.fs_eff); // keep same estimator name
         }
 
         // --- Classical features (over gated x)
@@ -1547,7 +1661,7 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         const double cfo_std_all = feat::cfo_std_all(x, dctx.fs_eff);
         const double cfo_std_sym = feat::cfo_std_symbol_avg(x, dctx.fs_eff);
 
-        // --- JOINT CFO + IQ over the full (gated) window
+        // --- JOINT CFO + IQ (gated)
         const int sps_i = feat::sps_int(dctx.fs_eff);
         auto m_pm1 = joint::recover_symbols(x, sps_i);
         joint::Params p0 = joint::init_from_signal(x, dctx.fs_eff);

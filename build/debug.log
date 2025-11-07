@@ -1,23 +1,103 @@
-[DBG] head=89440 start=480 end=944 dist=88496 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=2704 end=3168 dist=86272 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=4928 end=5392 dist=84048 xN=464 max|x|=4.37758 rms=0.806444 first5=[+1.062-4.171i, +0.889-4.213i, -0.972-4.213i, ...]
-[DBG] head=89440 start=7152 end=7616 dist=81824 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=9376 end=9840 dist=79600 xN=464 max|x|=4.41704 rms=1.27541 first5=[+2.311+3.712i, +0.889+4.300i, -2.238+3.806i, ...]
-[DBG] head=89440 start=11600 end=12064 dist=77376 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=13824 end=14288 dist=75152 xN=464 max|x|=4.41716 rms=1.61478 first5=[+3.624+2.399i, +3.211+2.943i, +0.389+4.379i, ...]
-[DBG] head=89440 start=16048 end=16512 dist=72928 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=18272 end=18736 dist=70704 xN=464 max|x|=4.41716 rms=1.89539 first5=[+1.062+4.259i, -0.472+4.379i, -3.293+2.943i, ...]
-[DBG] head=89440 start=20496 end=20960 dist=68480 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=22720 end=23184 dist=66256 xN=464 max|x|=4.41716 rms=2.13424 first5=[+2.717-3.329i, +3.211-2.856i, +1.708-3.947i, ...]
-[DBG] head=89440 start=24944 end=25408 dist=64032 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=27168 end=27632 dist=61808 xN=464 max|x|=4.41716 rms=2.35432 first5=[-1.149+4.258i, -1.794+4.033i, -4.030+1.797i, ...]
-[DBG] head=89440 start=29392 end=29856 dist=59584 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=31616 end=32080 dist=57360 xN=464 max|x|=4.41716 rms=2.55505 first5=[-3.709+2.396i, -4.298+0.974i, -3.802-2.157i, ...]
-[DBG] head=89440 start=33840 end=34304 dist=55136 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=36064 end=36528 dist=52912 xN=464 max|x|=4.41716 rms=2.74248 first5=[-1.622+4.104i, -2.238+3.806i, -0.476+4.379i, ...]
-[DBG] head=89440 start=38288 end=38752 dist=50688 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
-[DBG] head=89440 start=40512 end=40976 dist=48464 xN=464 max|x|=4.41716 rms=2.91263 first5=[+4.308-0.209i, +4.294-0.387i, +3.719-2.157i, ...]
-[DBG] head=89440 start=42736 end=43200 dist=46240 xN=464 max|x|=0.0601645 rms=0.0601645 first5=[-0.041+0.044i, -0.041+0.044i, -0.041+0.044i, ...]
+[DBG] exact window head=89440 oldest=0 base=248 -> range=[248,712) xN=464 rms=3.0227
+[DBG] snapped   head=89440 oldest=0 range=[5,469) xN=464 rms=4.35 (from search [0,3032) complex)
+[diag] pkt_idx=0 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[248,712) rms=3.023 | SNAPPED=[5,469) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[248,712) rms=3.023  snap=[5,469) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=248 end=712 abs_cursor->944 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=2472 -> range=[2472,2936) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[4477,4941) xN=464 rms=4.35 (from search [616,5256) complex)
+[diag] pkt_idx=1 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[2472,2936) rms=0.06016 | SNAPPED=[4477,4941) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[2472,2936) rms=0.06016  snap=[4477,4941) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=2472 end=2936 abs_cursor->3168 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=4696 -> range=[4696,5160) xN=464 rms=3.178
+[DBG] snapped   head=89440 oldest=0 range=[4477,4941) xN=464 rms=4.35 (from search [2840,7480) complex)
+[diag] pkt_idx=2 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[4696,5160) rms=3.178 | SNAPPED=[4477,4941) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[4696,5160) rms=3.178  snap=[4477,4941) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=4696 end=5160 abs_cursor->5392 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=6920 -> range=[6920,7384) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[8949,9413) xN=464 rms=4.35 (from search [5064,9704) complex)
+[diag] pkt_idx=3 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[6920,7384) rms=0.06016 | SNAPPED=[8949,9413) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[6920,7384) rms=0.06016  snap=[8949,9413) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=6920 end=7384 abs_cursor->7616 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=9144 -> range=[9144,9608) xN=464 rms=3.328
+[DBG] snapped   head=89440 oldest=0 range=[8949,9413) xN=464 rms=4.35 (from search [7288,11928) complex)
+[diag] pkt_idx=4 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[9144,9608) rms=3.328 | SNAPPED=[8949,9413) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[9144,9608) rms=3.328  snap=[8949,9413) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=9144 end=9608 abs_cursor->9840 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=11368 -> range=[11368,11832) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[13421,13885) xN=464 rms=4.35 (from search [9512,14152) complex)
+[diag] pkt_idx=5 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[11368,11832) rms=0.06016 | SNAPPED=[13421,13885) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[11368,11832) rms=0.06016  snap=[13421,13885) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=11368 end=11832 abs_cursor->12064 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=13592 -> range=[13592,14056) xN=464 rms=3.4716
+[DBG] snapped   head=89440 oldest=0 range=[13421,13885) xN=464 rms=4.35 (from search [11736,16376) complex)
+[diag] pkt_idx=6 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[13592,14056) rms=3.472 | SNAPPED=[13421,13885) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[13592,14056) rms=3.472  snap=[13421,13885) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=13592 end=14056 abs_cursor->14288 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=15816 -> range=[15816,16280) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[17893,18357) xN=464 rms=4.35 (from search [13960,18600) complex)
+[diag] pkt_idx=7 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[15816,16280) rms=0.06016 | SNAPPED=[17893,18357) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[15816,16280) rms=0.06016  snap=[17893,18357) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=15816 end=16280 abs_cursor->16512 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=18040 -> range=[18040,18504) xN=464 rms=3.6096
+[DBG] snapped   head=89440 oldest=0 range=[17893,18357) xN=464 rms=4.35 (from search [16184,20824) complex)
+[diag] pkt_idx=8 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[18040,18504) rms=3.61 | SNAPPED=[17893,18357) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[18040,18504) rms=3.61  snap=[17893,18357) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=18040 end=18504 abs_cursor->18736 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=20264 -> range=[20264,20728) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[22365,22829) xN=464 rms=4.35 (from search [18408,23048) complex)
+[diag] pkt_idx=9 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[20264,20728) rms=0.06016 | SNAPPED=[22365,22829) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[20264,20728) rms=0.06016  snap=[22365,22829) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=20264 end=20728 abs_cursor->20960 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=22488 -> range=[22488,22952) xN=464 rms=3.7435
+[DBG] snapped   head=89440 oldest=0 range=[22365,22829) xN=464 rms=4.35 (from search [20632,25272) complex)
+[diag] pkt_idx=10 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[22488,22952) rms=3.743 | SNAPPED=[22365,22829) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[22488,22952) rms=3.743  snap=[22365,22829) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=22488 end=22952 abs_cursor->23184 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=24712 -> range=[24712,25176) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[26837,27301) xN=464 rms=4.35 (from search [22856,27496) complex)
+[diag] pkt_idx=11 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[24712,25176) rms=0.06016 | SNAPPED=[26837,27301) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[24712,25176) rms=0.06016  snap=[26837,27301) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=24712 end=25176 abs_cursor->25408 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=26936 -> range=[26936,27400) xN=464 rms=3.8718
+[DBG] snapped   head=89440 oldest=0 range=[26837,27301) xN=464 rms=4.35 (from search [25080,29720) complex)
+[diag] pkt_idx=12 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[26936,27400) rms=3.872 | SNAPPED=[26837,27301) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[26936,27400) rms=3.872  snap=[26837,27301) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=26936 end=27400 abs_cursor->27632 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=29160 -> range=[29160,29624) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[31309,31773) xN=464 rms=4.35 (from search [27304,31944) complex)
+[diag] pkt_idx=13 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[29160,29624) rms=0.06016 | SNAPPED=[31309,31773) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[29160,29624) rms=0.06016  snap=[31309,31773) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=29160 end=29624 abs_cursor->29856 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=31384 -> range=[31384,31848) xN=464 rms=3.9962
+[DBG] snapped   head=89440 oldest=0 range=[31309,31773) xN=464 rms=4.35 (from search [29528,34168) complex)
+[diag] pkt_idx=14 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[31384,31848) rms=3.996 | SNAPPED=[31309,31773) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[31384,31848) rms=3.996  snap=[31309,31773) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=31384 end=31848 abs_cursor->32080 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=33608 -> range=[33608,34072) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[35781,36245) xN=464 rms=4.35 (from search [31752,36392) complex)
+[diag] pkt_idx=15 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[33608,34072) rms=0.06016 | SNAPPED=[35781,36245) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[33608,34072) rms=0.06016  snap=[35781,36245) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=33608 end=34072 abs_cursor->34304 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=35832 -> range=[35832,36296) xN=464 rms=4.1179
+[DBG] snapped   head=89440 oldest=0 range=[35781,36245) xN=464 rms=4.35 (from search [33976,38616) complex)
+[diag] pkt_idx=16 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[35832,36296) rms=4.118 | SNAPPED=[35781,36245) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[35832,36296) rms=4.118  snap=[35781,36245) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=35832 end=36296 abs_cursor->36528 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=38056 -> range=[38056,38520) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[40253,40717) xN=464 rms=4.35 (from search [36200,40840) complex)
+[diag] pkt_idx=17 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[38056,38520) rms=0.06016 | SNAPPED=[40253,40717) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[38056,38520) rms=0.06016  snap=[40253,40717) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=38056 end=38520 abs_cursor->38752 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=40280 -> range=[40280,40744) xN=464 rms=4.2348
+[DBG] snapped   head=89440 oldest=0 range=[40253,40717) xN=464 rms=4.35 (from search [38424,43064) complex)
+[diag] pkt_idx=18 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[40280,40744) rms=4.235 | SNAPPED=[40253,40717) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[40280,40744) rms=4.235  snap=[40253,40717) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=40280 end=40744 abs_cursor->40976 sps=2 (complex)
+[DBG] exact window head=89440 oldest=0 base=42504 -> range=[42504,42968) xN=464 rms=0.060165
+[DBG] snapped   head=89440 oldest=0 range=[44725,45189) xN=464 rms=4.35 (from search [40648,45288) complex)
+[diag] pkt_idx=19 ch=37 pdu=0 len=19 | bits=232 sps=2 expect=464 | EXACT=[42504,42968) rms=0.06016 | SNAPPED=[44725,45189) rms=4.35 | head=89440 cap=500000
+[diag] pick=SNAP exact=[42504,42968) rms=0.06016  snap=[44725,45189) rms=4.35  (R=2320)
+[diag] span_cx=464 half=232 start=42504 end=42968 abs_cursor->43200 sps=2 (complex)
 [DBG] set_abs_cursor(89440)
 [posthoc] detrend slope = 0 Hz/s, flip=false, wrote: f50_signfixed.csv
 Done. Complex read: 89440, complex fed: 89440, packets (approx): 20, features CSV: f50.csv, PCAP: out.pcap

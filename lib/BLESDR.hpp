@@ -77,6 +77,9 @@ struct lell_packet {
 
 	uint64_t head_at_detect = 0;
 
+	float    cfo_hz{};
+    float    phi0_rad{};
+
 	/* flags */
 	union {
 		struct {
