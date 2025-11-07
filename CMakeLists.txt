@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10...3.30)
 project (blesdr)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-add_subdirectory(blesdr-tools)
+# add_subdirectory(blesdr-tools)
 
 # iq2pcap target (no LimeSuite required)
 add_executable(iq2pcap

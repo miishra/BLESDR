@@ -1,0 +1,3 @@
+/Users/abhimishra/Downloads/BLESDR/build-mac/CMakeFiles/iq2pcap.dir
+/Users/abhimishra/Downloads/BLESDR/build-mac/CMakeFiles/edit_cache.dir
+/Users/abhimishra/Downloads/BLESDR/build-mac/CMakeFiles/rebuild_cache.dir

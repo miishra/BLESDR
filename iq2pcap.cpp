@@ -359,28 +359,81 @@ static void bitrev_buf(uint8_t* p, size_t n) {
 
 // --------- Ring buffer for I/Q (for per-packet features) ----------
 struct Ring {
-    std::vector<float> buf; // interleaved I,Q
-    size_t w = 0;           // write index in floats
-    size_t cap = 0;         // capacity in complex samples
+    std::vector<float> buf;   // interleaved I,Q
+    size_t cap = 0;           // capacity in complex samples
+    uint64_t head_abs = 0;    // absolute complex index of NEXT write (one past last sample)
+    uint64_t oldest_abs = 0;  // absolute complex index of OLDEST sample still retained
+
     void init(size_t complex_len) {
         cap = std::max<size_t>(complex_len, 4096);
         buf.assign(2*cap, 0.0f);
-        w = 0;
+        head_abs = 0;
+        oldest_abs = 0;
     }
+
     inline void push(float I, float Q) {
-        buf[w] = I;
-        size_t w2 = (w+1)%(2*cap);
-        buf[w2] = Q;
-        w = (w+2)%(2*cap);
+        // absolute complex index for this sample
+        uint64_t p = head_abs;
+        size_t slot = static_cast<size_t>(p % cap);
+        buf[2*slot]   = I;
+        buf[2*slot+1] = Q;
+        head_abs++;
+
+        // drop oldest if over capacity
+        if (head_abs - oldest_abs > cap) {
+            oldest_abs = head_abs - cap;
+        }
     }
-    // copy last 'take_floats' floats (I,Q interleaved) into out
-    void copy_tail(size_t take_floats, std::vector<float>& out) const {
-        size_t maxf = 2*cap;
-        if (take_floats > maxf) take_floats = maxf;
-        out.resize(take_floats);
-        size_t start = ( (w + maxf) - take_floats ) % maxf;
-        for (size_t i=0;i<take_floats;i++) out[i] = buf[(start + i)%maxf];
-    }
+
+    // Return how many complex samples are currently retained
+        inline uint64_t size_complex() const {
+            return head_abs - oldest_abs; // absolute complex indices
+        }
+        
+        // Copy window [a,b) in ABSOLUTE COMPLEX indices -> complex<float> vector
+        bool copy_absolute_window(uint64_t a, uint64_t b,
+                                  std::vector<std::complex<float>>& out) const
+        {
+            if (b <= a) return false;
+            if (a < oldest_abs || b > head_abs) return false; // not in buffer
+            const size_t N = static_cast<size_t>(b - a);
+            out.resize(N);
+            for (size_t k = 0; k < N; ++k) {
+                uint64_t idx = a + k;                 // absolute complex index
+                size_t slot  = static_cast<size_t>(idx % cap);
+                float I = buf[2*slot];
+                float Q = buf[2*slot + 1];
+                out[k] = {I, Q};
+            }
+            return true;
+        }
+        
+        // === Compatibility shim: copy the last n_floats from the ring into 'out' (interleaved I,Q) ===
+        // Callers in your code always request an EVEN number of floats (2 * complex_count).
+        bool copy_tail(size_t n_floats, std::vector<float>& out) const
+        {
+            // available floats in the ring
+            const uint64_t avail_cx = size_complex();
+            const uint64_t avail_f  = 2 * avail_cx;
+            if (avail_f == 0) { out.clear(); return false; }
+        
+            if (n_floats > avail_f) n_floats = static_cast<size_t>(avail_f);
+            // enforce even (I,Q pairs)
+            if (n_floats & 1) n_floats -= 1;
+            if (n_floats == 0) { out.clear(); return false; }
+        
+            const uint64_t start_abs_cx = head_abs - (n_floats / 2); // absolute complex start
+            out.resize(n_floats);
+        
+            // copy in time order
+            for (size_t i = 0; i < n_floats/2; ++i) {
+                uint64_t abs_cx = start_abs_cx + i;
+                size_t slot = static_cast<size_t>(abs_cx % cap);
+                out[2*i]     = buf[2*slot];
+                out[2*i + 1] = buf[2*slot + 1];
+            }
+            return true;
+        }
 };
 
 // ------------------ Feature computations ------------------
@@ -1610,12 +1663,14 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
                 "[diag] pick=SNAP exact=[%llu,%llu) rms=%.4g  snap=[%llu,%llu) rms=%.4g  (R=%zu)\n",
                 (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
                 (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap, R);
+//             b.set_detect_window(sn_lo, sn_hi);
         } else {
             x.swap(x_exact);
             std::fprintf(stderr,
                 "[diag] pick=EXACT exact=[%llu,%llu) rms=%.4g  snap=[%llu,%llu) rms=%.4g  (R=%zu)\n",
                 (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
                 (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap, R);
+//             b.set_detect_window(ex_lo, ex_hi);
         }
 
         // Effective Fs and prepad (you already manage fs_eff externally)
@@ -1676,7 +1731,7 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
             cfo_q, cfo_c, cfo_two, cfo_std_all, cfo_std_sym,
             alpha, phi_deg, rt_us, fcent, pnr_db, bw3, gated_len_us, (double)coarse,
             p.fo_hz, p.I0, p.Q0, p.eps, p.phi*180.0/M_PI, p.A, iters, J,
-            cfo_exact_quick, cfo_exact_ls
+            pkt.cfo_exact_quick_hz, pkt.cfo_exact_ls_hz
         };
 
         if (dctx.featcsv)   dctx.featcsv->row(row);
@@ -1735,6 +1790,12 @@ int main(int argc, char** argv){
     // blesdr.skipSamples = 0;        // (optional) ensure we don't delay early packets
 
     blesdr.Configure(sps, (uint8_t)args.channel, /*skip=*/0);
+    
+    // 👉 ADD THIS RIGHT HERE 👇
+    blesdr.set_iq_provider([&](uint64_t a, uint64_t b, std::vector<std::complex<float>>& out){
+        // Provide IQ samples between absolute complex indices [a, b)
+        return ring.copy_absolute_window(a, b, out);
+    });
 
     // Attach the packet handler so every decoded packet writes PCAP + features CSV
     attach_packet_handler(blesdr, w, args.channel, dctx);

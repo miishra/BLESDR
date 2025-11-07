@@ -23,6 +23,7 @@
 #include <vector>
 #include <functional>
 #include <cstddef>   // for std::size_t
+#include <complex>
 
 #define MAX_NUM_PHY_SAMPLE 1520
 #define MAX_NUM_CHAR_CMD (256)
@@ -71,6 +72,9 @@ struct lell_packet {
 	// Half-open range: [sample_start, sample_end)
 	uint64_t sample_start = 0;
 	uint64_t sample_end   = 0;
+	
+	double cfo_exact_quick_hz =0;
+	double cfo_exact_ls_hz =0;
 
 	// Sample rate used when decoding (Hz), useful for CFO calc downstream.
 	int srate_hz     = 0;
@@ -93,6 +97,12 @@ class BLESDR {
 public:
 	BLESDR();
 	~BLESDR();
+	
+	using IQWindowProvider =
+        std::function<bool(uint64_t start_cx, uint64_t end_cx,
+                           std::vector<std::complex<float>>& out)>;
+
+    void set_iq_provider(IQWindowProvider p){ iq_provider_ = std::move(p); }
 
 	double get_channel_freq(int channel_number);
 
@@ -125,10 +135,32 @@ public:
 	std::vector<float> sample_for_Packet(size_t chan, lell_packet pocket);
 
 	void Receiver(size_t channel, float* samples, size_t samples_len);
+	
+	struct DetectWindow {
+    bool     valid = false;
+    uint64_t start = 0;  // absolute complex index
+    uint64_t end   = 0;  // absolute complex index (exclusive)
+    };
+    
+    DetectWindow last_detect_window_;
+    inline void set_detect_window(uint64_t s, uint64_t e) {
+        last_detect_window_.valid = (e > s);
+        last_detect_window_.start = s;
+        last_detect_window_.end   = e;
+    }
+    inline bool take_detect_window(uint64_t& s, uint64_t& e) {
+        if (!last_detect_window_.valid) return false;
+        s = last_detect_window_.start;
+        e = last_detect_window_.end;
+        last_detect_window_.valid = false; // consume once
+        return true;
+    }
 
 private:
 
 	std::vector<float> iqsamples;
+	
+	IQWindowProvider iq_provider_; // returns interleaved I/Q as complex<float>
 
 	size_t byte_to_bits(uint8_t* byte, size_t len, char* bits);
 
