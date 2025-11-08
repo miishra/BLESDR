@@ -129,19 +129,6 @@ iq2pcap/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/iq2pcap.dir/build.make CMakeFiles/iq2pcap.dir/build
 .PHONY : iq2pcap/fast
 
-#=============================================================================
-# Target rules for targets named blesdr
-
-# Build rule for target.
-blesdr: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 blesdr
-.PHONY : blesdr
-
-# fast build rule for target.
-blesdr/fast:
-	$(MAKE) $(MAKESILENT) -f blesdr-tools/CMakeFiles/blesdr.dir/build.make blesdr-tools/CMakeFiles/blesdr.dir/build
-.PHONY : blesdr/fast
-
 iq2pcap.o: iq2pcap.cpp.o
 .PHONY : iq2pcap.o
 
@@ -222,7 +209,6 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... blesdr"
 	@echo "... iq2pcap"
 	@echo "... iq2pcap.o"
 	@echo "... iq2pcap.i"

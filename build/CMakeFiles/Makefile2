@@ -64,32 +64,15 @@ CMAKE_BINARY_DIR = /home/mishra/sdrs/BLESDR/build
 
 # The main recursive "all" target.
 all: CMakeFiles/iq2pcap.dir/all
-all: blesdr-tools/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall: blesdr-tools/preinstall
+preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/iq2pcap.dir/clean
-clean: blesdr-tools/clean
 .PHONY : clean
-
-#=============================================================================
-# Directory level rules for directory blesdr-tools
-
-# Recursive "all" directory target.
-blesdr-tools/all: blesdr-tools/CMakeFiles/blesdr.dir/all
-.PHONY : blesdr-tools/all
-
-# Recursive "preinstall" directory target.
-blesdr-tools/preinstall:
-.PHONY : blesdr-tools/preinstall
-
-# Recursive "clean" directory target.
-blesdr-tools/clean: blesdr-tools/CMakeFiles/blesdr.dir/clean
-.PHONY : blesdr-tools/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/iq2pcap.dir
@@ -98,7 +81,7 @@ blesdr-tools/clean: blesdr-tools/CMakeFiles/blesdr.dir/clean
 CMakeFiles/iq2pcap.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/iq2pcap.dir/build.make CMakeFiles/iq2pcap.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/iq2pcap.dir/build.make CMakeFiles/iq2pcap.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/mishra/sdrs/BLESDR/build/CMakeFiles --progress-num=5,6,7,8 "Built target iq2pcap"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/mishra/sdrs/BLESDR/build/CMakeFiles --progress-num=1,2,3,4 "Built target iq2pcap"
 .PHONY : CMakeFiles/iq2pcap.dir/all
 
 # Build rule for subdir invocation for target.
@@ -116,32 +99,6 @@ iq2pcap: CMakeFiles/iq2pcap.dir/rule
 CMakeFiles/iq2pcap.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/iq2pcap.dir/build.make CMakeFiles/iq2pcap.dir/clean
 .PHONY : CMakeFiles/iq2pcap.dir/clean
-
-#=============================================================================
-# Target rules for target blesdr-tools/CMakeFiles/blesdr.dir
-
-# All Build rule for target.
-blesdr-tools/CMakeFiles/blesdr.dir/all:
-	$(MAKE) $(MAKESILENT) -f blesdr-tools/CMakeFiles/blesdr.dir/build.make blesdr-tools/CMakeFiles/blesdr.dir/depend
-	$(MAKE) $(MAKESILENT) -f blesdr-tools/CMakeFiles/blesdr.dir/build.make blesdr-tools/CMakeFiles/blesdr.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/mishra/sdrs/BLESDR/build/CMakeFiles --progress-num=1,2,3,4 "Built target blesdr"
-.PHONY : blesdr-tools/CMakeFiles/blesdr.dir/all
-
-# Build rule for subdir invocation for target.
-blesdr-tools/CMakeFiles/blesdr.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mishra/sdrs/BLESDR/build/CMakeFiles 4
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 blesdr-tools/CMakeFiles/blesdr.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mishra/sdrs/BLESDR/build/CMakeFiles 0
-.PHONY : blesdr-tools/CMakeFiles/blesdr.dir/rule
-
-# Convenience name for target.
-blesdr: blesdr-tools/CMakeFiles/blesdr.dir/rule
-.PHONY : blesdr
-
-# clean rule for target.
-blesdr-tools/CMakeFiles/blesdr.dir/clean:
-	$(MAKE) $(MAKESILENT) -f blesdr-tools/CMakeFiles/blesdr.dir/build.make blesdr-tools/CMakeFiles/blesdr.dir/clean
-.PHONY : blesdr-tools/CMakeFiles/blesdr.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

@@ -1471,13 +1471,13 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         hi_cx = end_cx;
         rms   = vec_rms(out);
 
-        std::fprintf(stderr,
-            "[DBG] exact window head=%llu oldest=%llu base=%llu -> range=[%llu,%llu) xN=%zu rms=%.5g\n",
-            (unsigned long long)head_cx,
-            (unsigned long long)oldest_cx,
-            (unsigned long long)((want_cx>0)?(end_cx - want_cx):end_cx),
-            (unsigned long long)lo_cx, (unsigned long long)hi_cx,
-            out.size(), rms);
+        // std::fprintf(stderr,
+        //     "[DBG] exact window head=%llu oldest=%llu base=%llu -> range=[%llu,%llu) xN=%zu rms=%.5g\n",
+        //     (unsigned long long)head_cx,
+        //     (unsigned long long)oldest_cx,
+        //     (unsigned long long)((want_cx>0)?(end_cx - want_cx):end_cx),
+        //     (unsigned long long)lo_cx, (unsigned long long)hi_cx,
+        //     out.size(), rms);
     };
 
     // Search ±R around end_cx for the max-energy window of size want_cx (all *complex* units)
@@ -1576,13 +1576,13 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         hi_cx = buf_beg_cx + best_hi;
         rms   = vec_rms(out);
 
-        std::fprintf(stderr,
-            "[DBG] snapped   head=%llu oldest=%llu range=[%llu,%llu) xN=%zu rms=%.5g (from search [%llu,%llu) complex)\n",
-            (unsigned long long)dctx.ring_abs_head,
-            (unsigned long long)((cap_cx && dctx.ring_abs_head > cap_cx)?(dctx.ring_abs_head - cap_cx):0ull),
-            (unsigned long long)lo_cx, (unsigned long long)hi_cx,
-            out.size(), rms,
-            (unsigned long long)srch_lo, (unsigned long long)srch_hi);
+        // std::fprintf(stderr,
+        //     "[DBG] snapped   head=%llu oldest=%llu range=[%llu,%llu) xN=%zu rms=%.5g (from search [%llu,%llu) complex)\n",
+        //     (unsigned long long)dctx.ring_abs_head,
+        //     (unsigned long long)((cap_cx && dctx.ring_abs_head > cap_cx)?(dctx.ring_abs_head - cap_cx):0ull),
+        //     (unsigned long long)lo_cx, (unsigned long long)hi_cx,
+        //     out.size(), rms,
+        //     (unsigned long long)srch_lo, (unsigned long long)srch_hi);
     };
 
     // --------------------------------------------------
@@ -1642,14 +1642,14 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         std::vector<cf> x_snap; uint64_t sn_lo=0, sn_hi=0; double rms_snap=0.0;
         slice_snapped(pkt.sample_end, W_eval, R, x_snap, sn_lo, sn_hi, rms_snap);
 
-        std::fprintf(stderr,
-            "[diag] pkt_idx=%zu ch=%d pdu=%d len=%d | bits=%zu sps=%zu expect=%zu | "
-            "EXACT=[%llu,%llu) rms=%.4g | SNAPPED=[%llu,%llu) rms=%.4g | head=%llu cap=%zu\n",
-            (size_t)dctx.pkt_idx, rf_channel, pdu_type, (int)pkt.length,
-            bits, sps, W_eval,
-            (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
-            (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap,
-            (unsigned long long)dctx.ring_abs_head, cap_cx + 1);
+        // std::fprintf(stderr,
+        //     "[diag] pkt_idx=%zu ch=%d pdu=%d len=%d | bits=%zu sps=%zu expect=%zu | "
+        //     "EXACT=[%llu,%llu) rms=%.4g | SNAPPED=[%llu,%llu) rms=%.4g | head=%llu cap=%zu\n",
+        //     (size_t)dctx.pkt_idx, rf_channel, pdu_type, (int)pkt.length,
+        //     bits, sps, W_eval,
+        //     (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
+        //     (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap,
+        //     (unsigned long long)dctx.ring_abs_head, cap_cx + 1);
 
         // Choose window by RMS (with flat guard and slight bias to snap)
         const double FLAT = 0.12;
@@ -1659,17 +1659,17 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w, int rf_channel, Du
         std::vector<cf> x; x.reserve(W_eval);
         if (snap_ok && (!exact_ok || rms_snap >= 1.02 * rms_exact)) {
             x.swap(x_snap);
-            std::fprintf(stderr,
-                "[diag] pick=SNAP exact=[%llu,%llu) rms=%.4g  snap=[%llu,%llu) rms=%.4g  (R=%zu)\n",
-                (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
-                (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap, R);
-//             b.set_detect_window(sn_lo, sn_hi);
+//             std::fprintf(stderr,
+//                 "[diag] pick=SNAP exact=[%llu,%llu) rms=%.4g  snap=[%llu,%llu) rms=%.4g  (R=%zu)\n",
+//                 (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
+//                 (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap, R);
+// //             b.set_detect_window(sn_lo, sn_hi);
         } else {
             x.swap(x_exact);
-            std::fprintf(stderr,
-                "[diag] pick=EXACT exact=[%llu,%llu) rms=%.4g  snap=[%llu,%llu) rms=%.4g  (R=%zu)\n",
-                (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
-                (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap, R);
+            // std::fprintf(stderr,
+            //     "[diag] pick=EXACT exact=[%llu,%llu) rms=%.4g  snap=[%llu,%llu) rms=%.4g  (R=%zu)\n",
+            //     (unsigned long long)ex_lo, (unsigned long long)ex_hi, rms_exact,
+            //     (unsigned long long)sn_lo, (unsigned long long)sn_hi, rms_snap, R);
 //             b.set_detect_window(ex_lo, ex_hi);
         }
 

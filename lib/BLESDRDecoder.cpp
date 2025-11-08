@@ -338,6 +338,9 @@ bool BLESDR::DecodeBTLEPacket(int32_t /*sample*/, int sps /*samples per symbol*/
     if ((sps_complex % 2 == 0) && (sps_complex >= 4)) sps_complex /= 2;  // floats/sym -> complex/sym
     g_srate = sps_complex;
 
+    // 🔒 Freeze detector-provided center before any Extract* can move cursors
+    const uint64_t raw_center_frozen = abs_cursor;
+
     // --- locals ---
     uint8_t  packet_data[500];
     uint8_t  packet_header_arr[2];
@@ -359,7 +362,17 @@ bool BLESDR::DecodeBTLEPacket(int32_t /*sample*/, int sps /*samples per symbol*/
 
     if (packet_addr_l == 0x8E89BED6 /*LE_ADV_AA*/) {
         packet_length = SwapBits(packet_header_arr[1]) & 0x3F; // ADV-only length
-        if (packet_length < 2) return false;
+        if (packet_length < 2) {
+            // Minimal forward progress if header is nonsense
+            const int symbols_total_min = 8 + 32 + (2 + 2 + 3) * 8;
+            const uint64_t span_min = (uint64_t)symbols_total_min * (uint64_t)g_srate;
+            // Adaptive: only advance if the caller isn't stepping us
+            static uint64_t last_center_seen = UINT64_MAX;
+            const bool duplicate_center = (last_center_seen == raw_center_frozen);
+            last_center_seen = raw_center_frozen;
+            if (duplicate_center) abs_cursor = raw_center_frozen + span_min;
+            return false;
+        }
     } else {
         packet_length = 0; // DATA not implemented here
     }
@@ -385,34 +398,28 @@ bool BLESDR::DecodeBTLEPacket(int32_t /*sample*/, int sps /*samples per symbol*/
     // ========== 5) Span in COMPLEX samples (center→edge) ==========
     // Symbols: preamble(8) + AA(32) + (len + 2 + 3) * 8
     const int symbols_total_with_preamble = 8 + 32 + (packet_length + 2 + 3) * 8;
-    const uint64_t span_cx  = static_cast<uint64_t>(symbols_total_with_preamble) * static_cast<uint64_t>(g_srate);
+    const uint64_t span_cx  = (uint64_t)symbols_total_with_preamble * (uint64_t)g_srate;
     const uint64_t half_cx  = span_cx / 2;
-    const uint64_t raw_center = abs_cursor;
 
-    uint64_t sample_end   = raw_center + half_cx;                                  // edge-aligned
-    uint64_t sample_start = (sample_end >= span_cx) ? (sample_end - span_cx) : 0;  // edge-aligned
+    // Default window from the frozen center (edge-aligned)
+    uint64_t sample_end   = raw_center_frozen + half_cx;
+    uint64_t sample_start = (sample_end >= span_cx) ? (sample_end - span_cx) : 0;
 
-    // ---- OVERRIDE with the decoder’s chosen detect window (SNAP or EXACT) ----
+    // ✅ Prefer the decoder's exact detect window if available (SNAP/EXACT)
     uint64_t dw_s = 0, dw_e = 0;
     if (take_detect_window(dw_s, dw_e)) {
         if (dw_e > dw_s) {
             const uint64_t dw_span = dw_e - dw_s;
-            if (dw_span >= (span_cx * 9) / 10 && dw_span <= (span_cx * 11) / 10) {
+            // accept if within ±20% of expected, else trust start and re-span
+            if (dw_span >= (span_cx * 8) / 10 && dw_span <= (span_cx * 12) / 10) {
                 sample_start = dw_s;
                 sample_end   = dw_e;
             } else {
-                // lengths disagree slightly: trust start, align to expected span
                 sample_start = dw_s;
                 sample_end   = dw_s + span_cx;
             }
-            // fprintf(stderr, "[exact-override] using detect window [%llu,%llu) span=%llu\n",
-            //     (unsigned long long)sample_start, (unsigned long long)sample_end,
-            //     (unsigned long long)(sample_end - sample_start));
         }
     }
-
-//     // Advance center cursor by one full span (center→center), preserving original semantics
-//     abs_cursor = raw_center + span_cx;
 
     // ========== 6) Emit on CRC OK ==========
     if (packet_crc == calced_crc) {
@@ -431,175 +438,137 @@ bool BLESDR::DecodeBTLEPacket(int32_t /*sample*/, int sps /*samples per symbol*/
         pkt.access_address_offenses = 0;
 
         // First 4 bytes in symbols[] are AA bytes (LSB first after SwapBits)
-        pkt.symbols[0] = static_cast<uint8_t>(pkt.access_address >>  0);
-        pkt.symbols[1] = static_cast<uint8_t>(pkt.access_address >>  8);
-        pkt.symbols[2] = static_cast<uint8_t>(pkt.access_address >> 16);
-        pkt.symbols[3] = static_cast<uint8_t>(pkt.access_address >> 24);
+        pkt.symbols[0] = (uint8_t)(pkt.access_address >>  0);
+        pkt.symbols[1] = (uint8_t)(pkt.access_address >>  8);
+        pkt.symbols[2] = (uint8_t)(pkt.access_address >> 16);
+        pkt.symbols[3] = (uint8_t)(pkt.access_address >> 24);
         for (int i = 0; i < packet_length + 2 + 3; ++i) {
             pkt.symbols[i + 4] = SwapBits(packet_data[i]);
         }
 
-        // Export COMPLEX-sample stamps (the window actually used by demod)
+        // ---- Export the exact window actually used by demod (detect window if present) ----
         pkt.sample_start = sample_start;
         pkt.sample_end   = sample_end;
+        pkt.srate_hz     = g_srate;   // carries COMPLEX SPS in this codebase
 
-        // In this code base, srate_hz field carries COMPLEX SPS (not Hz)
-        pkt.srate_hz = g_srate;
+        // Debug the chosen window + detector stepping
+        static uint64_t last_center = UINT64_MAX;
+        const long long dcenter = (last_center == UINT64_MAX) ? 0LL
+                               : (long long)raw_center_frozen - (long long)last_center;
+        last_center = raw_center_frozen;
+        std::fprintf(stderr, "[win] raw_center=%llu start=%llu end=%llu span=%llu cx=%d dcenter=%lld\n",
+            (unsigned long long)raw_center_frozen,
+            (unsigned long long)sample_start, (unsigned long long)sample_end,
+            (unsigned long long)(sample_end - sample_start), g_srate, dcenter);
 
-        // ---------- CFO on the exact used window (robust LS over mid-60%) ----------
-        // ---------- CFO on the exact used window (conjugate-product mean over mid-60%) ----------
-        // ---------- CFO on the exact used window (whole packet, robust) ----------
-        // ---------- CFO (whole packet, robust sym-lag) ----------
-        // ---------- CFO (whole packet, robust sym-lag) ----------
+        // ---------- CFO on the exact window (whole packet + robust export) ----------
         if (iq_provider_) {
             std::vector<std::complex<float>> x;
-        
-            // Guard invalid ranges
+
             if (sample_end > sample_start &&
                 iq_provider_(sample_start, sample_end, x) &&
-                x.size() >= 64)
+                x.size() >= (size_t)(8 * g_srate))
             {
                 const int    cx_per_sym = std::max(1, g_srate);       // BLE1M: 2
                 const double fs         = 1.0e6 * double(cx_per_sym); // complex sample rate (Hz)
-        
+                const size_t N          = x.size();
+
                 auto window_rms = [](const std::vector<std::complex<float>>& v)->double {
                     if (v.empty()) return 0.0;
                     long double a = 0.0L;
                     for (auto& z : v) a += (long double)std::norm(z);
                     return std::sqrt((double)(a / (long double)v.size()));
                 };
-        
-                auto cfo_sym_lag_weighted = [&](const std::vector<std::complex<float>>& s,
-                                                int K, double fs_hz)->double
+
+                auto cfo_sym_lag = [&](const std::vector<std::complex<float>>& s,
+                                       int K, double fs_hz, size_t a, size_t b,
+                                       size_t &used_out)->double
                 {
-                    if ((int)s.size() <= K) return 0.0;
-                    const size_t N   = s.size();
-                    const size_t pad = std::min((size_t)16, (size_t)std::max<size_t>(1, (size_t)(0.02 * N)));
-                    size_t a = std::max((size_t)K + pad, (size_t)K + 1);
-                    size_t b = (N > pad ? N - pad : N);
-                    if (b <= a + 8) { a = K + 1; b = N; }
-                    if (b <= a + 8) return 0.0;
-        
+                    used_out = 0;
+                    if ((int)s.size() <= K || b <= a + (size_t)(K + 8)) return 0.0;
                     long double Sx = 0.0L, Sy = 0.0L;
-                    size_t used = 0;
-                    for (size_t n = a; n < b; ++n) {
+                    for (size_t n = a + K; n < b; ++n) {
                         const std::complex<float> d = s[n] * std::conj(s[n - K]);
-                        const float w = std::min(std::norm(s[n]), std::norm(s[n - K]));
-                        if (w <= 0.0f) continue;
                         const float re = d.real(), im = d.imag();
                         const float mag = std::hypot(re, im);
                         if (mag <= 0.0f) continue;
-                        Sx += (long double)w * (long double)(re / mag);
-                        Sy += (long double)w * (long double)(im / mag);
-                        ++used;
+                        Sx += (long double)(re / mag);
+                        Sy += (long double)(im / mag);
+                        ++used_out;
                     }
-                    if (used < (size_t)(8 * cx_per_sym)) return 0.0;
+                    if (used_out == 0) return 0.0;
                     const long double ang = std::atan2((double)Sy, (double)Sx);
-                    const double dphi_per_K = (double)ang;
-                    return (dphi_per_K / (2.0 * M_PI)) * (fs_hz / (double)K);
+                    return ((double)ang / (2.0 * M_PI)) * (fs_hz / (double)K);
                 };
-        
-                // --- try the chosen window ---
-                double r = window_rms(x);
-        
-                // --- autosnap fallback if RMS is too low (detect window missing/consumed) ---
-                if (r < 0.25) {
-                    // search ±10% of span, step = 1 symbol
-                    const uint64_t span = sample_end - sample_start;
-                    const uint64_t max_shift = span / 10;
-                    const uint64_t step = (uint64_t)std::max<uint64_t>(1, (uint64_t)cx_per_sym);
-        
-                    double best_r = r;
-                    uint64_t best_s = sample_start;
-                    std::vector<std::complex<float>> best_x = x;
-        
-                    // center around the current start; try forward then backward
-                    for (uint64_t sh = step; sh <= max_shift; sh += step) {
-                        // forward
-                        if (sample_start + sh + span <= UINT64_MAX) {
-                            std::vector<std::complex<float>> xf;
-                            if (iq_provider_(sample_start + sh, sample_start + sh + span, xf) && xf.size() == x.size()) {
-                                double rf = window_rms(xf);
-                                if (rf > best_r) { best_r = rf; best_s = sample_start + sh; best_x.swap(xf); }
-                            }
-                        }
-                        // backward (guard underflow)
-                        if (sample_start >= sh) {
-                            std::vector<std::complex<float>> xb;
-                            if (iq_provider_(sample_start - sh, sample_start - sh + span, xb) && xb.size() == x.size()) {
-                                double rb = window_rms(xb);
-                                if (rb > best_r) { best_r = rb; best_s = sample_start - sh; best_x.swap(xb); }
-                            }
-                        }
+
+                auto ifreq_median = [&](const std::vector<std::complex<float>>& s,
+                                        double fs_hz, size_t a, size_t b,
+                                        size_t &used_out)->double
+                {
+                    used_out = 0;
+                    if (b <= a + 8) return 0.0;
+                    std::vector<double> freq;
+                    freq.reserve(b - a);
+                    for (size_t n = a + 1; n < b; ++n) {
+                        const std::complex<float> d = s[n] * std::conj(s[n - 1]);
+                        const float re = d.real(), im = d.imag();
+                        const float mag = std::hypot(re, im);
+                        if (mag <= 0.0f) continue;
+                        const double ang = std::atan2(im, re);               // rad/sample
+                        freq.push_back(ang * fs_hz / (2.0 * M_PI));          // Hz
                     }
-        
-                    if (best_r > r) {
-                        x.swap(best_x);
-                        r = best_r;
-                        // optional: update exported stamps to reflect autosnap
-                        pkt.sample_start = best_s;
-                        pkt.sample_end   = best_s + span;
-                    }
-                }
-        
-                if (r >= 0.25) {
-                    const int K1 = cx_per_sym;
-                    const int K2 = 2 * cx_per_sym;
-        
-                    const double cfo1 = cfo_sym_lag_weighted(x, K1, fs);
-                    const double cfo2 = (x.size() > (size_t)(K2 + 32))
-                                      ? cfo_sym_lag_weighted(x, K2, fs)
-                                      : cfo1;
-        
-                    // block-median guard (6 blocks) on K1
-                    auto cfo_block_median = [&](int K)->double {
-                        const size_t N = x.size();
-                        const int blocks = 6;
-                        std::array<double, 6> est{};
-                        int filled = 0;
-                        for (int b = 0; b < blocks; ++b) {
-                            size_t s0 = (size_t)((N * b) / blocks);
-                            size_t s1 = (size_t)((N * (b + 1)) / blocks);
-                            if (s1 <= s0 + (size_t)(K + 8)) continue;
-                            std::vector<std::complex<float>> sub(x.begin() + s0, x.begin() + s1);
-                            const double e = cfo_sym_lag_weighted(sub, K, fs);
-                            if (e != 0.0) est[filled++] = e;
-                        }
-                        if (filled == 0) return 0.0;
-                        std::nth_element(est.begin(), est.begin() + filled/2, est.begin() + filled);
-                        return est[filled/2];
-                    };
-        
-                    const double cfo_med = cfo_block_median(K1);
-                    double cfo = cfo1;
-                    if (cfo_med != 0.0) {
-                        const double diff = std::fabs(cfo1 - cfo_med);
-                        const double tol  = std::max(500.0, 0.15 * std::fabs(cfo_med)); // 500 Hz or 15%
-                        if (diff > tol) cfo = (std::fabs(cfo2 - cfo_med) < diff) ? cfo2 : cfo_med;
-                    }
-        
-                    pkt.cfo_exact_quick_hz = (float)cfo;
-                    pkt.cfo_exact_ls_hz    = (float)cfo;
-                    std::fprintf(stderr, "[cfo] fs=%.0fHz N=%zu rms=%.3f -> CFO=%.2f Hz (autosnap=%s)\n",
-                                 fs, x.size(), r, cfo, (r < 0.30 ? "yes" : "no"));
-                } else {
-                    pkt.cfo_exact_quick_hz = 0.0f;
-                    pkt.cfo_exact_ls_hz    = 0.0f;
-                    // fprintf(stderr, "[cfo-skip] low-RMS window after autosnap\n");
-                }
+                    used_out = freq.size();
+                    if (freq.empty()) return 0.0;
+                    std::nth_element(freq.begin(), freq.begin() + freq.size()/2, freq.end());
+                    return freq[freq.size()/2];
+                };
+
+                const size_t Nmid_a = (size_t)(N * 2 / 10);
+                const size_t Nmid_b = (size_t)(N * 8 / 10);
+                const int    K2     = 2 * cx_per_sym;
+
+                // Whole-window (robust mid cut) with K=2
+                size_t u_wh = 0, u_med = 0;
+                const size_t pad  = std::min((size_t)16, (size_t)std::max<size_t>(1, (size_t)(0.02 * N)));
+                const size_t wh_a = std::max((size_t)K2 + pad, (size_t)K2 + 1);
+                const size_t wh_b = (N > pad ? N - pad : N);
+
+                const double CFO_whole_K2  = cfo_sym_lag(x, K2, fs, wh_a, wh_b, u_wh);
+                const double CFO_ifreq_med = ifreq_median(x, fs, Nmid_a, Nmid_b, u_med);
+                const double rms           = window_rms(x);
+
+                // Export rule: median if enough energy; else fall back to whole(K2)
+                const bool   median_ok  = (rms > 0.2 && u_med > 32);
+                const double cfo_export = median_ok ? CFO_ifreq_med : CFO_whole_K2;
+
+                pkt.cfo_exact_quick_hz = (float)cfo_export;
+                pkt.cfo_exact_ls_hz    = (float)cfo_export;
+
+                std::fprintf(stderr,
+                    "[cfo] fs=%.0fHz N=%zu rms=%.3f | whole(K2)=%.2fHz u=%zu | ifreq_med(mid)=%.2fHz u=%zu | export=%.2f\n",
+                    fs, N, rms, CFO_whole_K2, u_wh, CFO_ifreq_med, u_med, cfo_export);
             }
         }
 
         // deliver
         callback(pkt);
-        
-        // Advance center cursor by one full span (center→center), preserving original semantics
-        abs_cursor = raw_center + span_cx;
+
+        // Adaptive cursor advance:
+        // - By default, don't fight the detector (it sets the next center).
+        // - But if the caller didn't move us (same center twice), advance once by our span.
+        static uint64_t last_center_advance = UINT64_MAX;
+        const bool duplicate_center = (last_center_advance == raw_center_frozen);
+        last_center_advance = raw_center_frozen;
+        if (duplicate_center) abs_cursor = raw_center_frozen + span_cx;
+
         return true;
     }
-    
-    // Advance center cursor by one full span (center→center), preserving original semantics
-    abs_cursor = raw_center + span_cx;
+
+    // On CRC fail: same adaptive policy (avoid getting stuck)
+    static uint64_t last_center_advance_fail = UINT64_MAX;
+    const bool duplicate_center_fail = (last_center_advance_fail == raw_center_frozen);
+    last_center_advance_fail = raw_center_frozen;
+    if (duplicate_center_fail) abs_cursor = raw_center_frozen + span_cx;
 
     return false;
 }
