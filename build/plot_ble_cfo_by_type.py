@@ -179,7 +179,7 @@ def plot_grouped_boxplot(xlabels: List[str], data: Dict[str, List[np.ndarray]], 
     ax.set_ylabel("Estimated CFO (kHz)")
     # ax.set_title("Grouped Boxplot of est_cfo across device types and sub-devices")
     ax.grid(True, axis='y', alpha=0.3)
-    ax.legend(handles=legend_handles, ncols=4, loc='upper right', frameon=True)
+    ax.legend(handles=legend_handles, ncols=2, loc='upper right', frameon=True)
 
     fig.tight_layout()
     fig.savefig(outfile, dpi=200)
@@ -238,7 +238,7 @@ def plot_grouped_violins(xlabels: List[str], data: Dict[str, List[np.ndarray]], 
     ax.set_ylabel("Estimated CFO (kHz)")
     # ax.set_title("Grouped PDF (violin) of est_cfo across device types and sub-devices")
     ax.grid(True, axis='y', alpha=0.3)
-    ax.legend(handles=legend_handles, ncols=4, loc='upper right', frameon=True)
+    ax.legend(handles=legend_handles, ncols=2, loc='upper right', frameon=True)
 
     fig.tight_layout()
     fig.savefig(outfile, dpi=200)

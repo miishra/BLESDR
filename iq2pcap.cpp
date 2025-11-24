@@ -535,6 +535,51 @@ struct DumpCtx {
     int gate_mid_b_us = 80;
 };
 
+// Helper function to check if advertising data contains Apple FindMy tag
+static bool is_findmy_tag(const uint8_t* pdu_bytes, size_t pdu_len) {
+    // PDU format: Header(2) + Payload + CRC(3)
+    // We need at least: Header(2) + AdvA(6) + AD structures
+    if (pdu_len < 8) return false;
+    
+    const uint8_t* payload = pdu_bytes + 2;  // Skip PDU header
+    size_t payload_len = pdu_len - 5;        // Exclude header(2) + CRC(3)
+    
+    // Skip AdvA (6 bytes)
+    if (payload_len < 6) return false;
+    const uint8_t* ad_data = payload + 6;
+    size_t ad_len = payload_len - 6;
+    
+    // Parse AD structures: each has [Length][Type][Data...]
+    size_t pos = 0;
+    while (pos + 1 < ad_len) {
+        uint8_t length = ad_data[pos];
+        if (length == 0) break;  // End of AD structures
+        
+        if (pos + 1 + length > ad_len) break;  // Malformed
+        
+        uint8_t ad_type = ad_data[pos + 1];
+        
+        // Check for Manufacturer Specific Data (0xFF)
+        if (ad_type == 0xFF && length >= 3) {
+            // Company ID is 2 bytes, little-endian
+            uint16_t company_id = ad_data[pos + 2] | (ad_data[pos + 3] << 8);
+            
+            // Apple Company ID is 0x004C
+            if (company_id == 0x004C && length >= 4) {
+                // Check if manufacturer data starts with 0x12
+                uint8_t findmy_prefix = ad_data[pos + 4];
+                if (findmy_prefix == 0x12) {
+                    return true;
+                }
+            }
+        }
+        
+        pos += 1 + length;  // Move to next AD structure
+    }
+    
+    return false;
+}
+
 // ============================================================================
 // Attach packet handler
 // ============================================================================
@@ -580,6 +625,13 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w,
         }
 
         std::string aa_be = blehelpers::aa_to_str(pkt.access_address);
+
+        // ---------- Check if this is a FindMy tag ----------
+        if (!is_findmy_tag(bytes_pdu, pdu_len)) {
+            // Not a FindMy tag, skip feature extraction
+            dctx.pkt_idx++;
+            return;
+        }
 
         // ---------- Extract exact IQ slice from decoder stamps ----------
         std::vector<cf> x_full;
