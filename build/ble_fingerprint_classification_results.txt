@@ -1,0 +1,85 @@
+================================================================================
+BLE DEVICE FINGERPRINTING - RANDOM FOREST CLASSIFICATION
+================================================================================
+
+Features: Mean CFO of CFO (Hz)
+Training: Computed from first 70% of packets per device
+Testing: Computed from remaining 30% of packets per device
+Number of devices: 16
+Training samples: 16 (one per device)
+Testing samples: 16 (one per device)
+
+--------------------------------------------------------------------------------
+FEATURE VALUES (Hz)
+--------------------------------------------------------------------------------
+Device          Train Mean      Test Mean       
+--------------------------------------------------------------------------------
+AirTag1                 4321.96         4312.14 
+AirTag2                20826.93        20951.80 
+AirTag3               -20747.40       -18095.77 
+AirTag4                 5653.03         5829.89 
+HelloTag1             -10281.50       -10295.30 
+HelloTag2               6321.02         6450.33 
+HelloTag3              36102.05        36112.28 
+HelloTag4             -10014.49        -9767.97 
+MiTag1                 23709.73        23624.03 
+MiTag2                 15848.35        15851.11 
+MiTag3                 10359.07         9610.52 
+MiTag4                 18673.29        19343.64 
+SmartTag1             -36513.10       -36959.79 
+SmartTag2             -26508.19       -26789.00 
+SmartTag3             -37628.98       -37271.30 
+SmartTag4             -39505.36       -39493.42 
+
+--------------------------------------------------------------------------------
+RANDOM FOREST PERFORMANCE
+--------------------------------------------------------------------------------
+Accuracy:  100.00%
+Precision: 100.00%
+Recall:    100.00%
+F1-Score:  100.00%
+
+Per-Device Classification Report:
+              precision    recall  f1-score   support
+
+     AirTag1       1.00      1.00      1.00         1
+     AirTag2       1.00      1.00      1.00         1
+     AirTag3       1.00      1.00      1.00         1
+     AirTag4       1.00      1.00      1.00         1
+   HelloTag1       1.00      1.00      1.00         1
+   HelloTag2       1.00      1.00      1.00         1
+   HelloTag3       1.00      1.00      1.00         1
+   HelloTag4       1.00      1.00      1.00         1
+      MiTag1       1.00      1.00      1.00         1
+      MiTag2       1.00      1.00      1.00         1
+      MiTag3       1.00      1.00      1.00         1
+      MiTag4       1.00      1.00      1.00         1
+   SmartTag1       1.00      1.00      1.00         1
+   SmartTag2       1.00      1.00      1.00         1
+   SmartTag3       1.00      1.00      1.00         1
+   SmartTag4       1.00      1.00      1.00         1
+
+    accuracy                           1.00        16
+   macro avg       1.00      1.00      1.00        16
+weighted avg       1.00      1.00      1.00        16
+
+--------------------------------------------------------------------------------
+CONFUSION MATRIX (Raw Counts)
+--------------------------------------------------------------------------------
+                AirTag1    AirTag2    AirTag3    AirTag4    HelloTag1  HelloTag2  HelloTag3  HelloTag4  MiTag1     MiTag2     MiTag3     MiTag4     SmartTag1  SmartTag2  SmartTag3  SmartTag4  
+        AirTag1 1          0          0          0          0          0          0          0          0          0          0          0          0          0          0          0          
+        AirTag2 0          1          0          0          0          0          0          0          0          0          0          0          0          0          0          0          
+        AirTag3 0          0          1          0          0          0          0          0          0          0          0          0          0          0          0          0          
+        AirTag4 0          0          0          1          0          0          0          0          0          0          0          0          0          0          0          0          
+      HelloTag1 0          0          0          0          1          0          0          0          0          0          0          0          0          0          0          0          
+      HelloTag2 0          0          0          0          0          1          0          0          0          0          0          0          0          0          0          0          
+      HelloTag3 0          0          0          0          0          0          1          0          0          0          0          0          0          0          0          0          
+      HelloTag4 0          0          0          0          0          0          0          1          0          0          0          0          0          0          0          0          
+         MiTag1 0          0          0          0          0          0          0          0          1          0          0          0          0          0          0          0          
+         MiTag2 0          0          0          0          0          0          0          0          0          1          0          0          0          0          0          0          
+         MiTag3 0          0          0          0          0          0          0          0          0          0          1          0          0          0          0          0          
+         MiTag4 0          0          0          0          0          0          0          0          0          0          0          1          0          0          0          0          
+      SmartTag1 0          0          0          0          0          0          0          0          0          0          0          0          1          0          0          0          
+      SmartTag2 0          0          0          0          0          0          0          0          0          0          0          0          0          1          0          0          
+      SmartTag3 0          0          0          0          0          0          0          0          0          0          0          0          0          0          1          0          
+      SmartTag4 0          0          0          0          0          0          0          0          0          0          0          0          0          0          0          1          
