@@ -1,0 +1,498 @@
+
+======================================================================
+[PACKET 0 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 998
+  rb_head = 998
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[998] = sample from abs position ?
+  RB(464) = rb_buf[462] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 998
+  packet_start = abs_cursor - span = 838
+  Calculated range: [838, 998)
+
+EXPECTED (from energy analysis):
+  Should be around: [34, 472) for packet 0
+  Current offset: +804 samples from expected
+
+
+======================================================================
+[PACKET 0 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1000
+  rb_head = 0
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[0] = sample from abs position ?
+  RB(464) = rb_buf[464] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1000
+  packet_start = abs_cursor - span = 840
+  Calculated range: [840, 1000)
+
+EXPECTED (from energy analysis):
+  Should be around: [34, 472) for packet 0
+  Current offset: +806 samples from expected
+
+
+======================================================================
+[PACKET 0 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1002
+  rb_head = 2
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[2] = sample from abs position ?
+  RB(464) = rb_buf[466] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1002
+  packet_start = abs_cursor - span = 842
+  Calculated range: [842, 1002)
+
+EXPECTED (from energy analysis):
+  Should be around: [34, 472) for packet 0
+  Current offset: +808 samples from expected
+
+
+======================================================================
+[PACKET 0 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1004
+  rb_head = 4
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[4] = sample from abs position ?
+  RB(464) = rb_buf[468] = sample from abs position ?
+
+Packet structure:
+  payload_length = 19 bytes
+  total_bits = 232
+  packet_span_cx = 464 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1004
+  packet_start = abs_cursor - span = 540
+  Calculated range: [540, 1004)
+
+EXPECTED (from energy analysis):
+  Should be around: [34, 472) for packet 0
+  Current offset: +506 samples from expected
+
+✅ CRC valid! Building packet...
+======================================================================
+
+[PKT 000000] ch=37 type=0 len=19 | indices=[540,1004) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000000_ch37_540_1004.dat
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1008
+  rb_head = 8
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[8] = sample from abs position ?
+  RB(464) = rb_buf[472] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1008
+  packet_start = abs_cursor - span = 848
+  Calculated range: [848, 1008)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +-3658 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1012
+  rb_head = 12
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[12] = sample from abs position ?
+  RB(464) = rb_buf[476] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1012
+  packet_start = abs_cursor - span = 852
+  Calculated range: [852, 1012)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +-3654 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1188
+  rb_head = 188
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[188] = sample from abs position ?
+  RB(464) = rb_buf[652] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1188
+  packet_start = abs_cursor - span = 1028
+  Calculated range: [1028, 1188)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +-3478 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1190
+  rb_head = 190
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[190] = sample from abs position ?
+  RB(464) = rb_buf[654] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1190
+  packet_start = abs_cursor - span = 1030
+  Calculated range: [1030, 1190)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +-3476 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1192
+  rb_head = 192
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[192] = sample from abs position ?
+  RB(464) = rb_buf[656] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1192
+  packet_start = abs_cursor - span = 1032
+  Calculated range: [1032, 1192)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +-3474 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1194
+  rb_head = 194
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[194] = sample from abs position ?
+  RB(464) = rb_buf[658] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1194
+  packet_start = abs_cursor - span = 1034
+  Calculated range: [1034, 1194)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +-3472 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1334
+  rb_head = 334
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[334] = sample from abs position ?
+  RB(464) = rb_buf[798] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1334
+  packet_start = abs_cursor - span = 1174
+  Calculated range: [1174, 1334)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +-3332 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 1336
+  rb_head = 336
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[336] = sample from abs position ?
+  RB(464) = rb_buf[800] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 1336
+  packet_start = abs_cursor - span = 1176
+  Calculated range: [1176, 1336)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +-3330 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 5470
+  rb_head = 470
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[470] = sample from abs position ?
+  RB(464) = rb_buf[934] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 5470
+  packet_start = abs_cursor - span = 5310
+  Calculated range: [5310, 5470)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +804 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 5472
+  rb_head = 472
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[472] = sample from abs position ?
+  RB(464) = rb_buf[936] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 5472
+  packet_start = abs_cursor - span = 5312
+  Calculated range: [5312, 5472)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +806 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 5474
+  rb_head = 474
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[474] = sample from abs position ?
+  RB(464) = rb_buf[938] = sample from abs position ?
+
+Packet structure:
+  payload_length = 0 bytes
+  total_bits = 80
+  packet_span_cx = 160 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 5474
+  packet_start = abs_cursor - span = 5314
+  Calculated range: [5314, 5474)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +808 samples from expected
+
+
+======================================================================
+[PACKET 1 DECODE]
+----------------------------------------------------------------------
+When DecodePacket() called:
+  abs_cursor = 5476
+  rb_head = 476
+  g_srate = 2 (samples per symbol)
+  RB_SIZE = 1000
+
+Ring buffer interpretation:
+  RB(0) = rb_buf[476] = sample from abs position ?
+  RB(464) = rb_buf[940] = sample from abs position ?
+
+Packet structure:
+  payload_length = 19 bytes
+  total_bits = 232
+  packet_span_cx = 464 samples
+
+CURRENT timing calculation:
+  packet_end = abs_cursor = 5476
+  packet_start = abs_cursor - span = 5012
+  Calculated range: [5012, 5476)
+
+EXPECTED (from energy analysis):
+  Should be around: [4506, 4944) for packet 1
+  Current offset: +506 samples from expected
+
+✅ CRC valid! Building packet...
+======================================================================
+
+[PKT 000001] ch=37 type=0 len=19 | indices=[5012,5476) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000001_ch37_5012_5476.dat
+[PKT 000002] ch=37 type=0 len=19 | indices=[9484,9948) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000002_ch37_9484_9948.dat
+[PKT 000003] ch=37 type=0 len=19 | indices=[13956,14420) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000003_ch37_13956_14420.dat
+[PKT 000004] ch=37 type=0 len=19 | indices=[18428,18892) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000004_ch37_18428_18892.dat
+[PKT 000005] ch=37 type=0 len=19 | indices=[22900,23364) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000005_ch37_22900_23364.dat
+[PKT 000006] ch=37 type=0 len=19 | indices=[27372,27836) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000006_ch37_27372_27836.dat
+[PKT 000007] ch=37 type=0 len=19 | indices=[31844,32308) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000007_ch37_31844_32308.dat
+[PKT 000008] ch=37 type=0 len=19 | indices=[36316,36780) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000008_ch37_36316_36780.dat
+[PKT 000009] ch=37 type=0 len=19 | indices=[40788,41252) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000009_ch37_40788_41252.dat
+[PKT 000010] ch=37 type=0 len=19 | indices=[45260,45724) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000010_ch37_45260_45724.dat
+[PKT 000011] ch=37 type=0 len=19 | indices=[49732,50196) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000011_ch37_49732_50196.dat
+[PKT 000012] ch=37 type=0 len=19 | indices=[54204,54668) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000012_ch37_54204_54668.dat
+[PKT 000013] ch=37 type=0 len=19 | indices=[58676,59140) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000013_ch37_58676_59140.dat
+[PKT 000014] ch=37 type=0 len=19 | indices=[63148,63612) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000014_ch37_63148_63612.dat
+[PKT 000015] ch=37 type=0 len=19 | indices=[67620,68084) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000015_ch37_67620_68084.dat
+[PKT 000016] ch=37 type=0 len=19 | indices=[72092,72556) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000016_ch37_72092_72556.dat
+[PKT 000017] ch=37 type=0 len=19 | indices=[76564,77028) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000017_ch37_76564_77028.dat
+[PKT 000018] ch=37 type=0 len=19 | indices=[81036,81500) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000018_ch37_81036_81500.dat
+[PKT 000019] ch=37 type=0 len=19 | indices=[85508,85972) span=464 | captured=464 samples
+  -> Saved: iq_dump_37_t/ble_pkt_000019_ch37_85508_85972.dat
+
+Done. Complex read: 89440, complex fed: 89440, packets: 20
+PCAP: out_ch37_t.pcap
+Features: features.csv
