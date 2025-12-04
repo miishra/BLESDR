@@ -1,0 +1,46 @@
+================================================================================
+BLE FINGERPRINT FEATURE STATISTICS SUMMARY
+================================================================================
+
+Total features analyzed: 27
+
+Stability Ranking (by Mean Std Dev):
+--------------------------------------------------------------------------------
+Rank   Feature                                  Mean Std        Mean Range     
+--------------------------------------------------------------------------------
+1      joint_A                                  0.00            0.00           
+2      joint_I0                                 0.00            0.00           
+3      joint_Q0                                 0.00            0.00           
+4      joint_cost                               0.00            0.00           
+5      joint_eps                                0.00            0.00           
+6      joint_fo_hz                              0.00            0.00           
+7      joint_iters                              0.00            0.00           
+8      joint_phi_deg                            0.00            0.00           
+9      iq_gain_alpha                            0.04            0.15           
+10     psd_pnr_db                               0.40            1.83           
+11     cfo_centroid_hz                          1.05            4.95           
+12     cfo_two_stage_coarse_hz                  1.44            6.38           
+13     cfo_quick_hz                             1.58            5.50           
+14     cfo_two_stage_hz                         1.58            5.50           
+15     psd_centroid_hz                          1.61            5.78           
+16     rise_time_us                             2.33            7.22           
+17     gated_len_us                             3.79            11.50          
+18     cfo_exact_ls_hz                          5.36            26.33          
+19     cfo_equal_00_hz                          8.73            34.74          
+20     cfo_std_hz                               10.81           56.87          
+21     cfo_std_sym_hz                           12.08           58.96          
+22     cfo_equal_11_hz                          13.12           49.61          
+23     cfo_jump_10_hz                           18.38           80.55          
+24     cfo_jump_01_hz                           23.09           91.20          
+25     cfo_exact_quick_hz                       24.17           101.41         
+26     bw_3db_hz                                36.84           148.02         
+27     iq_phase_deg_deg                         50.91           174.38         
+
+================================================================================
+RECOMMENDATION:
+================================================================================
+
+Top 3 most stable features for fingerprinting:
+  1. joint_A (std=0.00)
+  2. joint_I0 (std=0.00)
+  3. joint_Q0 (std=0.00)

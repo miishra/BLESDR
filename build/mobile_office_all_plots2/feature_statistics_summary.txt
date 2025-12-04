@@ -1,0 +1,46 @@
+================================================================================
+BLE FEATURE STATISTICS SUMMARY (GROUPED BY MAC)
+================================================================================
+
+Input CSV: mobile_office_all2.csv
+TOP_K_MACS: None
+MIN_SAMPLES_PER_MAC: 5
+
+Total features analyzed: 27
+
+Stability Ranking (by Mean Std Dev across MAC groups):
+--------------------------------------------------------------------------------
+Rank   Feature                                  Mean Std        Mean Range     
+--------------------------------------------------------------------------------
+1      gated_len_us                             0.00            0.00           
+2      joint_A                                  0.00            0.00           
+3      joint_I0                                 0.00            0.00           
+4      joint_Q0                                 0.00            0.00           
+5      joint_cost                               0.00            0.00           
+6      joint_eps                                0.00            0.00           
+7      joint_fo_hz                              0.00            0.00           
+8      joint_iters                              0.00            0.00           
+9      joint_phi_deg                            0.00            0.00           
+10     iq_gain_alpha                            0.04            0.17           
+11     psd_pnr_db                               0.71            4.33           
+12     cfo_centroid_hz                          1.49            13.90          
+13     cfo_two_stage_coarse_hz                  2.32            21.91          
+14     psd_centroid_hz                          6.61            60.86          
+15     cfo_quick_hz                             7.71            84.30          
+16     cfo_two_stage_hz                         7.71            84.30          
+17     cfo_exact_ls_hz                          8.37            56.87          
+18     cfo_equal_00_hz                          10.06           88.40          
+19     cfo_jump_10_hz                           11.51           104.83         
+20     cfo_jump_01_hz                           12.32           103.61         
+21     cfo_equal_11_hz                          15.16           105.32         
+22     cfo_std_sym_hz                           16.21           110.04         
+23     cfo_std_hz                               20.99           154.04         
+24     cfo_exact_quick_hz                       25.26           163.87         
+25     rise_time_us                             37.78           115.34         
+26     iq_phase_deg_deg                         51.62           178.71         
+27     bw_3db_hz                                59.28           331.47         
+
+Top 3 most stable:
+  1. gated_len_us (std=0.00, range=0.00)
+  2. joint_A (std=0.00, range=0.00)
+  3. joint_I0 (std=0.00, range=0.00)
