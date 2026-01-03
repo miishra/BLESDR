@@ -4,23 +4,17 @@
 """
 BLE Device Fingerprinting using CFO Statistics (grouped by MAC/AdvA)
 
-- Loads one consolidated CSV (cfo_samples_rail.csv)
-- Groups packets by MAC address column (AdvA / adv_addr). Each MAC = one "device".
-- For each MAC:
-    * Sort by pcap_ts if present, else keep CSV order
-    * Temporal split: first 70% packets -> training features, remaining 30% -> testing features
-    * Features are computed from selected CFO columns (mean and/or std)
+Improvements (minimal structural changes, but accuracy-focused):
+  - Builds MULTIPLE samples per MAC by windowing packets within each MAC's 70/30 temporal split
+  - Gives higher importance to MEAN by repeating mean features (MEAN_REPEATS)
+  - Adds a small set of robust distribution features (not too many to avoid overfitting)
+  - Improves RF hyperparameters for this regime
 
-Selectable CFO columns (from cfo_samples_rail.csv):
-  - Primary CFO: prefers "CFO_Hz" if present, else auto-detect any column containing 'cfo' and 'hz'
-  - Transition CFOs (if present):
-      * CFO_00_Hz, CFO_11_Hz, CFO_10_Hz, CFO_01_Hz
-      * CFO_from_transitions_Hz
-
+Input: cfo_samples_rail.csv
 Outputs:
-  - all_devices_static/ble_fingerprint_classification_results.txt
-  - all_devices_static/ble_fingerprint_confusion_matrix.png
-  - all_devices_static/ble_fingerprint_feature_distribution.png
+  - all_devices_static_rail/ble_fingerprint_classification_results.txt
+  - all_devices_static_rail/ble_fingerprint_confusion_matrix.png
+  - all_devices_static_rail/ble_fingerprint_feature_distribution.png
 """
 
 import os
@@ -33,7 +27,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score, precision_recall_fscore_support,
@@ -52,7 +45,15 @@ OUTPUT_DIR = "all_devices_static_rail"
 MAC_COL = "AdvA"
 
 TRAIN_FRACTION = 0.7          # temporal split within each MAC
-MIN_PKTS_PER_MAC = 10         # minimum valid packets per MAC (per selected column) to keep class
+MIN_PKTS_PER_MAC = 100        # minimum usable packets per MAC (after dropping NaNs) to keep class
+
+# NEW: create many samples per MAC using fixed packet windows inside train/test split
+WINDOW_PKTS = 10              # packets per sample-window (increase if CFO is noisy)
+WINDOW_STEP = 10              # step between windows (==WINDOW_PKTS -> non-overlapping)
+MIN_WINDOWS_PER_MAC = 2       # require at least this many train windows and test windows combined? (we'll gate per split)
+
+# NEW: give mean more importance by repetition (RF feature-subsampling makes repetition matter)
+MEAN_REPEATS = 4              # mean repeated this many times per CFO column (>=2 strongly biases RF toward mean)
 
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
@@ -70,10 +71,18 @@ OPTIONAL_CFO_COLS = [
     "CFO_from_transitions_Hz",
 ]
 
+# NEW: keep extra stats SMALL and robust (too many stats can hurt with few classes/samples)
+EXTRA_STATS = (
+    "median",
+    "iqr",
+    "p10",
+    "p90",
+    "mad",
+)
+
 # --------------------------- helpers ---------------------------
 
 def _col_lookup_case_insensitive(df: pd.DataFrame, name: str) -> str:
-    """Return actual column name matching `name` case-insensitively, or ''."""
     target = name.lower()
     for c in df.columns:
         if str(c).lower() == target:
@@ -82,16 +91,11 @@ def _col_lookup_case_insensitive(df: pd.DataFrame, name: str) -> str:
 
 
 def resolve_mac_column(df: pd.DataFrame) -> str:
-    """
-    Pick the grouping key column from cfo_samples_rail.csv.
-    Prefers: AdvA, then adv_addr, then any column containing 'adv' and 'a'/'addr'.
-    """
     for cand in ["AdvA", "adv_addr", "advA", "ADV_A", "adv_address", "advaddr"]:
         hit = _col_lookup_case_insensitive(df, cand)
         if hit:
             return hit
 
-    # loose fallback
     lowers = [str(c).lower() for c in df.columns]
     for c, lc in zip(df.columns, lowers):
         if ("adv" in lc) and ("addr" in lc or lc.endswith("a") or "adva" in lc):
@@ -101,16 +105,13 @@ def resolve_mac_column(df: pd.DataFrame) -> str:
 
 
 def find_primary_cfo_column(df: pd.DataFrame) -> str:
-    """Find the primary CFO column in Hz. Prefers CFO_Hz if present."""
     cols = list(df.columns)
     lower = [str(c).lower() for c in cols]
 
-    # Prefer the output of your sniffer CSV
     for c, lc in zip(cols, lower):
         if lc in ["cfo_hz", "cfo_quick_hz", "est_cfo_hz", "cfo_exact_quick_hz"]:
             return str(c)
 
-    # Any CFO Hz column
     for c, lc in zip(cols, lower):
         if "cfo" in lc and "hz" in lc:
             return str(c)
@@ -119,26 +120,27 @@ def find_primary_cfo_column(df: pd.DataFrame) -> str:
 
 
 def get_feature_choice() -> Tuple[bool, bool]:
-    """Ask user which statistics to use: mean, std, or both."""
     print("\n" + "=" * 80)
     print("STATISTIC SELECTION")
     print("=" * 80)
     print("\nWhich statistics would you like to use per selected CFO column?")
-    print("  1) Mean only")
+    print("  1) Mean only  (mean is up-weighted via repetition)")
     print("  2) Standard Deviation only")
     print("  3) Both Mean and Standard Deviation")
+    print("\nNOTE: Additional robust distribution stats are ALWAYS included:")
+    print("      " + ", ".join(EXTRA_STATS))
 
     while True:
         try:
             choice = input("\nEnter your choice (1-3): ").strip()
             if choice == "1":
-                print("\n✓ Selected: Mean only")
+                print("\n✓ Selected: Mean only (+ extra distribution stats)")
                 return True, False
             if choice == "2":
-                print("\n✓ Selected: Std Dev only")
+                print("\n✓ Selected: Std Dev only (+ extra distribution stats)")
                 return False, True
             if choice == "3":
-                print("\n✓ Selected: Mean and Std Dev")
+                print("\n✓ Selected: Mean and Std Dev (+ extra distribution stats)")
                 return True, True
             print("Invalid choice. Please enter 1, 2, or 3.")
         except KeyboardInterrupt:
@@ -147,17 +149,10 @@ def get_feature_choice() -> Tuple[bool, bool]:
 
 
 def choose_cfo_columns(df: pd.DataFrame) -> List[str]:
-    """
-    Ask user which CFO columns to include.
-    Offers the primary CFO column + transition CFO columns if present.
-    """
     primary = find_primary_cfo_column(df)
     available = set(map(str, df.columns))
 
-    # Build choices: (col_name, default_on)
     choices = [(primary, True)]
-
-    # Add transition CFOs if present (case-insensitive)
     for c in OPTIONAL_CFO_COLS:
         hit = _col_lookup_case_insensitive(df, c)
         if hit and hit in available and hit != primary:
@@ -166,7 +161,7 @@ def choose_cfo_columns(df: pd.DataFrame) -> List[str]:
     print("\n" + "=" * 80)
     print("CFO TYPE SELECTION")
     print("=" * 80)
-    print("\nSelect which CFO types to use (features will be computed per column).")
+    print("\nSelect which CFO types to use (features computed per column).")
     print("Enter a comma-separated list of numbers, e.g., 1,3,4")
     print("Press Enter for default (primary CFO only).\n")
 
@@ -211,7 +206,6 @@ def choose_cfo_columns(df: pd.DataFrame) -> List[str]:
 
 
 def sort_packets_for_temporal_split(df_mac: pd.DataFrame) -> pd.DataFrame:
-    """Sort packets inside one MAC group for temporal splitting."""
     if "pcap_ts" in df_mac.columns:
         ts = pd.to_numeric(df_mac["pcap_ts"], errors="coerce")
         if np.isfinite(ts).any():
@@ -219,23 +213,81 @@ def sort_packets_for_temporal_split(df_mac: pd.DataFrame) -> pd.DataFrame:
     return df_mac
 
 
+def _safe_percentile(x: np.ndarray, q: float) -> float:
+    if x.size == 0:
+        return float("nan")
+    return float(np.percentile(x, q))
+
+
+def _mad(x: np.ndarray) -> float:
+    if x.size == 0:
+        return float("nan")
+    med = np.median(x)
+    return float(np.median(np.abs(x - med)))
+
+
 def compute_stats_vector(vals: np.ndarray, use_mean: bool, use_std: bool) -> List[float]:
+    """
+    Features per CFO column, per window.
+    Mean is repeated MEAN_REPEATS times to bias RF toward mean (via feature subsampling).
+    """
     feats: List[float] = []
+    if vals.size == 0:
+        # keep fixed shape
+        if use_mean:
+            feats.extend([float("nan")] * MEAN_REPEATS)
+        if use_std:
+            feats.append(float("nan"))
+        feats.extend([float("nan")] * len(EXTRA_STATS))
+        return feats
+
     if use_mean:
-        feats.append(float(np.mean(vals)) if vals.size else np.nan)
+        m = float(np.mean(vals))
+        feats.extend([m] * MEAN_REPEATS)
+
     if use_std:
-        feats.append(float(np.std(vals)) if vals.size > 1 else np.nan)
+        feats.append(float(np.std(vals)) if vals.size > 1 else 0.0)
+
+    med = float(np.median(vals))
+    p10 = _safe_percentile(vals, 10)
+    p90 = _safe_percentile(vals, 90)
+    q1 = _safe_percentile(vals, 25)
+    q3 = _safe_percentile(vals, 75)
+    iqr = float(q3 - q1) if np.isfinite(q3) and np.isfinite(q1) else float("nan")
+    mad = _mad(vals)
+
+    feats.extend([med, iqr, p10, p90, mad])
     return feats
 
 
 def build_feature_names(selected_cols: List[str], use_mean: bool, use_std: bool) -> List[str]:
-    names = []
+    names: List[str] = []
     for col in selected_cols:
         if use_mean:
-            names.append(f"{col}:mean")
+            for r in range(1, MEAN_REPEATS + 1):
+                names.append(f"{col}:mean_r{r}")
         if use_std:
             names.append(f"{col}:std")
+        names.append(f"{col}:median")
+        names.append(f"{col}:iqr")
+        names.append(f"{col}:p10")
+        names.append(f"{col}:p90")
+        names.append(f"{col}:mad")
     return names
+
+
+def _make_windows(mat: np.ndarray, win: int, step: int) -> List[np.ndarray]:
+    """
+    mat: shape (N, C) packets-by-columns
+    returns list of window slices, each (win, C)
+    """
+    out = []
+    n = mat.shape[0]
+    if n < win:
+        return out
+    for s in range(0, n - win + 1, step):
+        out.append(mat[s:s + win, :])
+    return out
 
 
 def collect_all_data_by_mac(
@@ -245,8 +297,7 @@ def collect_all_data_by_mac(
     use_std: bool
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, List[str], List[str]]:
     """
-    Build one training sample + one testing sample per MAC address.
-    Feature vector = concatenation of requested stats for each selected CFO column.
+    Build many training/testing samples per MAC via windowing inside each MAC's temporal split.
     """
     if MAC_COL not in df.columns:
         raise ValueError(f"CSV missing required column '{MAC_COL}'")
@@ -263,54 +314,61 @@ def collect_all_data_by_mac(
     y_train_list, y_test_list = [], []
     kept_macs = []
 
-    feat_dim = len(selected_cfo_cols) * (int(use_mean) + int(use_std))
+    per_col_dim = (MEAN_REPEATS if use_mean else 0) + (1 if use_std else 0) + len(EXTRA_STATS)
+    feat_dim = len(selected_cfo_cols) * per_col_dim
 
     for mac in macs:
         df_mac = df[df[MAC_COL].astype(str) == mac]
         df_mac = sort_packets_for_temporal_split(df_mac)
 
-        train_feat_vec: List[float] = []
-        test_feat_vec: List[float] = []
+        # Keep packet alignment across all selected CFO columns:
+        df_vals = df_mac[selected_cfo_cols].apply(pd.to_numeric, errors="coerce")
+        # drop packets where ANY selected col is invalid
+        df_vals = df_vals.replace([np.inf, -np.inf], np.nan).dropna(axis=0, how="any")
 
-        ok = True
-        for col in selected_cfo_cols:
-            vals = pd.to_numeric(df_mac[col], errors="coerce").values
-            vals = vals[np.isfinite(vals)]
-
-            if vals.size < MIN_PKTS_PER_MAC:
-                ok = False
-                break
-
-            split_idx = int(vals.size * TRAIN_FRACTION)
-            split_idx = max(1, min(split_idx, vals.size - 1))
-
-            train_vals = vals[:split_idx]
-            test_vals = vals[split_idx:]
-
-            train_feat_vec.extend(compute_stats_vector(train_vals, use_mean, use_std))
-            test_feat_vec.extend(compute_stats_vector(test_vals, use_mean, use_std))
-
-        if not ok:
+        if df_vals.shape[0] < MIN_PKTS_PER_MAC:
             continue
 
-        train_arr = np.asarray(train_feat_vec, dtype=float)
-        test_arr = np.asarray(test_feat_vec, dtype=float)
+        V = df_vals.values.astype(np.float64)  # shape (N, ncols)
 
-        if train_arr.shape[0] != feat_dim or test_arr.shape[0] != feat_dim:
+        split_idx = int(V.shape[0] * TRAIN_FRACTION)
+        split_idx = max(WINDOW_PKTS, min(split_idx, V.shape[0] - WINDOW_PKTS))
+
+        V_train = V[:split_idx, :]
+        V_test = V[split_idx:, :]
+
+        train_windows = _make_windows(V_train, WINDOW_PKTS, WINDOW_STEP)
+        test_windows = _make_windows(V_test, WINDOW_PKTS, WINDOW_STEP)
+
+        if len(train_windows) < MIN_WINDOWS_PER_MAC or len(test_windows) < MIN_WINDOWS_PER_MAC:
             continue
-        if not (np.all(np.isfinite(train_arr)) and np.all(np.isfinite(test_arr))):
-            continue
 
-        X_train_list.append(train_arr)
-        X_test_list.append(test_arr)
-        y_train_list.append(mac)
-        y_test_list.append(mac)
-        kept_macs.append(mac)
+        # Build features per window
+        for W in train_windows:
+            feats = []
+            for j in range(W.shape[1]):
+                feats.extend(compute_stats_vector(W[:, j], use_mean, use_std))
+            arr = np.asarray(feats, dtype=float)
+            if arr.shape[0] == feat_dim and np.all(np.isfinite(arr)):
+                X_train_list.append(arr)
+                y_train_list.append(mac)
 
-    if not X_train_list:
+        for W in test_windows:
+            feats = []
+            for j in range(W.shape[1]):
+                feats.extend(compute_stats_vector(W[:, j], use_mean, use_std))
+            arr = np.asarray(feats, dtype=float)
+            if arr.shape[0] == feat_dim and np.all(np.isfinite(arr)):
+                X_test_list.append(arr)
+                y_test_list.append(mac)
+
+        if mac not in kept_macs and (y_train_list.count(mac) > 0) and (y_test_list.count(mac) > 0):
+            kept_macs.append(mac)
+
+    if not X_train_list or not X_test_list:
         raise ValueError(
-            "No valid MAC groups found after filtering. "
-            f"Try lowering MIN_PKTS_PER_MAC (currently {MIN_PKTS_PER_MAC})."
+            "No valid MAC groups found after filtering/windowing. "
+            "Try adjusting MIN_PKTS_PER_MAC, WINDOW_PKTS/WINDOW_STEP, or MIN_WINDOWS_PER_MAC."
         )
 
     X_train = np.vstack(X_train_list)
@@ -325,11 +383,13 @@ def collect_all_data_by_mac(
     print(f"Grouping key: {MAC_COL}")
     print(f"MACs total: {len(macs)} | MACs kept: {len(class_names)} (MIN_PKTS_PER_MAC={MIN_PKTS_PER_MAC})")
     print(f"Selected CFO columns: {selected_cfo_cols}")
-    print(f"Statistics used: {'mean ' if use_mean else ''}{'std' if use_std else ''}".strip())
+    print(f"Mean repeats: {MEAN_REPEATS} (mean is prioritized)")
+    print(f"Extra stats used: {', '.join(EXTRA_STATS)}")
+    print(f"Windowing: WINDOW_PKTS={WINDOW_PKTS}, WINDOW_STEP={WINDOW_STEP}, MIN_WINDOWS_PER_MAC={MIN_WINDOWS_PER_MAC}")
     print(f"Feature dim: {X_train.shape[1]}")
     print(f"Training fraction per MAC: {TRAIN_FRACTION:.0%} / Testing: {1-TRAIN_FRACTION:.0%}")
-    print(f"Train samples: {X_train.shape[0]} (one per MAC)")
-    print(f"Test samples:  {X_test.shape[0]} (one per MAC)")
+    print(f"Train samples: {X_train.shape[0]} (windows)")
+    print(f"Test samples:  {X_test.shape[0]} (windows)")
 
     return X_train, X_test, y_train, y_test, class_names, feature_names
 
@@ -337,20 +397,24 @@ def collect_all_data_by_mac(
 # --------------------------- training & evaluation ---------------------------
 
 def train_and_evaluate(X_train, X_test, y_train, y_test, class_names, feature_names):
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
+    # RF does not require scaling; keep raw features (helps interpretability too)
+    print("\nTraining Random Forest (tuned)...")
 
-    print("\nTraining Random Forest...")
     rf = RandomForestClassifier(
-        n_estimators=400,
-        max_depth=12,
-        min_samples_split=2,
+        n_estimators=2000,
+        max_depth=18,                 # limit depth to reduce overfit
+        min_samples_split=4,
+        min_samples_leaf=2,
+        max_features="sqrt",          # good default, reduces correlation between trees
+        bootstrap=True,
+        oob_score=True,
+        class_weight="balanced_subsample",
         random_state=RANDOM_SEED,
-        n_jobs=-1
+        n_jobs=-1,
     )
-    rf.fit(X_train_scaled, y_train)
-    y_pred = rf.predict(X_test_scaled)
+
+    rf.fit(X_train, y_train)
+    y_pred = rf.predict(X_test)
 
     accuracy = accuracy_score(y_test, y_pred)
     prec, rec, f1, _ = precision_recall_fscore_support(
@@ -360,56 +424,56 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, class_names, feature_na
 
     importances = dict(zip(feature_names, rf.feature_importances_)) if feature_names else None
 
+    # OOB can be helpful as a sanity check
+    oob = getattr(rf, "oob_score_", None)
+
     return {
         "model": rf,
-        "scaler": scaler,
         "y_pred": y_pred,
         "accuracy": accuracy,
         "precision": prec,
         "recall": rec,
         "f1": f1,
         "confusion_matrix": cm,
-        "feature_importances": importances
+        "feature_importances": importances,
+        "oob_score": oob,
     }
 
 
 # --------------------------- visualization ---------------------------
 
 def plot_feature_distribution(X_train, X_test, y_train, feature_names, outfile):
-    """
-    For multi-dimensional feature vectors, show train and test side-by-side heatmaps (kHz-scaled).
-    """
     order = np.argsort(y_train)
     labels = y_train[order]
 
     X_train_khz = X_train[order] / 1e3
-    X_test_khz = X_test[order] / 1e3
+    X_test_khz = X_test / 1e3  # not aligned to train order necessarily
 
-    fig_h = max(6, 0.25 * len(labels))
+    fig_h = max(6, 0.25 * min(len(labels), 200))
     fig_w = max(10, 0.35 * len(feature_names))
 
     fig, axes = plt.subplots(1, 2, figsize=(fig_w, fig_h))
 
     sns.heatmap(
-        X_train_khz,
+        X_train_khz[:200, :],  # cap to keep plot readable
         ax=axes[0],
         cmap="viridis",
         cbar=True,
-        yticklabels=labels if len(labels) <= 60 else False,
+        yticklabels=labels[:200] if len(labels) <= 60 else False,
         xticklabels=feature_names,
     )
-    axes[0].set_title(f"Train features (first {TRAIN_FRACTION:.0%}) [kHz]")
+    axes[0].set_title(f"Train windows (first {TRAIN_FRACTION:.0%}) [kHz] (showing up to 200)")
     axes[0].tick_params(axis="x", rotation=60)
 
     sns.heatmap(
-        X_test_khz,
+        X_test_khz[:200, :],   # cap
         ax=axes[1],
         cmap="viridis",
         cbar=True,
         yticklabels=False,
         xticklabels=feature_names,
     )
-    axes[1].set_title(f"Test features (last {1-TRAIN_FRACTION:.0%}) [kHz]")
+    axes[1].set_title(f"Test windows (last {1-TRAIN_FRACTION:.0%}) [kHz] (showing up to 200)")
     axes[1].tick_params(axis="x", rotation=60)
 
     plt.tight_layout()
@@ -436,8 +500,12 @@ def plot_confusion_matrix(results, class_names, outfile):
         cbar_kws={"label": "Normalized Count"}
     )
 
-    ax.set_title(f"Random Forest Confusion Matrix\nAccuracy: {results['accuracy']:.1%}",
-                 fontsize=14, fontweight="bold")
+    oob = results.get("oob_score", None)
+    title = f"Random Forest Confusion Matrix\nAccuracy: {results['accuracy']:.1%}"
+    if isinstance(oob, float):
+        title += f" | OOB: {oob:.1%}"
+
+    ax.set_title(title, fontsize=14, fontweight="bold")
     ax.set_ylabel("True MAC", fontsize=12)
     ax.set_xlabel("Predicted MAC", fontsize=12)
     ax.tick_params(axis="x", rotation=60)
@@ -458,15 +526,18 @@ def write_results_report(results, class_names, y_test, X_train, X_test, y_train,
 
         f.write(f"Input CSV: {FNAME}\n")
         f.write(f"Grouping key: {MAC_COL} (each MAC treated as one device)\n")
-        f.write(f"MIN_PKTS_PER_MAC: {MIN_PKTS_PER_MAC}\n\n")
+        f.write(f"MIN_PKTS_PER_MAC: {MIN_PKTS_PER_MAC}\n")
+        f.write(f"Windowing: WINDOW_PKTS={WINDOW_PKTS}, WINDOW_STEP={WINDOW_STEP}, MIN_WINDOWS_PER_MAC={MIN_WINDOWS_PER_MAC}\n")
+        f.write(f"Mean repeats (priority): MEAN_REPEATS={MEAN_REPEATS}\n\n")
 
         f.write(f"Selected CFO columns: {', '.join(selected_cols)}\n")
         f.write(f"Stats: {'mean ' if use_mean else ''}{'std' if use_std else ''}\n".strip() + "\n")
+        f.write(f"Extra distribution stats: {', '.join(EXTRA_STATS)}\n")
         f.write(f"Training fraction: {TRAIN_FRACTION:.0%} per MAC\n\n")
 
         f.write(f"Number of MAC classes: {len(class_names)}\n")
-        f.write(f"Train samples: {len(y_train)} (one per MAC)\n")
-        f.write(f"Test samples:  {len(y_test)} (one per MAC)\n\n")
+        f.write(f"Train samples (windows): {len(y_train)}\n")
+        f.write(f"Test samples  (windows): {len(y_test)}\n\n")
 
         f.write("-" * 80 + "\n")
         f.write("FEATURE NAMES\n")
@@ -475,18 +546,7 @@ def write_results_report(results, class_names, y_test, X_train, X_test, y_train,
             f.write(f"{i:3d}: {name}\n")
         f.write("\n")
 
-        f.write("-" * 80 + "\n")
-        f.write("FEATURE VALUES (Hz)\n")
-        f.write("-" * 80 + "\n")
-
-        order = np.argsort(y_train)
-        f.write("MAC," + ",".join([f"train_{n}" for n in feature_names]) + "," + ",".join([f"test_{n}" for n in feature_names]) + "\n")
-        for i in order:
-            row = [y_train[i]] + [f"{v:.6f}" for v in X_train[i]] + [f"{v:.6f}" for v in X_test[i]]
-            f.write(",".join(row) + "\n")
-        f.write("\n")
-
-        if results["feature_importances"] is not None:
+        if results.get("feature_importances") is not None:
             f.write("-" * 80 + "\n")
             f.write("FEATURE IMPORTANCES\n")
             f.write("-" * 80 + "\n")
@@ -500,7 +560,10 @@ def write_results_report(results, class_names, y_test, X_train, X_test, y_train,
         f.write(f"Accuracy:  {results['accuracy']:.2%}\n")
         f.write(f"Precision: {results['precision']:.2%}\n")
         f.write(f"Recall:    {results['recall']:.2%}\n")
-        f.write(f"F1-Score:  {results['f1']:.2%}\n\n")
+        f.write(f"F1-Score:  {results['f1']:.2%}\n")
+        if isinstance(results.get("oob_score", None), float):
+            f.write(f"OOB Score:  {results['oob_score']:.2%}\n")
+        f.write("\n")
 
         f.write("Per-MAC Classification Report:\n")
         f.write(classification_report(
@@ -532,14 +595,13 @@ def main():
 
     df = pd.read_csv(FNAME)
 
-    # Resolve MAC column for this CSV (AdvA vs adv_addr, etc.)
     MAC_COL = resolve_mac_column(df)
     print(f"\nDetected MAC column: {MAC_COL}")
 
     use_mean, use_std = get_feature_choice()
     selected_cols = choose_cfo_columns(df)
 
-    print("\nBuilding per-MAC train/test feature sets...")
+    print("\nBuilding per-MAC train/test feature sets (windowed)...")
     X_train, X_test, y_train, y_test, class_names, feature_names = collect_all_data_by_mac(
         df, selected_cols, use_mean, use_std
     )
@@ -558,6 +620,8 @@ def main():
     print(f"Precision: {results['precision']:.2%}")
     print(f"Recall:    {results['recall']:.2%}")
     print(f"F1-Score:  {results['f1']:.2%}")
+    if isinstance(results.get("oob_score", None), float):
+        print(f"OOB Score:  {results['oob_score']:.2%}")
 
     print("\nGenerating outputs...")
     plot_feature_distribution(X_train, X_test, y_train, feature_names, OUT_DISTRIBUTION)

@@ -496,11 +496,11 @@ def is_findmy_or_tag_ecosystem(pdu_std_bytes: bytes):
                         if (findmy_prefix == 0x12) and (pos + 6 < ad_len) and (ad_data[pos + 5] == 0x19):
                             return True, True, "Apple 0x004C + 0x12 0x19"
 
-        if ad_type == 0x16 and length >= 3:
-            if pos + 4 <= ad_len:
-                svc_uuid = ad_data[pos + 2] | (ad_data[pos + 3] << 8)
-                if _is_tag_service_uuid(svc_uuid):
-                    return False, True, f"ServiceData UUID 0x{svc_uuid:04X}"
+        # if ad_type == 0x16 and length >= 3:
+        #     if pos + 4 <= ad_len:
+        #         svc_uuid = ad_data[pos + 2] | (ad_data[pos + 3] << 8)
+        #         if _is_tag_service_uuid(svc_uuid):
+        #             return False, True, f"ServiceData UUID 0x{svc_uuid:04X}"
 
         pos += 1 + length
 
@@ -637,7 +637,8 @@ def estimate_cfo_hz(
         return overall_cfo
 
     # -------------------------
-    # (B) Transition CFOs via phasor sums (C-like estimator)
+    # (B) Transition CFOs via phasor sums (matches your C Accum/add_prod/accum_to_cfo)
+    #     IMPORTANT: transitions computed on *packet bits only* (AA+HDR+PAYLOAD...), NOT preamble.
     # -------------------------
     trans = {
         "cfo_equal_00": float("nan"),
@@ -652,41 +653,74 @@ def estimate_cfo_hz(
         "nprod_total": 0,
     }
 
-    # Need IQ samples aligned with freq_burst.
-    # Recommended: iq_burst = iq_up[s_up : e_f+1] so len(iq_burst) == len(freq_burst_base)+1
-    if iq_burst is None or iq_burst.size < (end + 1):
+    if iq_burst is None:
         return overall_cfo, trans
 
-    # Build symbol bits (same as your decoder: sym = freq_burst[phase::sps], polarity applied)
+    # Build symbol bits (same slicer as decoder)
     sym = freq_burst[phase::sps]
     x = sym if polarity > 0 else -sym
     bits_all = (x > 0).astype(np.uint8)
 
-    # Grab the bits corresponding to the chosen window
-    if start_sym < 0 or (start_sym + total_bits) > bits_all.size:
+    # Transition CFOs should be over *packet bits*, excluding preamble.
+    # Our overall window always starts at preamble (aa_pos-8), so drop the first 8 bits here
+    # and start IQ at AA start.
+    trans_bits_total = total_bits - 8
+    if trans_bits_total < 2:
         return overall_cfo, trans
-    bits = bits_all[start_sym:start_sym + total_bits]
+
+    aa_start_sym = aa_pos                 # AA start (symbol index in bits_all)
+    aa_start_samp = phase + aa_start_sym * sps
+
+    if aa_start_sym < 0 or (aa_start_sym + trans_bits_total) > bits_all.size:
+        return overall_cfo, trans
+
+    bits = bits_all[aa_start_sym:aa_start_sym + trans_bits_total]
     if bits.size < 2:
         return overall_cfo, trans
 
-    # IQ window aligned to bit 0 start (so PREAMBLE_SAMPLES = 0 in the C code)
-    # We need samples covering [0 .. total_bits*sps] inclusive to form products
-    win_samples = total_bits * sps
-    if (start + win_samples) >= iq_burst.size:
+    # IQ samples aligned to bit-0 start (AA bit0), length = bits*sps (NO +1), matching C expectations:
+    # products exist for n=1..len(iq)-1
+    win_samples = int(bits.size) * int(sps)
+    if aa_start_samp < 0 or (aa_start_samp + win_samples) > iq_burst.size:
         return overall_cfo, trans
 
-    iq_win = iq_burst[start : start + win_samples + 1].astype(np.complex64, copy=False)
+    iq_win = iq_burst[aa_start_samp: aa_start_samp + win_samples].astype(np.complex64, copy=False)
+    if iq_win.size < 2:
+        return overall_cfo, trans
 
-    # Accumulators (phasor sums)
-    S00 = 0.0 + 0.0j
-    S11 = 0.0 + 0.0j
-    S10 = 0.0 + 0.0j
-    S01 = 0.0 + 0.0j
-    Stot = 0.0 + 0.0j
+    # C-style accumulators
+    Re00 = Im00 = 0.0
+    Re11 = Im11 = 0.0
+    Re10 = Im10 = 0.0
+    Re01 = Im01 = 0.0
+    Ret  = Imt  = 0.0
+    n00 = n11 = n10 = n01 = nt = 0
 
-    n00 = n11 = n10 = n01 = ntot = 0
+    def add_prod(re_im_n, x0, x1):
+        # z = x1 * conj(x0)
+        z = x1 * np.conj(x0)
+        re_im_n[0] += float(np.real(z))
+        re_im_n[1] += float(np.imag(z))
+        re_im_n[2] += 1
 
-    # Loop transitions i-1 -> i ; map bit i to samples [a,b) where a=i*sps, b=(i+1)*sps
+    # Pack bins for easier targeting
+    A00 = [Re00, Im00, n00]
+    A11 = [Re11, Im11, n11]
+    A10 = [Re10, Im10, n10]
+    A01 = [Re01, Im01, n01]
+    At  = [Ret,  Imt,  nt ]
+
+    # ---- Include products inside the *first* symbol (bit 0) so At matches "cfo_quick(iq_win)"
+    # This is the missing piece if you want overall_from_transitions to represent the whole window.
+    first_bit = int(bits[0])
+    first_acc = A00 if first_bit == 0 else A11
+    # internal products: n = 1..sps-1 within symbol 0
+    for n in range(1, min(sps, iq_win.size)):
+        add_prod(first_acc, iq_win[n - 1], iq_win[n])
+        add_prod(At,        iq_win[n - 1], iq_win[n])
+
+    # ---- Now handle transitions i-1 -> i, assigning ALL products of symbol i to that transition bin
+    # This matches your C loop: boundary product at n=a plus interior products up to b-1.
     for i in range(1, bits.size):
         a = i * sps
         b = (i + 1) * sps
@@ -694,56 +728,40 @@ def estimate_cfo_hz(
             break
 
         prevb = int(bits[i - 1])
-        curb = int(bits[i])
+        curb  = int(bits[i])
 
-        # choose accumulator
         if prevb == 0 and curb == 0:
-            tgt = "00"
+            tgt = A00
         elif prevb == 1 and curb == 1:
-            tgt = "11"
+            tgt = A11
         elif prevb == 1 and curb == 0:
-            tgt = "10"
+            tgt = A10
         else:  # prevb == 0 and curb == 1
-            tgt = "01"
+            tgt = A01
 
-        # products for n in [a .. b-1]: iq[n] * conj(iq[n-1])
-        # (includes boundary n=a, matching your C logic)
-        prods = iq_win[a:b] * np.conj(iq_win[a - 1:b - 1])
+        # products n=a..b-1 => z = iq[n] * conj(iq[n-1])
+        for n in range(a, b):
+            add_prod(tgt, iq_win[n - 1], iq_win[n])
+            add_prod(At,  iq_win[n - 1], iq_win[n])
 
-        s = np.sum(prods)
-        Stot += s
-        ntot += prods.size
-
-        if tgt == "00":
-            S00 += s
-            n00 += prods.size
-        elif tgt == "11":
-            S11 += s
-            n11 += prods.size
-        elif tgt == "10":
-            S10 += s
-            n10 += prods.size
-        else:
-            S01 += s
-            n01 += prods.size
-
-    def _phasor_sum_to_cfo(sum_phasor: complex, nprod: int) -> float:
-        if nprod <= 0:
+    def accum_to_cfo(acc):
+        # acc = [Re, Im, n]
+        if acc[2] <= 0:
             return float("nan")
-        # CFO (Hz) = angle(sum) * fs / (2π)
-        return float(np.angle(sum_phasor) * (fs_out / (2.0 * np.pi)))
+        ang = float(np.arctan2(acc[1], acc[0]))
+        return ang * (fs_out / (2.0 * np.pi))
 
-    trans["cfo_equal_00"] = _phasor_sum_to_cfo(S00, n00)
-    trans["cfo_equal_11"] = _phasor_sum_to_cfo(S11, n11)
-    trans["cfo_jump_10"]  = _phasor_sum_to_cfo(S10, n10)
-    trans["cfo_jump_01"]  = _phasor_sum_to_cfo(S01, n01)
-    trans["cfo_overall_from_transitions"] = _phasor_sum_to_cfo(Stot, ntot)
+    trans["cfo_equal_00"] = accum_to_cfo(A00)
+    trans["cfo_equal_11"] = accum_to_cfo(A11)
+    trans["cfo_jump_10"]  = accum_to_cfo(A10)
+    trans["cfo_jump_01"]  = accum_to_cfo(A01)
+    trans["cfo_overall_from_transitions"] = accum_to_cfo(At)
 
-    trans["nprod_00"] = n00
-    trans["nprod_11"] = n11
-    trans["nprod_10"] = n10
-    trans["nprod_01"] = n01
-    trans["nprod_total"] = ntot
+    trans["nprod_00"] = int(A00[2])
+    trans["nprod_11"] = int(A11[2])
+    trans["nprod_10"] = int(A10[2])
+    trans["nprod_01"] = int(A01[2])
+    trans["nprod_total"] = int(At[2])
 
     return overall_cfo, trans
 
@@ -1582,24 +1600,24 @@ def main():
     if args.stats_only:
         return
 
-    for p in packets:
-        print("---- BLE PACKET ----")
-        print("AA corr:", p["aa_corr"], "AA pos:", p["aa_pos"], "PRE corr:", p.get("pre_corr", -1))
-        print("Channel:", p["channel"], "Phase:", p["phase"], "Polarity:", p["polarity"])
-        print("Slip:", p.get("slip", 0))
-        print("PDU:", p["pdu_type_name"], f"(type={p['pdu_type']})")
-        print("Len:", p["length"], "TxAdd:", p["txadd"], "RxAdd:", p["rxadd"])
-        if "AdvA" in p:
-            print("AdvA:", p["AdvA"])
-        if "ScanA" in p:
-            print("ScanA:", p["ScanA"])
-        if "InitA" in p:
-            print("InitA:", p["InitA"])
-        if "TargetA" in p:
-            print("TargetA:", p["TargetA"])
-        print(f"Tag: is_airtag={p.get('is_airtag', False)}  is_tag_ecosystem={p.get('is_tag_ecosystem', False)}  reason={p.get('tag_reason','')}")
-        print(f"CRC ok: {p['crc_ok']}  CRC rx: 0x{p['crc_rx']:06x}  CRC calc: 0x{p['crc_calc']:06x}")
-        print()
+    # for p in packets:
+    #     print("---- BLE PACKET ----")
+    #     print("AA corr:", p["aa_corr"], "AA pos:", p["aa_pos"], "PRE corr:", p.get("pre_corr", -1))
+    #     print("Channel:", p["channel"], "Phase:", p["phase"], "Polarity:", p["polarity"])
+    #     print("Slip:", p.get("slip", 0))
+    #     print("PDU:", p["pdu_type_name"], f"(type={p['pdu_type']})")
+    #     print("Len:", p["length"], "TxAdd:", p["txadd"], "RxAdd:", p["rxadd"])
+    #     if "AdvA" in p:
+    #         print("AdvA:", p["AdvA"])
+    #     if "ScanA" in p:
+    #         print("ScanA:", p["ScanA"])
+    #     if "InitA" in p:
+    #         print("InitA:", p["InitA"])
+    #     if "TargetA" in p:
+    #         print("TargetA:", p["TargetA"])
+    #     print(f"Tag: is_airtag={p.get('is_airtag', False)}  is_tag_ecosystem={p.get('is_tag_ecosystem', False)}  reason={p.get('tag_reason','')}")
+    #     print(f"CRC ok: {p['crc_ok']}  CRC rx: 0x{p['crc_rx']:06x}  CRC calc: 0x{p['crc_calc']:06x}")
+    #     print()
 
 if __name__ == "__main__":
     main()
