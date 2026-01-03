@@ -4,7 +4,7 @@ BLE DEVICE FINGERPRINTING - RANDOM FOREST (MAC-GROUPED)
 
 Input CSV: /home/mishra/sdrs/BLESDR/build/test1.csv
 Grouping key: adv_addr (each MAC treated as one device)
-MIN_PKTS_PER_MAC: 20
+MIN_PKTS_PER_MAC: 10
 
 Selected CFO columns: cfo_quick_hz, cfo_equal_00_hz, cfo_equal_11_hz, cfo_jump_10_hz, cfo_jump_01_hz
 Stats: mean

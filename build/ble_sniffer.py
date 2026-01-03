@@ -33,6 +33,7 @@ from collections import defaultdict, Counter
 
 import numpy as np
 from scipy.signal import resample_poly
+import csv
 
 import matplotlib
 matplotlib.use("Agg")
@@ -530,6 +531,49 @@ def crc_diag_variants(crc_rx: int, crc_calc: int):
 # CFO ESTIMATION (Hz) over selectable window
 # ============================================================
 
+# def estimate_cfo_hz(
+#     freq_burst: np.ndarray,
+#     fs_out: float,
+#     phase: int,
+#     aa_pos: int,
+#     sps: int,
+#     payload_len_bytes: int,
+#     window: str = "pre_aa_hdr_payload",  # options below
+# ):
+#     """
+#     window options:
+#       - "pre_aa"              : preamble(8) + AA(32)
+#       - "pre_aa_hdr"          : preamble(8) + AA(32) + header(16)
+#       - "pre_aa_hdr_payload"  : preamble(8) + AA(32) + header(16) + payload(8*len)
+#     """
+#     if aa_pos is None or aa_pos < 8 or sps <= 0:
+#         return None
+
+#     if window == "pre_aa":
+#         total_bits = 8 + 32
+#     elif window == "pre_aa_hdr":
+#         total_bits = 8 + 32 + 16
+#     else:
+#         total_bits = 8 + 32 + 16 + payload_len_bytes * 8
+
+#     start = phase + (aa_pos - 8) * sps
+#     end = start + total_bits * sps
+
+#     if start < 0 or end > freq_burst.size or end <= start:
+#         return None
+
+#     seg = freq_burst[start:end].astype(np.float64)
+#     hz = seg * (fs_out / (2.0 * np.pi))
+
+#     if hz.size < 32:
+#         return float(np.median(hz))
+
+#     lo = int(0.10 * hz.size)
+#     hi = int(0.90 * hz.size)
+#     hz_sorted = np.sort(hz)
+#     hz_trim = hz_sorted[lo:hi] if hi > lo else hz_sorted
+#     return float(np.median(hz_trim))
+
 def estimate_cfo_hz(
     freq_burst: np.ndarray,
     fs_out: float,
@@ -537,17 +581,29 @@ def estimate_cfo_hz(
     aa_pos: int,
     sps: int,
     payload_len_bytes: int,
-    window: str = "pre_aa_hdr_payload",  # options below
+    window: str = "pre_aa_hdr_payload",
+    *,
+    polarity: int = +1,                 # needed to classify bits (0/1) consistently
+    iq_burst: np.ndarray = None,        # complex IQ aligned to freq_burst (len = len(freq_burst)+1 recommended)
+    return_transitions: bool = True,    # if False, returns only overall CFO float
 ):
     """
-    window options:
+    window options (all start at PREAMBLE start = aa_pos-8):
       - "pre_aa"              : preamble(8) + AA(32)
       - "pre_aa_hdr"          : preamble(8) + AA(32) + header(16)
       - "pre_aa_hdr_payload"  : preamble(8) + AA(32) + header(16) + payload(8*len)
+
+    Returns:
+      - if return_transitions=False: overall_cfo_hz (float)  [trimmed-median discriminator CFO]
+      - else: (overall_cfo_hz, trans_dict)
+        where trans_dict contains:
+            cfo_equal_00, cfo_equal_11, cfo_jump_10, cfo_jump_01, cfo_overall_from_transitions
+        (all in Hz; NaN if not computable)
     """
     if aa_pos is None or aa_pos < 8 or sps <= 0:
-        return None
+        return None if not return_transitions else (None, None)
 
+    # total bits in requested CFO window (starting at preamble)
     if window == "pre_aa":
         total_bits = 8 + 32
     elif window == "pre_aa_hdr":
@@ -555,24 +611,141 @@ def estimate_cfo_hz(
     else:
         total_bits = 8 + 32 + 16 + payload_len_bytes * 8
 
-    start = phase + (aa_pos - 8) * sps
+    start_sym = aa_pos - 8  # preamble start in symbol index
+    start = phase + start_sym * sps
     end = start + total_bits * sps
 
     if start < 0 or end > freq_burst.size or end <= start:
-        return None
+        return None if not return_transitions else (None, None)
 
+    # -------------------------
+    # (A) Your existing CFO (trimmed median of discriminator -> Hz)
+    # -------------------------
     seg = freq_burst[start:end].astype(np.float64)
     hz = seg * (fs_out / (2.0 * np.pi))
 
     if hz.size < 32:
-        return float(np.median(hz))
+        overall_cfo = float(np.median(hz))
+    else:
+        lo = int(0.10 * hz.size)
+        hi = int(0.90 * hz.size)
+        hz_sorted = np.sort(hz)
+        hz_trim = hz_sorted[lo:hi] if hi > lo else hz_sorted
+        overall_cfo = float(np.median(hz_trim))
 
-    lo = int(0.10 * hz.size)
-    hi = int(0.90 * hz.size)
-    hz_sorted = np.sort(hz)
-    hz_trim = hz_sorted[lo:hi] if hi > lo else hz_sorted
-    return float(np.median(hz_trim))
+    if not return_transitions:
+        return overall_cfo
 
+    # -------------------------
+    # (B) Transition CFOs via phasor sums (C-like estimator)
+    # -------------------------
+    trans = {
+        "cfo_equal_00": float("nan"),
+        "cfo_equal_11": float("nan"),
+        "cfo_jump_10": float("nan"),
+        "cfo_jump_01": float("nan"),
+        "cfo_overall_from_transitions": float("nan"),
+        "nprod_00": 0,
+        "nprod_11": 0,
+        "nprod_10": 0,
+        "nprod_01": 0,
+        "nprod_total": 0,
+    }
+
+    # Need IQ samples aligned with freq_burst.
+    # Recommended: iq_burst = iq_up[s_up : e_f+1] so len(iq_burst) == len(freq_burst_base)+1
+    if iq_burst is None or iq_burst.size < (end + 1):
+        return overall_cfo, trans
+
+    # Build symbol bits (same as your decoder: sym = freq_burst[phase::sps], polarity applied)
+    sym = freq_burst[phase::sps]
+    x = sym if polarity > 0 else -sym
+    bits_all = (x > 0).astype(np.uint8)
+
+    # Grab the bits corresponding to the chosen window
+    if start_sym < 0 or (start_sym + total_bits) > bits_all.size:
+        return overall_cfo, trans
+    bits = bits_all[start_sym:start_sym + total_bits]
+    if bits.size < 2:
+        return overall_cfo, trans
+
+    # IQ window aligned to bit 0 start (so PREAMBLE_SAMPLES = 0 in the C code)
+    # We need samples covering [0 .. total_bits*sps] inclusive to form products
+    win_samples = total_bits * sps
+    if (start + win_samples) >= iq_burst.size:
+        return overall_cfo, trans
+
+    iq_win = iq_burst[start : start + win_samples + 1].astype(np.complex64, copy=False)
+
+    # Accumulators (phasor sums)
+    S00 = 0.0 + 0.0j
+    S11 = 0.0 + 0.0j
+    S10 = 0.0 + 0.0j
+    S01 = 0.0 + 0.0j
+    Stot = 0.0 + 0.0j
+
+    n00 = n11 = n10 = n01 = ntot = 0
+
+    # Loop transitions i-1 -> i ; map bit i to samples [a,b) where a=i*sps, b=(i+1)*sps
+    for i in range(1, bits.size):
+        a = i * sps
+        b = (i + 1) * sps
+        if b > iq_win.size:
+            break
+
+        prevb = int(bits[i - 1])
+        curb = int(bits[i])
+
+        # choose accumulator
+        if prevb == 0 and curb == 0:
+            tgt = "00"
+        elif prevb == 1 and curb == 1:
+            tgt = "11"
+        elif prevb == 1 and curb == 0:
+            tgt = "10"
+        else:  # prevb == 0 and curb == 1
+            tgt = "01"
+
+        # products for n in [a .. b-1]: iq[n] * conj(iq[n-1])
+        # (includes boundary n=a, matching your C logic)
+        prods = iq_win[a:b] * np.conj(iq_win[a - 1:b - 1])
+
+        s = np.sum(prods)
+        Stot += s
+        ntot += prods.size
+
+        if tgt == "00":
+            S00 += s
+            n00 += prods.size
+        elif tgt == "11":
+            S11 += s
+            n11 += prods.size
+        elif tgt == "10":
+            S10 += s
+            n10 += prods.size
+        else:
+            S01 += s
+            n01 += prods.size
+
+    def _phasor_sum_to_cfo(sum_phasor: complex, nprod: int) -> float:
+        if nprod <= 0:
+            return float("nan")
+        # CFO (Hz) = angle(sum) * fs / (2π)
+        return float(np.angle(sum_phasor) * (fs_out / (2.0 * np.pi)))
+
+    trans["cfo_equal_00"] = _phasor_sum_to_cfo(S00, n00)
+    trans["cfo_equal_11"] = _phasor_sum_to_cfo(S11, n11)
+    trans["cfo_jump_10"]  = _phasor_sum_to_cfo(S10, n10)
+    trans["cfo_jump_01"]  = _phasor_sum_to_cfo(S01, n01)
+    trans["cfo_overall_from_transitions"] = _phasor_sum_to_cfo(Stot, ntot)
+
+    trans["nprod_00"] = n00
+    trans["nprod_11"] = n11
+    trans["nprod_10"] = n10
+    trans["nprod_01"] = n01
+    trans["nprod_total"] = ntot
+
+    return overall_cfo, trans
 
 # ============================================================
 # CFO BOXPLOT (group by AdvA only)
@@ -833,6 +1006,7 @@ def ble_sniffer(
     crc_diag: bool,
     crc_diag_max: int,
     cfo_window: str,
+    cfo_csv: str
 ):
     L, M = pick_resample_ratio(fs_in, FS_OUT_TARGET, max_den=4096)
     fs_out = fs_in * (L / M)
@@ -897,6 +1071,7 @@ def ble_sniffer(
     packets = []
     tag_advas = set()
     cfo_by_adva = defaultdict(list)
+    cfo_rows = []  # per-packet CFO samples for CSV
 
     def _keep(pkt):
         if filter_tags == "none":
@@ -922,6 +1097,7 @@ def ble_sniffer(
             continue
 
         freq_burst_base = freq_all[s_up:e_f]
+        iq_burst_base = iq_up[s_up:e_f+1]  # note +1 so len(iq_burst_base) == len(freq_burst_base)+1
 
         burst_flags = {"aa_hit": False, "pre_hit": False, "both_hit": False, "parsed": False, "crc_ok": False}
 
@@ -1011,18 +1187,63 @@ def ble_sniffer(
             packets.append(pkt_for_print)
 
         if plot_cfo:
-            cfo_hz = estimate_cfo_hz(
-                freq_burst=freq_burst_base,
-                fs_out=fs_out,
-                phase=pkt_for_print["phase"],
-                aa_pos=pkt_for_print["aa_pos"],
-                sps=sps,
-                payload_len_bytes=pkt_for_print["length"],
-                window=cfo_window,
-            )
-            if cfo_hz is not None and np.isfinite(cfo_hz):
-                adva = pkt_for_print.get("AdvA", "NO_AdvA")
-                cfo_by_adva[adva].append(float(cfo_hz))
+            if plot_cfo:
+                overall_cfo_hz, trans = estimate_cfo_hz(
+                    freq_burst=freq_burst_base,
+                    fs_out=fs_out,
+                    phase=pkt_for_print["phase"],
+                    aa_pos=pkt_for_print["aa_pos"],
+                    sps=sps,
+                    payload_len_bytes=pkt_for_print["length"],
+                    window=cfo_window,
+                    polarity=pkt_for_print["polarity"],
+                    iq_burst=iq_burst_base,
+                    return_transitions=True,
+                )
+
+                if overall_cfo_hz is not None and np.isfinite(overall_cfo_hz):
+                    adva = pkt_for_print.get("AdvA", "NO_AdvA")
+                    cfo_by_adva[adva].append(float(overall_cfo_hz))
+
+                    # Per-packet CFO log row (CSV) — ONLY tag ecosystem packets
+                    if bool(pkt_for_print.get("is_tag_ecosystem", False)):
+                        cfo_rows.append({
+                            "AdvA": adva,
+
+                            # existing overall CFO (your trimmed-median discriminator CFO)
+                            "CFO_Hz": float(overall_cfo_hz),
+
+                            # transition CFOs (phasor sums)
+                            "CFO_00_Hz": float(trans.get("cfo_equal_00", float("nan"))),
+                            "CFO_11_Hz": float(trans.get("cfo_equal_11", float("nan"))),
+                            "CFO_10_Hz": float(trans.get("cfo_jump_10",  float("nan"))),
+                            "CFO_01_Hz": float(trans.get("cfo_jump_01",  float("nan"))),
+                            "CFO_from_transitions_Hz": float(trans.get("cfo_overall_from_transitions", float("nan"))),
+
+                            # phasor-product counts (useful sanity checks)
+                            "nprod_00": int(trans.get("nprod_00", 0)),
+                            "nprod_11": int(trans.get("nprod_11", 0)),
+                            "nprod_10": int(trans.get("nprod_10", 0)),
+                            "nprod_01": int(trans.get("nprod_01", 0)),
+                            "nprod_total": int(trans.get("nprod_total", 0)),
+
+                            # metadata
+                            "crc_ok": int(bool(pkt_for_print.get("crc_ok", False))),
+                            "is_tag_ecosystem": 1,
+                            "pdu_type": int(pkt_for_print.get("pdu_type", -1)),
+                            "pdu_type_name": pkt_for_print.get("pdu_type_name", ""),
+                            "length": int(pkt_for_print.get("length", -1)),
+                            "channel": int(pkt_for_print.get("channel", -1)),
+                            "phase": int(pkt_for_print.get("phase", -1)),
+                            "polarity": int(pkt_for_print.get("polarity", 0)),
+                            "slip": int(pkt_for_print.get("slip", 0)),
+                            "burst_start": int(s),
+                            "burst_end": int(e),
+                            "aa_pos": int(pkt_for_print.get("aa_pos", -1)),
+                            "aa_corr": int(pkt_for_print.get("aa_corr", -1)),
+                            "pre_corr": int(pkt_for_print.get("pre_corr", -1)),
+                            "cfo_window": cfo_window,
+                        })
 
     def pct(x, denom):
         return 0.0 if denom <= 0 else 100.0 * x / float(denom)
@@ -1056,6 +1277,17 @@ def ble_sniffer(
             total_cfo = sum(len(v) for v in cfo_by_adva.values())
             uniq = sum(1 for v in cfo_by_adva.values() if len(v) > 0)
             print(f"[CFO] Total CFO samples plotted: {total_cfo}  (unique AdvA groups: {uniq})")
+
+        # Write per-packet CFO samples to CSV
+        if cfo_rows:
+            fieldnames = list(cfo_rows[0].keys())
+            with open(cfo_csv, "w", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=fieldnames)
+                w.writeheader()
+                w.writerows(cfo_rows)
+            print(f"[CFO] Saved per-packet CFO samples to CSV: {cfo_csv}  (rows={len(cfo_rows)})")
+        else:
+            print("[CFO] No per-packet CFO samples to write to CSV.")
 
     return packets, stats
 
@@ -1106,6 +1338,9 @@ def main():
         help="Filter packets by AirTag/FindMy or tag-ecosystem detection"
     )
 
+    ap.add_argument("--cfo-csv", type=str, default="cfo_samples_rail.csv",
+                help="Output CSV path for per-packet CFO samples (written when --plot-cfo is set)")
+
     # Debugs requested
     ap.add_argument("--slip-sweep", action="store_true", help="Sweep bit-slip around AA boundary to deterministically detect off-by-k alignment")
     ap.add_argument("--slip-max", type=int, default=8, help="Max slip magnitude (bits) used with --slip-sweep (default ±8)")
@@ -1144,6 +1379,7 @@ def main():
             crc_diag=args.crc_diag,
             crc_diag_max=args.crc_diag_max,
             cfo_window=args.cfo_window,
+            cfo_csv=args.cfo_csv
         )
         return packets, stats
 

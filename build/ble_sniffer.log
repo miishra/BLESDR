@@ -23,6 +23,7 @@
 [CFO] Saved boxplot to: cfo_boxplot_by_adva.pdf
 [CFO] Groups plotted: 29 (excluded: NO_AdvA; tag ecosystem only; min_count>=5)
 [CFO] Total CFO samples plotted: 4929  (unique AdvA groups: 833)
+[CFO] Saved per-packet CFO samples to CSV: cfo_samples_rail.csv  (rows=1312)
 ---- BLE PACKET ----
 AA corr: 32 AA pos: 9903 PRE corr: 8
 Channel: 37 Phase: 0 Polarity: -1

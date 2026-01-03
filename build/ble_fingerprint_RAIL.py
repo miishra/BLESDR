@@ -2,32 +2,31 @@
 # -*- coding: utf-8 -*-
 
 """
-BLE Device Fingerprinting using CFO Statistics (grouped by MAC address)
+BLE Device Fingerprinting using CFO Statistics (grouped by MAC/AdvA)
 
-- Loads one consolidated CSV (mobile_office_all2.csv)
-- Groups packets by MAC address column (adv_addr). Each MAC = one "device".
+- Loads one consolidated CSV (cfo_samples_rail.csv)
+- Groups packets by MAC address column (AdvA / adv_addr). Each MAC = one "device".
 - For each MAC:
     * Sort by pcap_ts if present, else keep CSV order
     * Temporal split: first 70% packets -> training features, remaining 30% -> testing features
     * Features are computed from selected CFO columns (mean and/or std)
 
-Selectable CFO columns:
-  - cfo_quick_hz (auto-detected, fallback: any column containing 'cfo' and 'hz')
-  - cfo_equal_00_hz
-  - cfo_equal_11_hz
-  - cfo_jump_10_hz
-  - cfo_jump_01_hz
+Selectable CFO columns (from cfo_samples_rail.csv):
+  - Primary CFO: prefers "CFO_Hz" if present, else auto-detect any column containing 'cfo' and 'hz'
+  - Transition CFOs (if present):
+      * CFO_00_Hz, CFO_11_Hz, CFO_10_Hz, CFO_01_Hz
+      * CFO_from_transitions_Hz
 
 Outputs:
-  - mobile_office_all_plots2/ble_fingerprint_classification_results.txt
-  - mobile_office_all_plots2/ble_fingerprint_confusion_matrix.png
-  - mobile_office_all_plots2/ble_fingerprint_feature_distribution.png
+  - all_devices_static/ble_fingerprint_classification_results.txt
+  - all_devices_static/ble_fingerprint_confusion_matrix.png
+  - all_devices_static/ble_fingerprint_feature_distribution.png
 """
 
 import os
 import sys
 import warnings
-from typing import List, Tuple, Dict, Optional
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -46,10 +45,12 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 # --------------------------- config ---------------------------
 
-FNAME = "/home/mishra/sdrs/BLESDR/build/test1.csv"
-OUTPUT_DIR = "all_devices_static"
+FNAME = "cfo_samples_rail.csv"
+OUTPUT_DIR = "all_devices_static_rail"
 
-MAC_COL = "adv_addr"          # MAC address key
+# NOTE: resolved at runtime to "AdvA" or "adv_addr" (or case-insensitive match)
+MAC_COL = "AdvA"
+
 TRAIN_FRACTION = 0.7          # temporal split within each MAC
 MIN_PKTS_PER_MAC = 10         # minimum valid packets per MAC (per selected column) to keep class
 
@@ -60,28 +61,59 @@ OUT_RESULTS = os.path.join(OUTPUT_DIR, "ble_fingerprint_classification_results.t
 OUT_CONFUSION = os.path.join(OUTPUT_DIR, "ble_fingerprint_confusion_matrix.png")
 OUT_DISTRIBUTION = os.path.join(OUTPUT_DIR, "ble_fingerprint_feature_distribution.png")
 
-# CFO columns the user may choose
+# Transition CFO columns likely present in cfo_samples_rail.csv (plus fallbacks)
 OPTIONAL_CFO_COLS = [
-    "cfo_equal_00_hz",
-    "cfo_equal_11_hz",
-    "cfo_jump_10_hz",
-    "cfo_jump_01_hz",
+    "CFO_00_Hz",
+    "CFO_11_Hz",
+    "CFO_10_Hz",
+    "CFO_01_Hz",
+    "CFO_from_transitions_Hz",
 ]
 
 # --------------------------- helpers ---------------------------
 
+def _col_lookup_case_insensitive(df: pd.DataFrame, name: str) -> str:
+    """Return actual column name matching `name` case-insensitively, or ''."""
+    target = name.lower()
+    for c in df.columns:
+        if str(c).lower() == target:
+            return str(c)
+    return ""
+
+
+def resolve_mac_column(df: pd.DataFrame) -> str:
+    """
+    Pick the grouping key column from cfo_samples_rail.csv.
+    Prefers: AdvA, then adv_addr, then any column containing 'adv' and 'a'/'addr'.
+    """
+    for cand in ["AdvA", "adv_addr", "advA", "ADV_A", "adv_address", "advaddr"]:
+        hit = _col_lookup_case_insensitive(df, cand)
+        if hit:
+            return hit
+
+    # loose fallback
+    lowers = [str(c).lower() for c in df.columns]
+    for c, lc in zip(df.columns, lowers):
+        if ("adv" in lc) and ("addr" in lc or lc.endswith("a") or "adva" in lc):
+            return str(c)
+
+    raise ValueError("Could not find MAC/AdvA column (expected 'AdvA' or 'adv_addr').")
+
+
 def find_primary_cfo_column(df: pd.DataFrame) -> str:
-    """Find the primary CFO column in Hz."""
+    """Find the primary CFO column in Hz. Prefers CFO_Hz if present."""
     cols = list(df.columns)
-    lower = [c.lower() for c in cols]
+    lower = [str(c).lower() for c in cols]
 
+    # Prefer the output of your sniffer CSV
     for c, lc in zip(cols, lower):
-        if lc in ["cfo_quick_hz", "est_cfo_hz", "cfo_exact_quick_hz"]:
-            return c
+        if lc in ["cfo_hz", "cfo_quick_hz", "est_cfo_hz", "cfo_exact_quick_hz"]:
+            return str(c)
 
+    # Any CFO Hz column
     for c, lc in zip(cols, lower):
         if "cfo" in lc and "hz" in lc:
-            return c
+            return str(c)
 
     raise ValueError("No CFO column found in CSV")
 
@@ -117,20 +149,24 @@ def get_feature_choice() -> Tuple[bool, bool]:
 def choose_cfo_columns(df: pd.DataFrame) -> List[str]:
     """
     Ask user which CFO columns to include.
-    Always offers the primary CFO column + the transition CFO columns if present.
+    Offers the primary CFO column + transition CFO columns if present.
     """
     primary = find_primary_cfo_column(df)
-    available = set(df.columns)
+    available = set(map(str, df.columns))
 
-    choices = [(primary, True)]  # primary on by default
+    # Build choices: (col_name, default_on)
+    choices = [(primary, True)]
+
+    # Add transition CFOs if present (case-insensitive)
     for c in OPTIONAL_CFO_COLS:
-        if c in available:
-            choices.append((c, False))
+        hit = _col_lookup_case_insensitive(df, c)
+        if hit and hit in available and hit != primary:
+            choices.append((hit, False))
 
     print("\n" + "=" * 80)
-    print("CFO COLUMN SELECTION")
+    print("CFO TYPE SELECTION")
     print("=" * 80)
-    print("\nSelect which CFO columns to use (features will be computed per column).")
+    print("\nSelect which CFO types to use (features will be computed per column).")
     print("Enter a comma-separated list of numbers, e.g., 1,3,4")
     print("Press Enter for default (primary CFO only).\n")
 
@@ -233,7 +269,6 @@ def collect_all_data_by_mac(
         df_mac = df[df[MAC_COL].astype(str) == mac]
         df_mac = sort_packets_for_temporal_split(df_mac)
 
-        # For each selected CFO column, compute train/test features; require enough data.
         train_feat_vec: List[float] = []
         test_feat_vec: List[float] = []
 
@@ -287,6 +322,7 @@ def collect_all_data_by_mac(
     feature_names = build_feature_names(selected_cfo_cols, use_mean, use_std)
 
     print(f"\nCSV: {FNAME}")
+    print(f"Grouping key: {MAC_COL}")
     print(f"MACs total: {len(macs)} | MACs kept: {len(class_names)} (MIN_PKTS_PER_MAC={MIN_PKTS_PER_MAC})")
     print(f"Selected CFO columns: {selected_cfo_cols}")
     print(f"Statistics used: {'mean ' if use_mean else ''}{'std' if use_std else ''}".strip())
@@ -346,7 +382,6 @@ def plot_feature_distribution(X_train, X_test, y_train, feature_names, outfile):
     order = np.argsort(y_train)
     labels = y_train[order]
 
-    # Convert Hz->kHz for CFO-related features (all are Hz here)
     X_train_khz = X_train[order] / 1e3
     X_test_khz = X_test[order] / 1e3
 
@@ -482,6 +517,8 @@ def write_results_report(results, class_names, y_test, X_train, X_test, y_train,
 # --------------------------- main ---------------------------
 
 def main():
+    global MAC_COL
+
     print("=" * 80)
     print("BLE DEVICE FINGERPRINTING using CFO Statistics (MAC-GROUPED)")
     print("=" * 80)
@@ -494,6 +531,10 @@ def main():
         sys.exit(1)
 
     df = pd.read_csv(FNAME)
+
+    # Resolve MAC column for this CSV (AdvA vs adv_addr, etc.)
+    MAC_COL = resolve_mac_column(df)
+    print(f"\nDetected MAC column: {MAC_COL}")
 
     use_mean, use_std = get_feature_choice()
     selected_cols = choose_cfo_columns(df)
