@@ -27,8 +27,8 @@ import matplotlib.pyplot as plt
 
 # --------------------------- config ---------------------------
 
-FNAME = "mobile_office_all2.csv"
-OUTPUT_DIR = "mobile_office_all_plots2"
+FNAME = "test1.csv"
+OUTPUT_DIR = "static_all" #"mobile_office_all_plots2"
 
 # Columns to skip (non-numeric or identifiers)
 SKIP_FEATURES = {

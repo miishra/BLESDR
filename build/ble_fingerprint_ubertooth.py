@@ -4,24 +4,21 @@
 """
 BLE Device Fingerprinting using CFO Statistics (grouped by MAC address)
 
-- Loads one consolidated CSV (mobile_office_all2.csv)
-- Groups packets by MAC address column (adv_addr). Each MAC = one "device".
+- Loads one consolidated CSV (cfo_data.csv)
+- Groups packets by MAC address column (mac). Each MAC = one "device".
 - For each MAC:
-    * Sort by pcap_ts if present, else keep CSV order
+    * Sort by row order (no timestamp available)
     * Temporal split: first 70% packets -> training features, remaining 30% -> testing features
     * Features are computed from selected CFO columns (mean and/or std)
 
 Selectable CFO columns:
-  - cfo_quick_hz (auto-detected, fallback: any column containing 'cfo' and 'hz')
-  - cfo_equal_00_hz
-  - cfo_equal_11_hz
-  - cfo_jump_10_hz
-  - cfo_jump_01_hz
+  - cfoTot (total CFO - mean over all bytes)
+  - w0, w2, w4, w8 (Hamming-weight specific CFOs)
 
 Outputs:
-  - mobile_office_all_plots2/ble_fingerprint_classification_results.txt
-  - mobile_office_all_plots2/ble_fingerprint_confusion_matrix.png
-  - mobile_office_all_plots2/ble_fingerprint_feature_distribution.png
+  - cfo_fingerprinting_results/ble_fingerprint_classification_results.txt
+  - cfo_fingerprinting_results/ble_fingerprint_confusion_matrix.png
+  - cfo_fingerprinting_results/ble_fingerprint_feature_distribution.png
 """
 
 import os
@@ -46,12 +43,12 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 # --------------------------- config ---------------------------
 
-FNAME = "/home/mishra/sdrs/BLESDR/build/test1.csv"
-OUTPUT_DIR = "all_devices_static"
+FNAME = "/home/mishra/BlueShield/cfo_data_static_all.csv" #"/home/mishra/BlueShield/cfo_data.csv"
+OUTPUT_DIR = "cfo_fingerprinting_results_all"
 
-MAC_COL = "adv_addr"          # MAC address key
-TRAIN_FRACTION = 0.7          # temporal split within each MAC
-MIN_PKTS_PER_MAC = 20         # minimum valid packets per MAC (per selected column) to keep class
+MAC_COL = "mac"               # MAC address key
+TRAIN_FRACTION = 0.7          # temporal split within each MAC for train/test
+MIN_PKTS_PER_MAC = 50         # minimum valid packets per MAC (per selected column) to keep class
 
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
@@ -60,31 +57,16 @@ OUT_RESULTS = os.path.join(OUTPUT_DIR, "ble_fingerprint_classification_results.t
 OUT_CONFUSION = os.path.join(OUTPUT_DIR, "ble_fingerprint_confusion_matrix.png")
 OUT_DISTRIBUTION = os.path.join(OUTPUT_DIR, "ble_fingerprint_feature_distribution.png")
 
-# CFO columns the user may choose
-OPTIONAL_CFO_COLS = [
-    "cfo_equal_00_hz",
-    "cfo_equal_11_hz",
-    "cfo_jump_10_hz",
-    "cfo_jump_01_hz",
+# CFO columns available (Hamming weight based)
+AVAILABLE_CFO_COLS = [
+    "cfoTot",
+    "w0",
+    "w2",
+    "w4",
+    "w8",
 ]
 
 # --------------------------- helpers ---------------------------
-
-def find_primary_cfo_column(df: pd.DataFrame) -> str:
-    """Find the primary CFO column in Hz."""
-    cols = list(df.columns)
-    lower = [c.lower() for c in cols]
-
-    for c, lc in zip(cols, lower):
-        if lc in ["cfo_quick_hz", "est_cfo_hz", "cfo_exact_quick_hz"]:
-            return c
-
-    for c, lc in zip(cols, lower):
-        if "cfo" in lc and "hz" in lc:
-            return c
-
-    raise ValueError("No CFO column found in CSV")
-
 
 def get_feature_choice() -> Tuple[bool, bool]:
     """Ask user which statistics to use: mean, std, or both."""
@@ -117,33 +99,41 @@ def get_feature_choice() -> Tuple[bool, bool]:
 def choose_cfo_columns(df: pd.DataFrame) -> List[str]:
     """
     Ask user which CFO columns to include.
-    Always offers the primary CFO column + the transition CFO columns if present.
+    Offers cfoTot (default) and Hamming weight columns (w0, w2, w4, w8).
     """
-    primary = find_primary_cfo_column(df)
     available = set(df.columns)
+    choices = []
+    
+    for col in AVAILABLE_CFO_COLS:
+        if col in available:
+            is_default = (col == "cfoTot")
+            choices.append((col, is_default))
 
-    choices = [(primary, True)]  # primary on by default
-    for c in OPTIONAL_CFO_COLS:
-        if c in available:
-            choices.append((c, False))
+    if not choices:
+        raise ValueError("No CFO columns found in CSV!")
 
     print("\n" + "=" * 80)
     print("CFO COLUMN SELECTION")
     print("=" * 80)
     print("\nSelect which CFO columns to use (features will be computed per column).")
     print("Enter a comma-separated list of numbers, e.g., 1,3,4")
-    print("Press Enter for default (primary CFO only).\n")
+    print("Press Enter for default (cfoTot only).\n")
 
     for i, (col, default_on) in enumerate(choices, 1):
         tag = "DEFAULT" if default_on else ""
-        print(f"  {i}) {col} {tag}")
+        desc = ""
+        if col == "cfoTot":
+            desc = "(Total CFO - mean over all bytes)"
+        elif col.startswith("w"):
+            desc = f"(Hamming weight {col})"
+        print(f"  {i}) {col} {desc} {tag}")
 
     while True:
         try:
             raw = input("\nYour selection: ").strip()
             if raw == "":
-                selected = [primary]
-                print(f"\n✓ Selected default: [{primary}]")
+                selected = ["cfoTot"]
+                print(f"\n✓ Selected default: [cfoTot]")
                 return selected
 
             idxs = []
@@ -172,15 +162,6 @@ def choose_cfo_columns(df: pd.DataFrame) -> List[str]:
         except KeyboardInterrupt:
             print("\n\nAborted by user.")
             sys.exit(0)
-
-
-def sort_packets_for_temporal_split(df_mac: pd.DataFrame) -> pd.DataFrame:
-    """Sort packets inside one MAC group for temporal splitting."""
-    if "pcap_ts" in df_mac.columns:
-        ts = pd.to_numeric(df_mac["pcap_ts"], errors="coerce")
-        if np.isfinite(ts).any():
-            return df_mac.assign(_ts=ts).sort_values("_ts").drop(columns=["_ts"])
-    return df_mac
 
 
 def compute_stats_vector(vals: np.ndarray, use_mean: bool, use_std: bool) -> List[float]:
@@ -231,7 +212,6 @@ def collect_all_data_by_mac(
 
     for mac in macs:
         df_mac = df[df[MAC_COL].astype(str) == mac]
-        df_mac = sort_packets_for_temporal_split(df_mac)
 
         # For each selected CFO column, compute train/test features; require enough data.
         train_feat_vec: List[float] = []
@@ -305,15 +285,28 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, class_names, feature_na
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    print("\nTraining Random Forest...")
+    print("\nTraining optimized Random Forest...")
+    print("Note: With only 1 sample per MAC, we use carefully chosen hyperparameters")
+    
+    # For small datasets with 1 sample per class, use parameters optimized for 
+    # low-variance, high-diversity ensemble
     rf = RandomForestClassifier(
-        n_estimators=400,
-        max_depth=12,
-        min_samples_split=2,
+        n_estimators=1000,        # More trees for stability
+        max_depth=None,           # No depth limit for flexibility
+        min_samples_split=2,      # Minimum for splitting
+        min_samples_leaf=1,       # Allow single-sample leaves
+        max_features='sqrt',      # Reduce correlation between trees
+        criterion='entropy',      # Information gain often works better for fingerprinting
+        bootstrap=True,           # Use bootstrap sampling
+        oob_score=True,          # Out-of-bag score as internal validation
         random_state=RANDOM_SEED,
         n_jobs=-1
     )
+    
     rf.fit(X_train_scaled, y_train)
+    
+    print(f"Out-of-bag score (internal validation): {rf.oob_score_:.2%}")
+    
     y_pred = rf.predict(X_test_scaled)
 
     accuracy = accuracy_score(y_test, y_pred)
@@ -333,7 +326,8 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, class_names, feature_na
         "recall": rec,
         "f1": f1,
         "confusion_matrix": cm,
-        "feature_importances": importances
+        "feature_importances": importances,
+        "oob_score": rf.oob_score_
     }
 
 
@@ -419,6 +413,7 @@ def write_results_report(results, class_names, y_test, X_train, X_test, y_train,
     with open(outfile, "w") as f:
         f.write("=" * 80 + "\n")
         f.write("BLE DEVICE FINGERPRINTING - RANDOM FOREST (MAC-GROUPED)\n")
+        f.write("Hamming Weight CFO Features\n")
         f.write("=" * 80 + "\n\n")
 
         f.write(f"Input CSV: {FNAME}\n")
@@ -432,6 +427,19 @@ def write_results_report(results, class_names, y_test, X_train, X_test, y_train,
         f.write(f"Number of MAC classes: {len(class_names)}\n")
         f.write(f"Train samples: {len(y_train)} (one per MAC)\n")
         f.write(f"Test samples:  {len(y_test)} (one per MAC)\n\n")
+
+        f.write("-" * 80 + "\n")
+        f.write("MODEL CONFIGURATION\n")
+        f.write("-" * 80 + "\n")
+        f.write("Random Forest optimized for small dataset:\n")
+        f.write("  - n_estimators: 1000 (high for stability)\n")
+        f.write("  - max_depth: None (unlimited)\n")
+        f.write("  - max_features: sqrt (reduce tree correlation)\n")
+        f.write("  - criterion: entropy (information gain)\n")
+        f.write("  - bootstrap: True with out-of-bag scoring\n")
+        if "oob_score" in results:
+            f.write(f"\nOut-of-bag score: {results['oob_score']:.2%}\n")
+        f.write("\n")
 
         f.write("-" * 80 + "\n")
         f.write("FEATURE NAMES\n")
@@ -483,7 +491,7 @@ def write_results_report(results, class_names, y_test, X_train, X_test, y_train,
 
 def main():
     print("=" * 80)
-    print("BLE DEVICE FINGERPRINTING using CFO Statistics (MAC-GROUPED)")
+    print("BLE DEVICE FINGERPRINTING using Hamming Weight CFO (MAC-GROUPED)")
     print("=" * 80)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)

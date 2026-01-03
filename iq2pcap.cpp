@@ -941,6 +941,19 @@ static bool is_findmy_tag(const uint8_t* pdu_bytes, size_t pdu_len) {
     if (payload_len < 6) return false;
     const uint8_t* ad_data = payload + 6;
     size_t ad_len = payload_len - 6;
+
+    // Helper: 16-bit Service UUIDs commonly used by tag ecosystems
+    auto is_tag_service_uuid = [](uint16_t uuid) -> bool {
+        switch (uuid) {
+            case 0xFEAA: // Eddystone
+            case 0xFEED: // Tile (commonly)
+            case 0xFD5A: // Samsung SmartTag / SmartThings Find (commonly)
+            // case 0xFD59: // Samsung (often seen in other states / onboarding)
+                return true;
+            default:
+                return false;
+        }
+    };
     
     // Parse AD structures: each has [Length][Type][Data...]
     size_t pos = 0;
@@ -966,12 +979,122 @@ static bool is_findmy_tag(const uint8_t* pdu_bytes, size_t pdu_len) {
                 }
             }
         }
+
+        // Check for Service Data - 16-bit UUID (0x16)
+        if (ad_type == 0x16 && length >= 3) {
+            // Service UUID is 2 bytes, little-endian
+            uint16_t svc_uuid = ad_data[pos + 2] | (ad_data[pos + 3] << 8);
+            if (is_tag_service_uuid(svc_uuid) && length >= 4) {
+                return true;
+            }
+        }
         
         pos += 1 + length;  // Move to next AD structure
     }
     
     return false;
 }
+
+// // Helper function to check if advertising data contains Apple FindMy tag
+// // plus common non-Apple tag identifiers via 16-bit Service UUIDs / Service Data.
+// static bool is_findmy_tag(const uint8_t* pdu_bytes, size_t pdu_len) {
+//     // PDU format: Header(2) + Payload + CRC(3)
+//     // We need at least: Header(2) + AdvA(6) + CRC(3) = 11 bytes minimum
+//     if (pdu_len < 11) return false;
+
+//     const uint8_t* payload = pdu_bytes + 2;      // Skip PDU header
+//     size_t payload_len = pdu_len - 5;            // Exclude header(2) + CRC(3)
+
+//     // Need AdvA (6 bytes)
+//     if (payload_len < 6) return false;
+//     const uint8_t* ad_data = payload + 6;        // Skip AdvA
+//     size_t ad_len = payload_len - 6;
+
+//     // Helper: 16-bit Service UUIDs commonly used by tag ecosystems
+//     auto is_tag_service_uuid = [](uint16_t uuid) -> bool {
+//         switch (uuid) {
+//             case 0xFEAA: // Eddystone
+//             case 0xFEED: // Tile (commonly)
+//             case 0xFD5A: // Samsung SmartTag / SmartThings Find (commonly)
+//             // case 0xFD59: // Samsung (often seen in other states / onboarding)
+//                 return true;
+//             default:
+//                 return false;
+//         }
+//     };
+
+//     // Parse AD structures: each has [Length][Type][Data...]
+//     // 'length' counts bytes following the length byte: [Type + Data...]
+//     size_t pos = 0;
+//     while (pos < ad_len) {
+//         uint8_t length = ad_data[pos];
+//         if (length == 0) break;  // End of AD structures
+
+//         size_t struct_total = (size_t)length + 1; // includes the length byte itself
+//         if (pos + struct_total > ad_len) break;   // Malformed/truncated
+
+//         if (length < 1) { // must at least contain Type
+//             pos += struct_total;
+//             continue;
+//         }
+
+//         uint8_t ad_type = ad_data[pos + 1];
+//         size_t data_start = pos + 2;              // start of Data field
+//         size_t data_bytes = (size_t)length - 1;   // bytes available in Data field
+
+//         // --- Apple Find My: Manufacturer Specific Data (0xFF) ---
+//         if (ad_type == 0xFF) {
+//             // Need at least 2 bytes for Company ID
+//             if (data_bytes >= 2) {
+//                 uint16_t company_id = (uint16_t)ad_data[data_start]
+//                                     | ((uint16_t)ad_data[data_start + 1] << 8);
+
+//                 // Apple Company ID is 0x004C
+//                 if (company_id == 0x004C) {
+//                     // Your pattern reads two bytes after the company id:
+//                     // data_start+2 and data_start+3 => require data_bytes >= 4
+//                     if (data_bytes >= 4) {
+//                         uint8_t b0 = ad_data[data_start + 2];
+//                         uint8_t b1 = ad_data[data_start + 3];
+//                         if (b0 == 0x12 && b1 == 0x19) {
+//                             return true;
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+
+//         // --- Non-Apple tags: Service Data - 16-bit UUID (0x16) ---
+//         // Format: [UUID LSB][UUID MSB][service data...]
+//         if (ad_type == 0x16) {
+//             if (data_bytes >= 2) {
+//                 uint16_t svc_uuid = (uint16_t)ad_data[data_start]
+//                                   | ((uint16_t)ad_data[data_start + 1] << 8);
+//                 if (is_tag_service_uuid(svc_uuid)) {
+//                     return true;
+//                 }
+//             }
+//         }
+
+//         // // --- Non-Apple tags: 16-bit Service UUID list (0x02/0x03) ---
+//         // // Format: repeated 16-bit UUIDs in little-endian
+//         // if (ad_type == 0x02 || ad_type == 0x03) {
+//         //     if (data_bytes >= 2) {
+//         //         for (size_t i = 0; i + 1 < data_bytes; i += 2) {
+//         //             uint16_t uuid = (uint16_t)ad_data[data_start + i]
+//         //                           | ((uint16_t)ad_data[data_start + i + 1] << 8);
+//         //             if (is_tag_service_uuid(uuid)) {
+//         //                 return true;
+//         //             }
+//         //         }
+//         //     }
+//         // }
+
+//         pos += struct_total;  // Move to next AD structure
+//     }
+
+//     return false;
+// }
 
 static std::vector<int> extract_bits_from_symbols(const lell_packet& pkt) {
     std::vector<int> bits;
