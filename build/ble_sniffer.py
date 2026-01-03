@@ -756,12 +756,12 @@ def save_cfo_boxplot_pdf_by_adva(
     out_pdf: str,
     top_n: int,
     tag_advas: set,
-    min_count: int = 2,   # <-- NEW
+    min_count: int = 2,
 ):
     items = [(k, v) for k, v in cfo_by_adva.items()
              if (k != "NO_AdvA")
              and (k in tag_advas)
-             and (v is not None) and (len(v) >= min_count)]   # <-- CHANGED (>= min_count)
+             and (v is not None) and (len(v) >= min_count)]
 
     if not items:
         print(f"[CFO] No CFO samples available to plot (after excluding NO_AdvA, tag-only, and min_count>={min_count}).")
@@ -772,32 +772,162 @@ def save_cfo_boxplot_pdf_by_adva(
         items = items[:top_n]
 
     labels = [k for k, _ in items]
-    print(f"[CFO] Plotting CFO boxplot for top {len(labels)} AdvAs (tag ecosystem only, min_count>={min_count}).")
+    print(f"[CFO] Plotting CFO violin+box for top {len(labels)} AdvAs (tag ecosystem only, min_count>={min_count}).")
     data = [v for _, v in items]
 
     plt.figure(figsize=(max(10, 0.55 * len(labels)), 4.5))
-    plt.boxplot(data, labels=labels, showfliers=False)
-    plt.axhline(0.0, linewidth=1.0)
-    plt.ylabel("CFO (Hz)")
-    plt.title("BLE CFO grouped by AdvA (tag ecosystem only)")
+    ax = plt.gca()
+
+    # --- Violin plot (background) ---
+    vp = ax.violinplot(
+        data,
+        showmeans=False,
+        showmedians=False,
+        showextrema=False,
+    )
+
+    # --- Boxplot overlay (foreground) ---
+    ax.boxplot(
+        data,
+        labels=labels,
+        showfliers=False,
+        widths=0.25,   # slimmer so violin remains visible
+    )
+
+    ax.axhline(0.0, linewidth=1.0)
+    ax.set_ylabel("CFO (Hz)")
+    ax.set_title("BLE CFO grouped by AdvA (tag ecosystem only)")
     plt.xticks(rotation=30, ha="right")
 
-    # annotate count inside each box
-    ax = plt.gca()
+    # annotate count inside each box (centered in IQR)
     for i, (_, vals) in enumerate(items, start=1):
         arr = np.asarray(vals, dtype=np.float64)
+        if arr.size == 0:
+            continue
         q1 = np.percentile(arr, 25)
         q3 = np.percentile(arr, 75)
-        ax.text(i, 0.5 * (q1 + q3), f"n={arr.size}", ha="center", va="center", fontsize=8)
+        ax.text(i, 0.5 * (q1 + q3), f"n={arr.size}",
+                ha="center", va="center", fontsize=8)
 
     plt.tight_layout()
     plt.savefig(out_pdf, format="pdf")
     plt.close()
 
-    print(f"[CFO] Saved boxplot to: {out_pdf}")
+    print(f"[CFO] Saved violin+box plot to: {out_pdf}")
     print(f"[CFO] Groups plotted: {len(labels)} (excluded: NO_AdvA; tag ecosystem only; min_count>={min_count})")
     return True
 
+def save_transition_cfo_violin_boxplots_by_adva(
+    trans_cfo_by_adva: dict,
+    out_pdf_prefix: str,
+    top_n: int,
+    tag_advas: set,
+    min_count: int = 2,
+    keys: tuple = (
+        "cfo_equal_00_hz",
+        "cfo_equal_11_hz",
+        "cfo_jump_10_hz",
+        "cfo_jump_01_hz",
+        # optionally also:
+        # "cfo_overall_from_transitions_hz",
+    ),
+):
+    """
+    trans_cfo_by_adva:
+        dict[AdvA_str] -> dict[str->list[float]]
+        Example:
+          trans_cfo_by_adva["C8:CA:42:17:30:E5"]["cfo_equal_00_hz"] = [...]
+          trans_cfo_by_adva["..."]["cfo_jump_01_hz"] = [...]
+
+    Produces one PDF per key:
+        {out_pdf_prefix}_{key}.pdf
+    using violin (background) + boxplot (foreground), labels annotated with n inside the box.
+    Only includes:
+      - AdvA in tag_advas
+      - AdvA != "NO_AdvA"
+      - len(vals) >= min_count
+    """
+    # Ensure directory exists if prefix includes a path
+    out_dir = os.path.dirname(out_pdf_prefix)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+
+    saved_any = False
+
+    for key in keys:
+        # Gather per-AdvA lists for this transition CFO key
+        items = []
+        for adva, d in trans_cfo_by_adva.items():
+            if adva == "NO_AdvA":
+                continue
+            if adva not in tag_advas:
+                continue
+            if not isinstance(d, dict):
+                continue
+            vals = d.get(key, None)
+            if vals is None or len(vals) < min_count:
+                continue
+            items.append((adva, vals))
+
+        if not items:
+            print(f"[CFO] No samples to plot for {key} (tag-only, min_count>={min_count}).")
+            continue
+
+        # Top-N by sample count
+        items.sort(key=lambda kv: len(kv[1]), reverse=True)
+        if top_n and top_n > 0:
+            items = items[:top_n]
+
+        labels = [k for k, _ in items]
+        data = [v for _, v in items]
+
+        out_pdf = f"{out_pdf_prefix}_{key}.pdf"
+        print(f"[CFO] Plotting transition CFO '{key}' for {len(labels)} AdvAs -> {out_pdf}")
+
+        plt.figure(figsize=(max(10, 0.55 * len(labels)), 4.5))
+        ax = plt.gca()
+
+        # Violin background
+        ax.violinplot(
+            data,
+            showmeans=False,
+            showmedians=False,
+            showextrema=False,
+        )
+
+        # Boxplot overlay
+        ax.boxplot(
+            data,
+            labels=labels,
+            showfliers=False,
+            widths=0.25,
+        )
+
+        ax.axhline(0.0, linewidth=1.0)
+        ax.set_ylabel("CFO (Hz)")
+        ax.set_title(f"Transition CFO grouped by AdvA (tag ecosystem only): {key}")
+        plt.xticks(rotation=30, ha="right")
+
+        # Annotate count inside each box (centered in IQR)
+        for i, (_, vals) in enumerate(items, start=1):
+            arr = np.asarray(vals, dtype=np.float64)
+            if arr.size == 0:
+                continue
+            q1 = np.percentile(arr, 25)
+            q3 = np.percentile(arr, 75)
+            ax.text(
+                i, 0.5 * (q1 + q3),
+                f"n={arr.size}",
+                ha="center", va="center", fontsize=8
+            )
+
+        plt.tight_layout()
+        plt.savefig(out_pdf, format="pdf")
+        plt.close()
+
+        saved_any = True
+
+    return saved_any
 
 # ============================================================
 # PER-BURST DECODE (BLESDR byte-domain dewhiten+CRC)
@@ -1071,6 +1201,7 @@ def ble_sniffer(
     packets = []
     tag_advas = set()
     cfo_by_adva = defaultdict(list)
+    trans_cfo_by_adva = defaultdict(lambda: defaultdict(list))
     cfo_rows = []  # per-packet CFO samples for CSV
 
     def _keep(pkt):
@@ -1207,6 +1338,27 @@ def ble_sniffer(
 
                     # Per-packet CFO log row (CSV) — ONLY tag ecosystem packets
                     if bool(pkt_for_print.get("is_tag_ecosystem", False)):
+
+                        # ---- populate transition CFOs per AdvA (tag-only) ----
+                        c00 = float(trans.get("cfo_equal_00", float("nan")))
+                        c11 = float(trans.get("cfo_equal_11", float("nan")))
+                        c10 = float(trans.get("cfo_jump_10",  float("nan")))
+                        c01 = float(trans.get("cfo_jump_01",  float("nan")))
+                        cft = float(trans.get("cfo_overall_from_transitions", float("nan")))
+
+                        if np.isfinite(c00):
+                            trans_cfo_by_adva[adva]["cfo_equal_00_hz"].append(c00)
+                        if np.isfinite(c11):
+                            trans_cfo_by_adva[adva]["cfo_equal_11_hz"].append(c11)
+                        if np.isfinite(c10):
+                            trans_cfo_by_adva[adva]["cfo_jump_10_hz"].append(c10)
+                        if np.isfinite(c01):
+                            trans_cfo_by_adva[adva]["cfo_jump_01_hz"].append(c01)
+                        # optional (if you also want to plot it):
+                        # if np.isfinite(cft):
+                        #     trans_cfo_by_adva[adva]["cfo_overall_from_transitions_hz"].append(cft)
+
+                        # ---- CSV row (tag-only) ----
                         cfo_rows.append({
                             "AdvA": adva,
 
@@ -1214,11 +1366,11 @@ def ble_sniffer(
                             "CFO_Hz": float(overall_cfo_hz),
 
                             # transition CFOs (phasor sums)
-                            "CFO_00_Hz": float(trans.get("cfo_equal_00", float("nan"))),
-                            "CFO_11_Hz": float(trans.get("cfo_equal_11", float("nan"))),
-                            "CFO_10_Hz": float(trans.get("cfo_jump_10",  float("nan"))),
-                            "CFO_01_Hz": float(trans.get("cfo_jump_01",  float("nan"))),
-                            "CFO_from_transitions_Hz": float(trans.get("cfo_overall_from_transitions", float("nan"))),
+                            "CFO_00_Hz": c00,
+                            "CFO_11_Hz": c11,
+                            "CFO_10_Hz": c10,
+                            "CFO_01_Hz": c01,
+                            "CFO_from_transitions_Hz": cft,
 
                             # phasor-product counts (useful sanity checks)
                             "nprod_00": int(trans.get("nprod_00", 0)),
@@ -1272,7 +1424,15 @@ def ble_sniffer(
     print(f"[INFO] Packets stored for printing: {len(packets)} (max={max_packets})")
 
     if plot_cfo:
-        saved = save_cfo_boxplot_pdf_by_adva(cfo_by_adva, cfo_pdf, top_n=cfo_top, tag_advas=tag_advas, min_count=5)
+        saved = save_cfo_boxplot_pdf_by_adva(cfo_by_adva, cfo_pdf, top_n=cfo_top, tag_advas=tag_advas, min_count=100)
+
+        save_transition_cfo_violin_boxplots_by_adva(
+            trans_cfo_by_adva,
+            out_pdf_prefix="transition_cfo_by_adva",  # creates transition_cfo_by_adva_cfo_equal_00_hz.pdf, etc.
+            top_n=20,
+            tag_advas=tag_advas,
+            min_count=100,
+        )
         if saved:
             total_cfo = sum(len(v) for v in cfo_by_adva.values())
             uniq = sum(1 for v in cfo_by_adva.values() if len(v) > 0)
