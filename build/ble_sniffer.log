@@ -1,30 +1,54 @@
-[INFO] Loading RAW SPI int16 IQ from /home/mishra/Downloads/big_capture.bin
+[INFO] Loading RAW SPI int16 IQ from /home/mishra/Downloads/spi_test_trr.bin
 [INFO] Resample ratio L/M = 9282/3119 => fs_out ≈ 4000000.08 (target 4000000)
 [INFO] SPS = 4 (fs_out/symbol_rate), CRC_filter=off
 [INFO] Dewhiten: BLESDR byte/MSB stepping (SwapBits(chan)|2, poly 0x11)
 [INFO] CRC: BLESDR reverse_crc (init 0x555555 for adv)
-[INFO] CFO window: preamble+AA+header+payload (CRC excluded)
+[INFO] Continuous scan enabled: energy burst detector disabled (note: --thr ignored)
+[INFO] CFO window: pre_aa_hdr_payload
 [INFO] CFO grouping: AdvA only (top 100)
 [INFO] Tag filter: none
+[INFO] Decode windows found (analyzed): 2018
+[STATS] Window-level detection quality (continuous AA scan)
+  Windows total                                 : 2018
+  AA match (>= 28/32)                            : 2018 (100.00%)
+  Preamble match (>= 7/8)                      : 2016 (99.90%)
+  BOTH (AA & preamble)                           : 2016 (99.90%)
+  Parsed header/payload (BOTH-based)             : 1990 (98.61%)
+  CRC OK (any BOTH-based candidate)              : 713 (35.33%)
+  AirTag/FindMy (best_any per window)            : 20 (0.99%)
+  Tag-ecosystem (best_any; incl. AirTag)         : 119 (5.90%)
+  Kept after tag filter (printing/CFO inputs)    : 1990 (98.61%)
+[INFO] Packets stored for printing: 1990 (max=20000)
+[CFO] No CFO samples available to plot (after excluding NO_AdvA, tag-only, and min_count>=100).
+[CFO] No samples to plot for cfo_equal_00_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_equal_11_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_jump_10_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_jump_01_hz (tag-only, min_count>=100).
+[CFO] Saved per-packet CFO samples to CSV: cfo_samples_rail.csv  (rows=119)
+[INFO] Loading RAW SPI int16 IQ from /home/mishra/Downloads/spi_test_trr.bin
+[INFO] Resample ratio L/M = 9282/3119 => fs_out ≈ 4000000.08 (target 4000000)
+[INFO] SPS = 4 (fs_out/symbol_rate), CRC_filter=off
+[INFO] Dewhiten: BLESDR byte/MSB stepping (SwapBits(chan)|2, poly 0x11)
+[INFO] CRC: BLESDR reverse_crc (init 0x555555 for adv)
+[INFO] Continuous scan enabled: energy burst detector disabled (note: --thr ignored)
 [INFO] CFO window: pre_aa_hdr_payload
-[INFO] Bursts detected (analyzed): 92971
-[STATS] Burst-level detection quality
-  Bursts total                                  : 92971
-  AA match (>= 32/32)                            : 76855 (82.67%)
-  Preamble match (>= 8/8)                      : 80841 (86.95%)
-  BOTH (AA & preamble)                           : 74491 (80.12%)
-  Parsed header/payload (BOTH-based)             : 71973 (77.41%)
-  CRC OK (any BOTH-based candidate)              : 18010 (19.37%)
-  AirTag/FindMy (best_any per burst)             : 3954 (4.25%)
-  Tag-ecosystem (best_any; incl. AirTag)         : 3954 (4.25%)
-  Kept after tag filter (printing/CFO inputs)    : 71973 (77.41%)
-[INFO] Packets stored for printing: 20000 (max=20000)
-[CFO] Plotting CFO violin+box for top 15 AdvAs (tag ecosystem only, min_count>=100).
-[CFO] Saved violin+box plot to: cfo_boxplot_by_adva.pdf
-[CFO] Groups plotted: 15 (excluded: NO_AdvA; tag ecosystem only; min_count>=100)
-[CFO] Plotting transition CFO 'cfo_equal_00_hz' for 15 AdvAs -> transition_cfo_by_adva_cfo_equal_00_hz.pdf
-[CFO] Plotting transition CFO 'cfo_equal_11_hz' for 15 AdvAs -> transition_cfo_by_adva_cfo_equal_11_hz.pdf
-[CFO] Plotting transition CFO 'cfo_jump_10_hz' for 15 AdvAs -> transition_cfo_by_adva_cfo_jump_10_hz.pdf
-[CFO] Plotting transition CFO 'cfo_jump_01_hz' for 15 AdvAs -> transition_cfo_by_adva_cfo_jump_01_hz.pdf
-[CFO] Total CFO samples plotted: 71973  (unique AdvA groups: 6841)
-[CFO] Saved per-packet CFO samples to CSV: cfo_samples_rail.csv  (rows=3954)
+[INFO] CFO grouping: AdvA only (top 100)
+[INFO] Tag filter: none
+[INFO] Decode windows found (analyzed): 2018
+[STATS] Window-level detection quality (continuous AA scan)
+  Windows total                                 : 2018
+  AA match (>= 28/32)                            : 2018 (100.00%)
+  Preamble match (>= 7/8)                      : 2016 (99.90%)
+  BOTH (AA & preamble)                           : 2016 (99.90%)
+  Parsed header/payload (BOTH-based)             : 1990 (98.61%)
+  CRC OK (any BOTH-based candidate)              : 713 (35.33%)
+  AirTag/FindMy (best_any per window)            : 20 (0.99%)
+  Tag-ecosystem (best_any; incl. AirTag)         : 119 (5.90%)
+  Kept after tag filter (printing/CFO inputs)    : 1990 (98.61%)
+[INFO] Packets stored for printing: 1990 (max=20000)
+[CFO] No CFO samples available to plot (after excluding NO_AdvA, tag-only, and min_count>=100).
+[CFO] No samples to plot for cfo_equal_00_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_equal_11_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_jump_10_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_jump_01_hz (tag-only, min_count>=100).
+[CFO] Saved per-packet CFO samples to CSV: cfo_samples_rail.csv  (rows=119)
