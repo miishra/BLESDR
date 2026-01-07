@@ -1,4 +1,4 @@
-[INFO] Loading RAW SPI int16 IQ from /home/mishra/Downloads/spi_test_trr.bin
+[INFO] Loading RAW SPI int16 IQ from ../../big_jan5.bin
 [INFO] Resample ratio L/M = 9282/3119 => fs_out ≈ 4000000.08 (target 4000000)
 [INFO] SPS = 4 (fs_out/symbol_rate), CRC_filter=off
 [INFO] Dewhiten: BLESDR byte/MSB stepping (SwapBits(chan)|2, poly 0x11)
@@ -7,48 +7,35 @@
 [INFO] CFO window: pre_aa_hdr_payload
 [INFO] CFO grouping: AdvA only (top 100)
 [INFO] Tag filter: none
-[INFO] Decode windows found (analyzed): 2018
+[INFO] Decode windows found (analyzed): 211058
+[INFO] Multiprocessing enabled: workers=32, windows=211058, chunksize=16
+/data/abhi/BLESDR/build/ble_sniffer.py:782: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+  ax.boxplot(
+/data/abhi/BLESDR/build/ble_sniffer.py:868: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+  ax.boxplot(
+/data/abhi/BLESDR/build/ble_sniffer.py:868: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+  ax.boxplot(
+/data/abhi/BLESDR/build/ble_sniffer.py:868: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+  ax.boxplot(
+/data/abhi/BLESDR/build/ble_sniffer.py:868: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+  ax.boxplot(
 [STATS] Window-level detection quality (continuous AA scan)
-  Windows total                                 : 2018
-  AA match (>= 28/32)                            : 2018 (100.00%)
-  Preamble match (>= 7/8)                      : 2016 (99.90%)
-  BOTH (AA & preamble)                           : 2016 (99.90%)
-  Parsed header/payload (BOTH-based)             : 1990 (98.61%)
-  CRC OK (any BOTH-based candidate)              : 713 (35.33%)
-  AirTag/FindMy (best_any per window)            : 20 (0.99%)
-  Tag-ecosystem (best_any; incl. AirTag)         : 119 (5.90%)
-  Kept after tag filter (printing/CFO inputs)    : 1990 (98.61%)
-[INFO] Packets stored for printing: 1990 (max=20000)
-[CFO] No CFO samples available to plot (after excluding NO_AdvA, tag-only, and min_count>=100).
-[CFO] No samples to plot for cfo_equal_00_hz (tag-only, min_count>=100).
-[CFO] No samples to plot for cfo_equal_11_hz (tag-only, min_count>=100).
-[CFO] No samples to plot for cfo_jump_10_hz (tag-only, min_count>=100).
-[CFO] No samples to plot for cfo_jump_01_hz (tag-only, min_count>=100).
-[CFO] Saved per-packet CFO samples to CSV: cfo_samples_rail.csv  (rows=119)
-[INFO] Loading RAW SPI int16 IQ from /home/mishra/Downloads/spi_test_trr.bin
-[INFO] Resample ratio L/M = 9282/3119 => fs_out ≈ 4000000.08 (target 4000000)
-[INFO] SPS = 4 (fs_out/symbol_rate), CRC_filter=off
-[INFO] Dewhiten: BLESDR byte/MSB stepping (SwapBits(chan)|2, poly 0x11)
-[INFO] CRC: BLESDR reverse_crc (init 0x555555 for adv)
-[INFO] Continuous scan enabled: energy burst detector disabled (note: --thr ignored)
-[INFO] CFO window: pre_aa_hdr_payload
-[INFO] CFO grouping: AdvA only (top 100)
-[INFO] Tag filter: none
-[INFO] Decode windows found (analyzed): 2018
-[STATS] Window-level detection quality (continuous AA scan)
-  Windows total                                 : 2018
-  AA match (>= 28/32)                            : 2018 (100.00%)
-  Preamble match (>= 7/8)                      : 2016 (99.90%)
-  BOTH (AA & preamble)                           : 2016 (99.90%)
-  Parsed header/payload (BOTH-based)             : 1990 (98.61%)
-  CRC OK (any BOTH-based candidate)              : 713 (35.33%)
-  AirTag/FindMy (best_any per window)            : 20 (0.99%)
-  Tag-ecosystem (best_any; incl. AirTag)         : 119 (5.90%)
-  Kept after tag filter (printing/CFO inputs)    : 1990 (98.61%)
-[INFO] Packets stored for printing: 1990 (max=20000)
-[CFO] No CFO samples available to plot (after excluding NO_AdvA, tag-only, and min_count>=100).
-[CFO] No samples to plot for cfo_equal_00_hz (tag-only, min_count>=100).
-[CFO] No samples to plot for cfo_equal_11_hz (tag-only, min_count>=100).
-[CFO] No samples to plot for cfo_jump_10_hz (tag-only, min_count>=100).
-[CFO] No samples to plot for cfo_jump_01_hz (tag-only, min_count>=100).
-[CFO] Saved per-packet CFO samples to CSV: cfo_samples_rail.csv  (rows=119)
+  Windows total                                 : 211058
+  AA match (>= 28/32)                            : 211058 (100.00%)
+  Preamble match (>= 7/8)                      : 210973 (99.96%)
+  BOTH (AA & preamble)                           : 210950 (99.95%)
+  Parsed header/payload (BOTH-based)             : 208579 (98.83%)
+  CRC OK (any BOTH-based candidate)              : 66629 (31.57%)
+  AirTag/FindMy (best_any per window)            : 8574 (4.06%)
+  Tag-ecosystem (best_any; incl. AirTag)         : 16203 (7.68%)
+  Kept after tag filter (printing/CFO inputs)    : 208579 (98.83%)
+[INFO] Packets stored for printing: 208579 (max=20000000)
+[CFO] Plotting CFO violin+box for top 45 AdvAs (tag ecosystem only, min_count>=100).
+[CFO] Saved violin+box plot to: cfo_boxplot_by_adva.pdf
+[CFO] Groups plotted: 45 (excluded: NO_AdvA; tag ecosystem only; min_count>=100)
+[CFO] Plotting transition CFO 'cfo_equal_00_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_equal_00_hz.pdf
+[CFO] Plotting transition CFO 'cfo_equal_11_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_equal_11_hz.pdf
+[CFO] Plotting transition CFO 'cfo_jump_10_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_jump_10_hz.pdf
+[CFO] Plotting transition CFO 'cfo_jump_01_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_jump_01_hz.pdf
+[CFO] Total CFO samples plotted: 208579  (unique AdvA groups: 24786)
+[CFO] Saved per-packet CFO samples to CSV: cfo_samples_rail.csv  (rows=16203)
