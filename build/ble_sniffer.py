@@ -1530,8 +1530,8 @@ if __name__ == "__main__":
     #     print(f"CRC ok: {p['crc_ok']}  CRC rx: 0x{p['crc_rx']:06x}  CRC calc: 0x{p['crc_calc']:06x}")
     #     print()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 
 # #!/usr/bin/env python3
 # """

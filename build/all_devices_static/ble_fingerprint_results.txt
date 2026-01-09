@@ -1,0 +1,32 @@
+================================================================================
+BLE DEVICE FINGERPRINTING - LINKABILITY (FRESH PSEUDONYMS)
+================================================================================
+
+Input CSV: /home/mishra/sdrs/BLESDR/build/test1.csv
+Grouping key: adv_addr
+MIN_PKTS_PER_MAC: 10
+Selected CFO columns: cfo_quick_hz, cfo_equal_00_hz, cfo_equal_11_hz, cfo_jump_10_hz, cfo_jump_01_hz
+Stats: mean
+Training fraction: 70%
+
+--------------------------------------------------------------------------------
+FEATURE NAMES
+--------------------------------------------------------------------------------
+  0: cfo_quick_hz:mean
+  1: cfo_equal_00_hz:mean
+  2: cfo_equal_11_hz:mean
+  3: cfo_jump_10_hz:mean
+  4: cfo_jump_01_hz:mean
+
+--------------------------------------------------------------------------------
+LINKABILITY METRICS (fresh pseudonyms)
+--------------------------------------------------------------------------------
+p (pseudonym period): 5
+Gallery samples (train segments): 683
+Query samples (test segments):    310
+
+Rank-1 linking accuracy: 99.68%
+Verification ROC-AUC:    0.9972
+Clustering ARI:          0.9645
+Clustering NMI:          0.9869
+

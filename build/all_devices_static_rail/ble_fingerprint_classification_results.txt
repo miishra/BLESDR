@@ -2,10 +2,10 @@
 BLE DEVICE FINGERPRINTING - RANDOM FOREST (MAC-GROUPED)
 ================================================================================
 
-Input CSV: cfo_samples_rail.csv
+Input CSV: /home/mishra/Downloads/cfo_samples_rail.csv
 Grouping key: AdvA (each MAC treated as one device)
-MIN_PKTS_PER_MAC: 100
-Windowing: WINDOW_PKTS=10, WINDOW_STEP=10, MIN_WINDOWS_PER_MAC=2
+MIN_PKTS_PER_MAC: 200
+Windowing: WINDOW_PKTS=100, WINDOW_STEP=10, MIN_WINDOWS_PER_MAC=2
 Mean repeats (priority): MEAN_REPEATS=4
 
 Selected CFO columns: CFO_Hz, CFO_00_Hz, CFO_11_Hz, CFO_10_Hz, CFO_01_Hz
@@ -13,9 +13,9 @@ Stats: mean
 Extra distribution stats: median, iqr, p10, p90, mad
 Training fraction: 70% per MAC
 
-Number of MAC classes: 15
-Train samples (windows): 258
-Test samples  (windows): 106
+Number of MAC classes: 17
+Train samples (windows): 456
+Test samples  (windows): 103
 
 --------------------------------------------------------------------------------
 FEATURE NAMES
@@ -69,81 +69,83 @@ FEATURE NAMES
 --------------------------------------------------------------------------------
 FEATURE IMPORTANCES
 --------------------------------------------------------------------------------
-CFO_Hz:mean_r1                     : 0.070152
-CFO_Hz:mean_r3                     : 0.067817
-CFO_Hz:mean_r4                     : 0.067115
-CFO_Hz:median                      : 0.066261
-CFO_Hz:mean_r2                     : 0.065035
-CFO_Hz:p10                         : 0.043587
-CFO_10_Hz:p90                      : 0.043470
-CFO_10_Hz:mean_r2                  : 0.043456
-CFO_10_Hz:mean_r1                  : 0.043026
-CFO_10_Hz:mean_r4                  : 0.042700
-CFO_10_Hz:mean_r3                  : 0.042692
-CFO_10_Hz:median                   : 0.037470
-CFO_Hz:p90                         : 0.035760
-CFO_11_Hz:p10                      : 0.024340
-CFO_00_Hz:p90                      : 0.023737
-CFO_10_Hz:p10                      : 0.017732
-CFO_01_Hz:p10                      : 0.016746
-CFO_11_Hz:mean_r4                  : 0.012895
-CFO_01_Hz:mean_r1                  : 0.012357
-CFO_01_Hz:mean_r4                  : 0.012308
-CFO_11_Hz:mean_r2                  : 0.012247
-CFO_11_Hz:mean_r1                  : 0.012196
-CFO_01_Hz:mean_r2                  : 0.011905
-CFO_11_Hz:mean_r3                  : 0.011834
-CFO_01_Hz:mean_r3                  : 0.011245
-CFO_11_Hz:median                   : 0.010290
-CFO_01_Hz:median                   : 0.009106
-CFO_11_Hz:p90                      : 0.009092
-CFO_00_Hz:iqr                      : 0.008660
-CFO_11_Hz:iqr                      : 0.008572
-CFO_01_Hz:p90                      : 0.007835
-CFO_00_Hz:median                   : 0.007730
-CFO_00_Hz:mad                      : 0.007653
-CFO_Hz:iqr                         : 0.007473
-CFO_00_Hz:p10                      : 0.007188
-CFO_11_Hz:mad                      : 0.007156
-CFO_10_Hz:mad                      : 0.007076
-CFO_00_Hz:mean_r3                  : 0.007017
-CFO_10_Hz:iqr                      : 0.006929
-CFO_00_Hz:mean_r1                  : 0.006905
-CFO_00_Hz:mean_r4                  : 0.006879
-CFO_Hz:mad                         : 0.006641
-CFO_01_Hz:iqr                      : 0.006617
-CFO_01_Hz:mad                      : 0.006598
-CFO_00_Hz:mean_r2                  : 0.006502
+CFO_Hz:p90                         : 0.041474
+CFO_11_Hz:mean_r2                  : 0.035677
+CFO_01_Hz:p10                      : 0.035618
+CFO_11_Hz:mean_r1                  : 0.035508
+CFO_11_Hz:mean_r4                  : 0.035330
+CFO_11_Hz:mean_r3                  : 0.034544
+CFO_Hz:mean_r1                     : 0.033760
+CFO_Hz:mean_r4                     : 0.033620
+CFO_Hz:p10                         : 0.033447
+CFO_10_Hz:p90                      : 0.032613
+CFO_Hz:mean_r3                     : 0.032069
+CFO_Hz:mean_r2                     : 0.031801
+CFO_Hz:median                      : 0.031769
+CFO_11_Hz:p90                      : 0.028723
+CFO_01_Hz:median                   : 0.026922
+CFO_00_Hz:mean_r2                  : 0.025994
+CFO_01_Hz:mean_r2                  : 0.025994
+CFO_01_Hz:mean_r4                  : 0.025749
+CFO_01_Hz:mean_r3                  : 0.025715
+CFO_10_Hz:mean_r2                  : 0.025707
+CFO_00_Hz:mean_r1                  : 0.025533
+CFO_10_Hz:mean_r1                  : 0.025524
+CFO_01_Hz:mean_r1                  : 0.025380
+CFO_10_Hz:median                   : 0.025324
+CFO_00_Hz:mean_r3                  : 0.025321
+CFO_10_Hz:mean_r4                  : 0.024988
+CFO_10_Hz:mean_r3                  : 0.024968
+CFO_00_Hz:mean_r4                  : 0.024340
+CFO_11_Hz:p10                      : 0.021606
+CFO_00_Hz:median                   : 0.021270
+CFO_00_Hz:p90                      : 0.019884
+CFO_01_Hz:p90                      : 0.015743
+CFO_10_Hz:p10                      : 0.014651
+CFO_00_Hz:p10                      : 0.013984
+CFO_11_Hz:median                   : 0.013355
+CFO_01_Hz:iqr                      : 0.010452
+CFO_11_Hz:mad                      : 0.007621
+CFO_01_Hz:mad                      : 0.006924
+CFO_11_Hz:iqr                      : 0.006762
+CFO_10_Hz:mad                      : 0.004903
+CFO_10_Hz:iqr                      : 0.004260
+CFO_00_Hz:iqr                      : 0.001548
+CFO_00_Hz:mad                      : 0.001400
+CFO_Hz:iqr                         : 0.001243
+CFO_Hz:mad                         : 0.000981
 
 --------------------------------------------------------------------------------
 RANDOM FOREST PERFORMANCE
 --------------------------------------------------------------------------------
-Accuracy:  72.64%
-Precision: 72.98%
-Recall:    72.64%
-F1-Score:  71.69%
-OOB Score:  75.58%
+Accuracy:  90.29%
+Precision: 94.31%
+Recall:    90.29%
+F1-Score:  89.39%
+OOB Score:  99.56%
 
 Per-MAC Classification Report:
                    precision    recall  f1-score   support
 
-C0:6E:FC:25:62:40       0.67      0.50      0.57         4
-C5:CA:69:52:61:94       0.60      0.43      0.50         7
-C6:EA:6B:04:4F:40       0.71      1.00      0.83         5
-C7:68:09:1E:BD:89       0.60      0.43      0.50         7
-CE:32:11:97:EF:AA       0.90      1.00      0.95         9
-D8:73:85:0A:F2:54       1.00      0.50      0.67         4
-DB:7F:E7:AB:17:24       0.89      1.00      0.94         8
-E4:37:F0:DB:F5:F6       0.50      0.38      0.43         8
-E5:FA:65:FF:C6:09       0.64      0.88      0.74         8
-E9:2B:A7:1C:38:F9       0.46      0.55      0.50        11
-ED:82:07:38:9E:3A       0.78      0.78      0.78         9
-F0:15:C7:E0:F9:5C       0.73      0.89      0.80         9
-FA:20:21:2A:51:BE       1.00      1.00      1.00         7
-FA:DD:32:9C:62:D8       0.80      0.67      0.73         6
-FD:18:7D:EA:E9:66       1.00      0.75      0.86         4
+44:27:8B:7A:64:72       0.82      1.00      0.90         9
+4A:01:B9:78:EA:1D       1.00      1.00      1.00         3
+52:5C:3A:99:8C:AB       1.00      0.60      0.75         5
+57:A4:BC:C5:0D:C9       0.67      1.00      0.80         6
+7C:24:AF:57:9B:5D       1.00      1.00      1.00         4
+7D:C9:C0:BD:85:B3       1.00      0.25      0.40         4
+C5:68:6B:99:6A:C5       1.00      1.00      1.00         9
+C6:70:C1:4D:DA:68       1.00      0.38      0.55         8
+CB:F7:96:33:13:13       1.00      1.00      1.00         8
+CE:AA:AB:D2:FC:09       1.00      1.00      1.00         7
+D0:6D:78:47:39:4F       1.00      1.00      1.00         8
+D9:B1:51:3A:9C:30       0.44      1.00      0.62         4
+DC:D6:44:C7:D7:A6       1.00      1.00      1.00        10
+E9:5A:FB:9E:46:7C       1.00      1.00      1.00         4
+F4:0A:68:DD:7E:C0       1.00      1.00      1.00         4
+F6:72:62:ED:92:3D       1.00      1.00      1.00         4
+F6:FE:7E:BD:D0:B3       1.00      1.00      1.00         6
 
-         accuracy                           0.73       106
-        macro avg       0.75      0.72      0.72       106
-     weighted avg       0.73      0.73      0.72       106
+         accuracy                           0.90       103
+        macro avg       0.94      0.90      0.88       103
+     weighted avg       0.94      0.90      0.89       103
 
