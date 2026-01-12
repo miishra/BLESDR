@@ -1,3 +1,8 @@
+# #!/usr/bin/env python3
+# """
+# ble_sniffer.py — BLE 1M legacy advertising sniffer for raw IQ streams (SPI int16 IQ or CF32).
+
+# FAST + STATS + CFO (preamble->AA->header+payload; CRC excluded from CFO window):
 #!/usr/bin/env python3
 """
 ble_sniffer.py — BLE 1M legacy advertising sniffer for raw IQ streams (SPI int16 IQ or CF32).
@@ -29,20 +34,30 @@ CHANGE (minimal):
   - Instead of energy-based burst detection, we scan continuously for AA matches and build
     small decode windows around those candidates.
     (The --thr parameter is now ignored.)
+
+PERFORMANCE (minimal logic-preserving changes):
+  - Optional multiprocessing across decode windows to use all CPU cores.
+  - Uses shared memory for freq_all and iq_up to avoid duplicating huge arrays per worker on macOS (spawn).
 """
 
 import os
 import argparse
 from fractions import Fraction
 from collections import defaultdict, Counter
+import csv
+import math
 
 import numpy as np
 from scipy.signal import resample_poly
-import csv
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+# Multiprocessing (minimal additions)
+import multiprocessing as mp
+from multiprocessing import shared_memory
+from concurrent.futures import ProcessPoolExecutor
 
 
 # ============================================================
@@ -55,7 +70,7 @@ SYMBOL_RATE = 1_000_000
 
 # SPI framing (EFR32-style)
 SPI_CHUNK_BYTES = 2048
-SPI_SKIP_BYTES = 0
+SPI_SKIP_BYTES = 4  # skip SPI header per chunk
 
 # Advertising Access Address
 AA_ADV = 0x8E89BED6  # fixed for adv channels
@@ -169,7 +184,17 @@ def load_spi_int16_iq(
     spi_chunk_bytes: int = SPI_CHUNK_BYTES,
     skip_bytes: int = SPI_SKIP_BYTES,
 ) -> np.ndarray:
+    """
+    Load RAW SPI int16 IQ data.
+
+    IMPORTANT:
+    - If skip_bytes > 0, those bytes are assumed to be a per-chunk SPI header.
+    - The header is REMOVED without deleting time:
+        it is replaced by zero-valued IQ samples.
+    - This preserves sample count, phase continuity, and symbol timing.
+    """
     print(f"[INFO] Loading RAW SPI int16 IQ from {filename}")
+
     raw = np.fromfile(filename, dtype=np.uint8)
     if raw.size == 0:
         raise ValueError("SPI file empty/unreadable.")
@@ -177,26 +202,48 @@ def load_spi_int16_iq(
     n_chunks = raw.size // spi_chunk_bytes
     if n_chunks == 0:
         raise ValueError("SPI file smaller than one chunk; check chunk parameters.")
+
     raw = raw[: n_chunks * spi_chunk_bytes]
 
-    payload = []
+    payload_chunks = []
+
     for i in range(n_chunks):
-        s = i * spi_chunk_bytes + skip_bytes
-        e = (i + 1) * spi_chunk_bytes
-        payload.append(raw[s:e])
-    payload = np.concatenate(payload) if payload else np.array([], dtype=np.uint8)
+        chunk = raw[i * spi_chunk_bytes : (i + 1) * spi_chunk_bytes]
+
+        if skip_bytes > 0:
+            # Replace header bytes with zero-valued IQ samples
+            # 4 bytes = 1 complex sample (I16,Q16)
+            if skip_bytes % 4 != 0:
+                raise ValueError("skip_bytes must be a multiple of 4 to preserve IQ alignment")
+
+            n_dummy = skip_bytes
+            dummy = np.zeros(n_dummy, dtype=np.uint8)
+
+            payload_chunks.append(dummy)
+            payload_chunks.append(chunk[skip_bytes:])
+        else:
+            payload_chunks.append(chunk)
+
+    payload = np.concatenate(payload_chunks) if payload_chunks else np.array([], dtype=np.uint8)
 
     if payload.size < 4:
         raise ValueError("Not enough payload after de-framing.")
 
+    # Ensure int16 alignment
     if payload.size % 2 != 0:
         payload = payload[:-1]
 
     words = payload.view("<i2")  # little-endian int16
+
+    # I/Q extraction
     I = words[0::2].astype(np.float32) / 32768.0
     Q = words[1::2].astype(np.float32) / 32768.0
+
     iq = (I + 1j * Q).astype(np.complex64)
+
+    # Remove DC offset
     iq = iq - np.mean(iq)
+
     return iq
 
 def load_iq_auto(filename: str) -> np.ndarray:
@@ -256,7 +303,6 @@ def find_decode_windows_continuous(
     pre_symbols = max(48, 8 + 32 + 8 + abs(int(slip_max)))  # enough to re-find preamble+AA after re-phasing
     post_symbols = MAX_TOTAL_BITS + 32 + abs(int(slip_max))  # header+payload+crc + margin
 
-    # Gather candidates as (aa_sample, score_tuple)
     cand = []
 
     # Scan per phase/polarity over symbol domain (length ~ len(freq_all)/sps)
@@ -272,14 +318,13 @@ def find_decode_windows_continuous(
             # AA correlation for entire stream
             b_pm = bits.astype(np.int8) * 2 - 1
             dots = np.correlate(b_pm, AA_PM, mode="valid")
-            # convert to "matches"
             matches = ((dots + 32) // 2).astype(np.int16)
 
             idx = np.flatnonzero(matches >= aa_corr_min)
             if idx.size == 0:
                 continue
 
-            # preamble gate
+            # preamble gate (kept as-is to preserve logic)
             for aa_pos in idx.tolist():
                 pre_corr = preamble_corr_at(bits, aa_pos)
                 if pre_corr < preamble_min:
@@ -296,7 +341,6 @@ def find_decode_windows_continuous(
     cand.sort(key=lambda t: t[0])
 
     # Non-maximum suppression to deduplicate near-duplicates across phase/polarity
-    # Use a separation ~ half a max packet to avoid multiple picks inside same packet
     min_sep_samples = int((MAX_TOTAL_BITS * sps) // 2)
     kept = []
 
@@ -307,7 +351,6 @@ def find_decode_windows_continuous(
 
         prev_sample, prev_sc = kept[-1]
         if aa_sample - prev_sample <= min_sep_samples:
-            # keep the better score within the cluster
             if sc > prev_sc:
                 kept[-1] = [aa_sample, sc]
         else:
@@ -335,7 +378,6 @@ def find_decode_windows_continuous(
 # BLESDR SwapBits, Whitening, CRC (BYTE DOMAIN)
 # ============================================================
 
-# Precompute SwapBits(0..255)
 _SWAP_LUT = np.zeros(256, dtype=np.uint8)
 for _v in range(256):
     x = _v
@@ -351,13 +393,11 @@ def swap_bits8(v: int) -> int:
 def blesdr_reverse_whiten(chan: int, data: bytearray) -> None:
     """
     Exact BLESDR logic:
-
         lfsr = SwapBits(chan) | 2;
         for each byte:
             for mask = 0x80..0x01:
                 if (lfsr & 0x80) { lfsr ^= 0x11; byte ^= mask; }
                 lfsr <<= 1;
-
     This assumes 'data' bytes are in BLESDR's "ExtractByte" domain (MSB-first per byte).
     """
     lfsr = (swap_bits8(chan) | 0x02) & 0xFF
@@ -375,7 +415,6 @@ def blesdr_reverse_whiten(chan: int, data: bytearray) -> None:
 def blesdr_reverse_crc(data: bytes, init_adv: bool = True) -> int:
     """
     Exact BLESDR btle_reverse_crc() behavior.
-
     init for advertising uses dst = [0x55,0x55,0x55], then shifts left.
     Returns 24-bit integer assembled big-endian from dst bytes.
     """
@@ -388,7 +427,6 @@ def blesdr_reverse_crc(data: bytes, init_adv: bool = True) -> int:
         for _ in range(8):
             t = (dst0 >> 7) & 1
 
-            # shift left dst0..2
             dst0 = ((dst0 << 1) & 0xFF) | ((dst1 >> 7) & 1)
             dst1 = ((dst1 << 1) & 0xFF) | ((dst2 >> 7) & 1)
             dst2 = ((dst2 << 1) & 0xFF)
@@ -409,9 +447,7 @@ def bits_to_bytes_msbfirst_time(bits: np.ndarray) -> bytes:
     """
     Build bytes so that the *first* bit in time becomes bit7 (MSB) of the byte,
     next becomes bit6, ..., last becomes bit0.
-
-    This matches BLESDR's ExtractByte(): byte |= Q(l+c) << (7-c)
-    under the assumption Q(l),Q(l+1),... enumerate bits in time order.
+    This matches BLESDR's ExtractByte().
     """
     n = (bits.size // 8) * 8
     bits = bits[:n]
@@ -434,7 +470,6 @@ def parse_legacy_adv_from_blesdr_bytes(packet_data_msb: bytes):
     """
     packet_data_msb: header(2) + payload(length) + crc(3) all in BLESDR byte domain,
                      already dewhitened.
-
     We interpret header/payload by SwapBits() each byte to convert to normal on-air byte value.
     """
     if len(packet_data_msb) < 2 + 3:
@@ -563,27 +598,16 @@ def estimate_cfo_hz(
     payload_len_bytes: int,
     window: str = "pre_aa_hdr_payload",
     *,
-    polarity: int = +1,                 # needed to classify bits (0/1) consistently
-    iq_burst: np.ndarray = None,        # complex IQ aligned to freq_burst (len = len(freq_burst)+1 recommended)
-    return_transitions: bool = True,    # if False, returns only overall CFO float
+    polarity: int = +1,
+    iq_burst: np.ndarray = None,
+    return_transitions: bool = True,
 ):
     """
-    window options (all start at PREAMBLE start = aa_pos-8):
-      - "pre_aa"              : preamble(8) + AA(32)
-      - "pre_aa_hdr"          : preamble(8) + AA(32) + header(16)
-      - "pre_aa_hdr_payload"  : preamble(8) + AA(32) + header(16) + payload(8*len)
-
-    Returns:
-      - if return_transitions=False: overall_cfo_hz (float)  [trimmed-median discriminator CFO]
-      - else: (overall_cfo_hz, trans_dict)
-        where trans_dict contains:
-            cfo_equal_00, cfo_equal_11, cfo_jump_10, cfo_jump_01, cfo_overall_from_transitions
-        (all in Hz; NaN if not computable)
+    Returns overall CFO (trimmed-median discriminator CFO) and optional transition CFOs.
     """
     if aa_pos is None or aa_pos < 8 or sps <= 0:
         return None if not return_transitions else (None, None)
 
-    # total bits in requested CFO window (starting at preamble)
     if window == "pre_aa":
         total_bits = 8 + 32
     elif window == "pre_aa_hdr":
@@ -591,17 +615,14 @@ def estimate_cfo_hz(
     else:
         total_bits = 8 + 32 + 16 + payload_len_bytes * 8
 
-    start_sym = aa_pos - 8  # preamble start in symbol index
+    start_sym = aa_pos - 8
     start = phase + start_sym * sps
     end = start + total_bits * sps
 
     if start < 0 or end > freq_burst.size or end <= start:
         return None if not return_transitions else (None, None)
 
-    # -------------------------
-    # (A) Your existing CFO (trimmed median of discriminator -> Hz)
-    # -------------------------
-    seg = freq_burst[start:end].astype(np.float64)
+    seg = freq_burst[start:end].astype(np.float64, copy=False)
     hz = seg * (fs_out / (2.0 * np.pi))
 
     if hz.size < 32:
@@ -616,10 +637,6 @@ def estimate_cfo_hz(
     if not return_transitions:
         return overall_cfo
 
-    # -------------------------
-    # (B) Transition CFOs via phasor sums (matches your C Accum/add_prod/accum_to_cfo)
-    #     IMPORTANT: transitions computed on *packet bits only* (AA+HDR+PAYLOAD...), NOT preamble.
-    # -------------------------
     trans = {
         "cfo_equal_00": float("nan"),
         "cfo_equal_11": float("nan"),
@@ -636,17 +653,15 @@ def estimate_cfo_hz(
     if iq_burst is None:
         return overall_cfo, trans
 
-    # Build symbol bits (same slicer as decoder)
     sym = freq_burst[phase::sps]
     x = sym if polarity > 0 else -sym
     bits_all = (x > 0).astype(np.uint8)
 
-    # Transition CFOs should be over *packet bits*, excluding preamble.
     trans_bits_total = total_bits - 8
     if trans_bits_total < 2:
         return overall_cfo, trans
 
-    aa_start_sym = aa_pos                 # AA start (symbol index in bits_all)
+    aa_start_sym = aa_pos
     aa_start_samp = phase + aa_start_sym * sps
 
     if aa_start_sym < 0 or (aa_start_sym + trans_bits_total) > bits_all.size:
@@ -656,7 +671,6 @@ def estimate_cfo_hz(
     if bits.size < 2:
         return overall_cfo, trans
 
-    # IQ samples aligned to bit-0 start (AA bit0), length = bits*sps
     win_samples = int(bits.size) * int(sps)
     if aa_start_samp < 0 or (aa_start_samp + win_samples) > iq_burst.size:
         return overall_cfo, trans
@@ -666,33 +680,24 @@ def estimate_cfo_hz(
         return overall_cfo, trans
 
     # C-style accumulators
-    Re00 = Im00 = 0.0
-    Re11 = Im11 = 0.0
-    Re10 = Im10 = 0.0
-    Re01 = Im01 = 0.0
-    Ret  = Imt  = 0.0
-    n00 = n11 = n10 = n01 = nt = 0
+    A00 = [0.0, 0.0, 0]
+    A11 = [0.0, 0.0, 0]
+    A10 = [0.0, 0.0, 0]
+    A01 = [0.0, 0.0, 0]
+    At  = [0.0, 0.0, 0]
 
-    def add_prod(re_im_n, x0, x1):
+    def add_prod(acc, x0, x1):
         z = x1 * np.conj(x0)
-        re_im_n[0] += float(np.real(z))
-        re_im_n[1] += float(np.imag(z))
-        re_im_n[2] += 1
+        acc[0] += float(np.real(z))
+        acc[1] += float(np.imag(z))
+        acc[2] += 1
 
-    A00 = [Re00, Im00, n00]
-    A11 = [Re11, Im11, n11]
-    A10 = [Re10, Im10, n10]
-    A01 = [Re01, Im01, n01]
-    At  = [Ret,  Imt,  nt ]
-
-    # Include products inside the first symbol (bit 0)
     first_bit = int(bits[0])
     first_acc = A00 if first_bit == 0 else A11
     for n in range(1, min(sps, iq_win.size)):
         add_prod(first_acc, iq_win[n - 1], iq_win[n])
         add_prod(At,        iq_win[n - 1], iq_win[n])
 
-    # Handle transitions i-1 -> i; assign all products of symbol i to that transition bin
     for i in range(1, bits.size):
         a = i * sps
         b = (i + 1) * sps
@@ -767,7 +772,7 @@ def save_cfo_boxplot_pdf_by_adva(
     plt.figure(figsize=(max(10, 0.55 * len(labels)), 4.5))
     ax = plt.gca()
 
-    vp = ax.violinplot(
+    ax.violinplot(
         data,
         showmeans=False,
         showmedians=False,
@@ -814,8 +819,6 @@ def save_transition_cfo_violin_boxplots_by_adva(
         "cfo_equal_11_hz",
         "cfo_jump_10_hz",
         "cfo_jump_01_hz",
-        # optionally also:
-        # "cfo_overall_from_transitions_hz",
     ),
 ):
     out_dir = os.path.dirname(out_pdf_prefix)
@@ -1009,6 +1012,11 @@ def decode_one_burst_from_freq(
                 pkt_std = bytes(swap_bits8(b) for b in pkt_msb)
                 is_airtag, is_tag, reason = is_findmy_or_tag_ecosystem(pkt_std)
 
+                # --- Save what you need to re-check CRC later (NO whitening/channel needed later) ---
+                hp_msb = bytes(pkt_msb[:2+length])  # dewhitened header+payload in BLESDR MSB-byte domain
+                crc_rx_msb_bytes = bytes(pkt_msb[2+length:2+length+3])  # received CRC bytes in same domain
+                hp_std = bytes(swap_bits8(b) for b in hp_msb)  # standard BLE byte values (optional convenience)
+
                 pkt = {
                     "aa_pos": int(aa0),
                     "aa_corr": int(corr),
@@ -1033,6 +1041,13 @@ def decode_one_burst_from_freq(
                     "is_airtag": bool(is_airtag),
                     "is_tag_ecosystem": bool(is_tag),
                     "tag_reason": reason,
+                    
+                    # For offline CRC re-check later:
+                    "hp_msb_hex": hp_msb.hex(),                 # header+payload (dewhitened), BLESDR domain
+                    "crc_rx_msb_hex": crc_rx_msb_bytes.hex(),   # CRC bytes (received), BLESDR domain
+
+                    # Optional convenience copies (standard BLE byte values)
+                    "hp_std_hex": hp_std.hex(),
                 }
                 for k, v in addrs.items():
                     pkt[k] = fmt_mac(v)
@@ -1069,6 +1084,269 @@ def decode_one_burst_from_freq(
 
 
 # ============================================================
+# MULTIPROCESS SHARED-MEM WORKER (minimal additions)
+# ============================================================
+
+_MP_FREQ = None
+_MP_IQ = None
+_MP_SHM_FREQ = None
+_MP_SHM_IQ = None
+
+def _mp_init_shared(freq_shm_name, freq_shape, freq_dtype_str,
+                    iq_shm_name, iq_shape, iq_dtype_str):
+    """Initializer: attach to shared memory once per worker process."""
+    global _MP_FREQ, _MP_IQ, _MP_SHM_FREQ, _MP_SHM_IQ
+    _MP_SHM_FREQ = shared_memory.SharedMemory(name=freq_shm_name)
+    _MP_SHM_IQ = shared_memory.SharedMemory(name=iq_shm_name)
+    _MP_FREQ = np.ndarray(tuple(freq_shape), dtype=np.dtype(freq_dtype_str), buffer=_MP_SHM_FREQ.buf)
+    _MP_IQ = np.ndarray(tuple(iq_shape), dtype=np.dtype(iq_dtype_str), buffer=_MP_SHM_IQ.buf)
+
+def _mp_close_shared():
+    """Best-effort close in workers (not strictly required)."""
+    global _MP_SHM_FREQ, _MP_SHM_IQ
+    try:
+        if _MP_SHM_FREQ is not None:
+            _MP_SHM_FREQ.close()
+    except Exception:
+        pass
+    try:
+        if _MP_SHM_IQ is not None:
+            _MP_SHM_IQ.close()
+    except Exception:
+        pass
+
+def _keep_filter(pkt, filter_tags: str):
+    if filter_tags == "none":
+        return True
+    if filter_tags == "drop-airtag":
+        return not pkt.get("is_airtag", False)
+    if filter_tags == "only-airtag":
+        return pkt.get("is_airtag", False)
+    if filter_tags == "drop-tags":
+        return not pkt.get("is_tag_ecosystem", False)
+    if filter_tags == "only-tags":
+        return pkt.get("is_tag_ecosystem", False)
+    return True
+
+def _process_one_window_task(task):
+    """
+    Worker: process one window using global shared-memory arrays.
+    Returns a compact dict for aggregation.
+    """
+    # Unpack task (keep it flat for speed/serialization)
+    (idx, s_up, e_up,
+    scale, sps, fs_out, fs_in,   # <-- ADD fs_in
+    ch_list,
+    aa_corr_min, preamble_min,
+    do_crc_filter, debug,
+    slip_sweep, slip_max,
+    crc_diag, crc_diag_max_unused,
+    cfo_window, plot_cfo, filter_tags,
+    need_pkt, need_cfo_row) = task
+
+    # Local result skeleton
+    out = {
+        "idx": idx,
+        "bursts": 1,
+        "aa_hit": 0,
+        "pre_hit": 0,
+        "both_hit": 0,
+        "parsed": 0,
+        "crc_ok": 0,
+        "airtag": 0,
+        "tag_any": 0,
+        "kept": 0,
+        "pkt": None,
+        "tag_adva": None,
+        "cfo": None,
+        "adva_for_cfo": None,
+        "is_tag_for_cfo": False,
+        "trans": None,
+        "cfo_row": None,
+        "crc_fail_summary": None,
+        "crcok_hist": None,  # optional: (slip, phase, pol, chan) if CRC_OK
+    }
+
+    # For reporting (original domain): approx inverse-scale
+    s_orig = int(round(s_up / scale))
+    e_orig = int(round(e_up / scale))
+
+    e_f = max(s_up, e_up - 1)
+    if s_up >= _MP_FREQ.size or e_f <= s_up:
+        return out
+
+    freq_burst_base = _MP_FREQ[s_up:e_f]
+    iq_burst_base = _MP_IQ[s_up:e_f+1]  # +1 so len(iq)==len(freq)+1
+
+    burst_flags = {"aa_hit": False, "pre_hit": False, "both_hit": False, "parsed": False, "crc_ok": False}
+
+    best_any = None
+    best_any_score = None
+
+    best_crc = None
+    best_crc_score = None
+
+    for ch in ch_list:
+        any_pkt, crc_pkt, summ = decode_one_burst_from_freq(
+            freq_burst=freq_burst_base,
+            channel=ch,
+            sps=sps,
+            aa_corr_min=aa_corr_min,
+            preamble_min=preamble_min,
+            debug=debug,
+            slip_sweep=slip_sweep,
+            slip_max=slip_max,
+            crc_diag=crc_diag,
+        )
+
+        for k in burst_flags:
+            burst_flags[k] |= summ[k]
+
+        if any_pkt is not None:
+            sc = (any_pkt["aa_corr"], any_pkt["pre_corr"], any_pkt["length"], int(any_pkt["crc_ok"]))
+            if best_any is None or sc > best_any_score:
+                best_any, best_any_score = any_pkt, sc
+
+        if crc_pkt is not None:
+            sc = (crc_pkt["aa_corr"], crc_pkt["pre_corr"], crc_pkt["length"], 1)
+            if best_crc is None or sc > best_crc_score:
+                best_crc, best_crc_score = crc_pkt, sc
+
+    # Update window-level stats
+    if burst_flags["aa_hit"]:
+        out["aa_hit"] = 1
+    if burst_flags["pre_hit"]:
+        out["pre_hit"] = 1
+    if burst_flags["both_hit"]:
+        out["both_hit"] = 1
+    if burst_flags["parsed"]:
+        out["parsed"] = 1
+    if burst_flags["crc_ok"]:
+        out["crc_ok"] = 1
+
+    if best_any is not None:
+        if best_any.get("is_airtag", False):
+            out["airtag"] = 1
+        if best_any.get("is_tag_ecosystem", False):
+            out["tag_any"] = 1
+
+    if best_crc is not None and best_crc.get("crc_ok", False):
+        out["crcok_hist"] = (
+            int(best_crc.get("slip", 0)),
+            int(best_crc.get("phase", -1)),
+            int(best_crc.get("polarity", 0)),
+            int(best_crc.get("channel", -1)),
+        )
+
+    # CRC_FAIL summary (printed in main with global limit)
+    if crc_diag and best_any is not None and (not best_any.get("crc_ok", False)):
+        if best_any.get("aa_corr", 0) >= aa_corr_min and best_any.get("pre_corr", 0) >= preamble_min:
+            diag = crc_diag_variants(best_any["crc_rx"], best_any["crc_calc"])
+            out["crc_fail_summary"] = (
+                "[CRC_FAIL] AA+PRE matched but best decode still CRC_BAD\n"
+                f"  window_samp_in=({s_orig},{e_orig}) window_samp_up=({s_up},{e_up}) "
+                f"ch={best_any['channel']} phase={best_any['phase']} pol={best_any['polarity']} slip={best_any.get('slip',0)}\n"
+                f"  pdu={best_any['pdu_type_name']} len={best_any['length']} AdvA={best_any.get('AdvA','NO_AdvA')}\n"
+                f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}"
+            )
+
+    pkt_for_print = best_crc if do_crc_filter else best_any
+    if pkt_for_print is None:
+        return out
+
+    if not _keep_filter(pkt_for_print, filter_tags):
+        return out
+
+    out["kept"] = 1
+
+    # Tag AdvA set for plotting filter later
+    if pkt_for_print.get("is_tag_ecosystem", False):
+        adva = pkt_for_print.get("AdvA", "NO_AdvA")
+        if adva != "NO_AdvA":
+            out["tag_adva"] = adva
+
+    # Packet capture for printing (only if requested)
+    if need_pkt:
+        pkt_for_print = dict(pkt_for_print)  # detach from any shared references
+        pkt_for_print["start"] = int(s_orig)
+        pkt_for_print["end"] = int(e_orig)
+        out["pkt"] = pkt_for_print
+
+    # CFO (only if requested)
+    if plot_cfo:
+        overall_cfo_hz, trans = estimate_cfo_hz(
+            freq_burst=freq_burst_base,
+            fs_out=fs_out,
+            phase=pkt_for_print["phase"],
+            aa_pos=pkt_for_print["aa_pos"],
+            sps=sps,
+            payload_len_bytes=pkt_for_print["length"],
+            window=cfo_window,
+            polarity=pkt_for_print["polarity"],
+            iq_burst=iq_burst_base,
+            return_transitions=True,
+        )
+
+        if overall_cfo_hz is not None and np.isfinite(overall_cfo_hz):
+            adva = pkt_for_print.get("AdvA", "NO_AdvA")
+            out["cfo"] = float(overall_cfo_hz)
+            out["adva_for_cfo"] = adva
+            out["is_tag_for_cfo"] = bool(pkt_for_print.get("is_tag_ecosystem", False))
+            out["trans"] = trans
+
+            if need_cfo_row and out["is_tag_for_cfo"]:
+                c00 = float(trans.get("cfo_equal_00", float("nan")))
+                c11 = float(trans.get("cfo_equal_11", float("nan")))
+                c10 = float(trans.get("cfo_jump_10",  float("nan")))
+                c01 = float(trans.get("cfo_jump_01",  float("nan")))
+                cft = float(trans.get("cfo_overall_from_transitions", float("nan")))
+
+                aa_pos_i = int(pkt_for_print.get("aa_pos", -1))
+                phase_i  = int(pkt_for_print.get("phase", 0))
+
+                if aa_pos_i >= 0 and fs_in > 0:
+                    aa_start_up = int(s_up + phase_i + aa_pos_i * sps)   # upsampled-domain sample index
+                    aa_start_orig = int(round(aa_start_up / scale))      # original-domain sample index
+                    timestamp_s = float(aa_start_orig) / float(fs_in)    # seconds from capture start
+                else:
+                    timestamp_s = float("nan")
+
+                out["cfo_row"] = {
+                    "timestamp": timestamp_s,   # <-- ADD THIS
+                    "AdvA": adva,
+                    "payload": pkt_for_print.get("payload_hex", ""),
+                    "CFO_Hz": float(overall_cfo_hz),
+                    "CFO_00_Hz": c00,
+                    "CFO_11_Hz": c11,
+                    "CFO_10_Hz": c10,
+                    "CFO_01_Hz": c01,
+                    "CFO_from_transitions_Hz": cft,
+                    "nprod_00": int(trans.get("nprod_00", 0)),
+                    "nprod_11": int(trans.get("nprod_11", 0)),
+                    "nprod_10": int(trans.get("nprod_10", 0)),
+                    "nprod_01": int(trans.get("nprod_01", 0)),
+                    "nprod_total": int(trans.get("nprod_total", 0)),
+                    "crc_ok": int(bool(pkt_for_print.get("crc_ok", False))),
+                    "is_tag_ecosystem": 1,
+                    "pdu_type": int(pkt_for_print.get("pdu_type", -1)),
+                    "pdu_type_name": pkt_for_print.get("pdu_type_name", ""),
+                    "length": int(pkt_for_print.get("length", -1)),
+                    "channel": int(pkt_for_print.get("channel", -1)),
+                    "phase": int(pkt_for_print.get("phase", -1)),
+                    "polarity": int(pkt_for_print.get("polarity", 0)),
+                    "slip": int(pkt_for_print.get("slip", 0)),
+                    "window_start": int(s_orig),
+                    "window_end": int(e_orig),
+                    "aa_pos": int(pkt_for_print.get("aa_pos", -1)),
+                    "aa_corr": int(pkt_for_print.get("aa_corr", -1)),
+                    "pre_corr": int(pkt_for_print.get("pre_corr", -1)),
+                    "cfo_window": cfo_window,
+                }
+
+    return out
+
+
+# ============================================================
 # TOP-LEVEL SNIFFER
 # ============================================================
 
@@ -1093,7 +1371,9 @@ def ble_sniffer(
     crc_diag: bool,
     crc_diag_max: int,
     cfo_window: str,
-    cfo_csv: str
+    cfo_csv: str,
+    workers: int,
+    mp_chunksize: int,
 ):
     L, M = pick_resample_ratio(fs_in, FS_OUT_TARGET, max_den=4096)
     fs_out = fs_in * (L / M)
@@ -1114,6 +1394,7 @@ def ble_sniffer(
     if crc_diag:
         print(f"[INFO] CRC diagnostics enabled (max detailed prints={crc_diag_max}, gated by --debug for per-candidate dumps)")
 
+    # Resample once + discriminator once
     iq_up = upsample(iq, L, M)
     freq_all = gfsk_discriminator(iq_up)
 
@@ -1148,189 +1429,347 @@ def ble_sniffer(
     crcok_pol_hist = Counter()
     crcok_chan_hist = Counter()
 
-    crc_fail_printed = 0
-
     packets = []
     tag_advas = set()
     cfo_by_adva = defaultdict(list)
     trans_cfo_by_adva = defaultdict(lambda: defaultdict(list))
     cfo_rows = []
 
-    def _keep(pkt):
-        if filter_tags == "none":
-            return True
-        if filter_tags == "drop-airtag":
-            return not pkt.get("is_airtag", False)
-        if filter_tags == "only-airtag":
-            return pkt.get("is_airtag", False)
-        if filter_tags == "drop-tags":
-            return not pkt.get("is_tag_ecosystem", False)
-        if filter_tags == "only-tags":
-            return pkt.get("is_tag_ecosystem", False)
-        return True
+    # -------------------------
+    # Multiprocessing over windows (minimal change, preserves logic)
+    # -------------------------
+    use_mp = (workers is not None and int(workers) > 1 and len(windows) > 0)
 
-    for (s_up, e_up) in windows:
-        stats["bursts"] += 1
+    # If nothing to do, return quickly
+    if not windows:
+        return packets, stats
 
-        # For reporting (original domain): approx inverse-scale
-        s_orig = int(round(s_up / scale))
-        e_orig = int(round(e_up / scale))
+    # Determine what we actually need to return from workers
+    need_pkt = (max_packets > 0)
+    need_cfo_row = bool(plot_cfo)
 
-        e_f = max(s_up, e_up - 1)
-        if s_up >= freq_all.size or e_f <= s_up:
-            continue
+    if use_mp:
+        # Shared memory to avoid duplicating huge arrays per worker (macOS uses spawn)
+        freq_shm = shared_memory.SharedMemory(create=True, size=freq_all.nbytes)
+        iq_shm = shared_memory.SharedMemory(create=True, size=iq_up.nbytes)
 
-        freq_burst_base = freq_all[s_up:e_f]
-        iq_burst_base = iq_up[s_up:e_f+1]  # +1 so len(iq)==len(freq)+1
+        try:
+            freq_sh = np.ndarray(freq_all.shape, dtype=freq_all.dtype, buffer=freq_shm.buf)
+            iq_sh = np.ndarray(iq_up.shape, dtype=iq_up.dtype, buffer=iq_shm.buf)
 
-        burst_flags = {"aa_hit": False, "pre_hit": False, "both_hit": False, "parsed": False, "crc_ok": False}
+            # Copy once
+            freq_sh[:] = freq_all
+            iq_sh[:] = iq_up
 
-        best_any = None
-        best_any_score = None
+            # Build tasks
+            tasks = []
+            for idx, (s_up, e_up) in enumerate(windows):
+                tasks.append((
+                    idx, int(s_up), int(e_up),
+                    scale, sps, float(fs_out), float(fs_in),   # <-- ADD fs_in
+                    ch_list,
+                    int(aa_corr_min), int(preamble_min),
+                    bool(do_crc_filter), bool(debug),
+                    bool(slip_sweep), int(slip_max),
+                    bool(crc_diag), int(crc_diag_max),
+                    str(cfo_window), bool(plot_cfo), str(filter_tags),
+                    bool(need_pkt), bool(need_cfo_row),
+                ))
 
-        best_crc = None
-        best_crc_score = None
 
-        for ch in ch_list:
-            any_pkt, crc_pkt, summ = decode_one_burst_from_freq(
-                freq_burst=freq_burst_base,
-                channel=ch,
-                sps=sps,
-                aa_corr_min=aa_corr_min,
-                preamble_min=preamble_min,
-                debug=debug,
-                slip_sweep=slip_sweep,
-                slip_max=slip_max,
-                crc_diag=crc_diag,
-            )
+            # Default chunksize: keep tasks per worker moderate to reduce overhead
+            chunksize = int(mp_chunksize) if mp_chunksize and mp_chunksize > 0 else 8
 
-            for k in burst_flags:
-                burst_flags[k] |= summ[k]
+            print(f"[INFO] Multiprocessing enabled: workers={workers}, windows={len(windows)}, chunksize={chunksize}")
+            ctx = mp.get_context("spawn")
 
-            if any_pkt is not None:
-                sc = (any_pkt["aa_corr"], any_pkt["pre_corr"], any_pkt["length"], int(any_pkt["crc_ok"]))
-                if best_any is None or sc > best_any_score:
-                    best_any, best_any_score = any_pkt, sc
+            crc_fail_summaries = []
 
-            if crc_pkt is not None:
-                sc = (crc_pkt["aa_corr"], crc_pkt["pre_corr"], crc_pkt["length"], 1)
-                if best_crc is None or sc > best_crc_score:
-                    best_crc, best_crc_score = crc_pkt, sc
+            with ProcessPoolExecutor(
+                max_workers=int(workers),
+                mp_context=ctx,
+                initializer=_mp_init_shared,
+                initargs=(
+                    freq_shm.name, freq_all.shape, freq_all.dtype.str,
+                    iq_shm.name, iq_up.shape, iq_up.dtype.str,
+                ),
+            ) as ex:
+                # Iterate results as they complete (but we collect then sort by idx for deterministic packet order)
+                results = list(ex.map(_process_one_window_task, tasks, chunksize=chunksize))
 
-        if burst_flags["aa_hit"]:
-            stats["aa_hit"] += 1
-        if burst_flags["pre_hit"]:
-            stats["pre_hit"] += 1
-        if burst_flags["both_hit"]:
-            stats["both_hit"] += 1
-        if burst_flags["parsed"]:
-            stats["parsed"] += 1
-        if burst_flags["crc_ok"]:
-            stats["crc_ok"] += 1
+            # Aggregate in idx order (keeps packet list and diag prints deterministic)
+            results.sort(key=lambda d: d.get("idx", 0))
 
-        if best_any is not None:
-            if best_any.get("is_airtag", False):
-                stats["airtag"] += 1
-            if best_any.get("is_tag_ecosystem", False):
-                stats["tag_any"] += 1
+            for r in results:
+                stats["bursts"] += int(r.get("bursts", 0))
+                stats["aa_hit"] += int(r.get("aa_hit", 0))
+                stats["pre_hit"] += int(r.get("pre_hit", 0))
+                stats["both_hit"] += int(r.get("both_hit", 0))
+                stats["parsed"] += int(r.get("parsed", 0))
+                stats["crc_ok"] += int(r.get("crc_ok", 0))
+                stats["airtag"] += int(r.get("airtag", 0))
+                stats["tag_any"] += int(r.get("tag_any", 0))
+                stats["kept"] += int(r.get("kept", 0))
 
-        if best_crc is not None and best_crc.get("crc_ok", False):
-            crcok_slip_hist[best_crc.get("slip", 0)] += 1
-            crcok_phase_hist[best_crc.get("phase", -1)] += 1
-            crcok_pol_hist[best_crc.get("polarity", 0)] += 1
-            crcok_chan_hist[best_crc.get("channel", -1)] += 1
+                h = r.get("crcok_hist", None)
+                if h is not None:
+                    slip_v, ph_v, pol_v, ch_v = h
+                    crcok_slip_hist[slip_v] += 1
+                    crcok_phase_hist[ph_v] += 1
+                    crcok_pol_hist[pol_v] += 1
+                    crcok_chan_hist[ch_v] += 1
 
-        if crc_diag and best_any is not None and (not best_any.get("crc_ok", False)) and (crc_fail_printed < crc_diag_max):
-            if best_any.get("aa_corr", 0) >= aa_corr_min and best_any.get("pre_corr", 0) >= preamble_min:
-                diag = crc_diag_variants(best_any["crc_rx"], best_any["crc_calc"])
-                print("[CRC_FAIL] AA+PRE matched but best decode still CRC_BAD")
-                print(f"  window_samp_in=({s_orig},{e_orig}) window_samp_up=({s_up},{e_up}) ch={best_any['channel']} phase={best_any['phase']} pol={best_any['polarity']} slip={best_any.get('slip',0)}")
-                print(f"  pdu={best_any['pdu_type_name']} len={best_any['length']} AdvA={best_any.get('AdvA','NO_AdvA')}")
-                print(f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}")
-                crc_fail_printed += 1
+                if crc_diag:
+                    s = r.get("crc_fail_summary", None)
+                    if s:
+                        crc_fail_summaries.append(s)
 
-        pkt_for_print = best_crc if do_crc_filter else best_any
-        if pkt_for_print is None:
-            continue
+                ta = r.get("tag_adva", None)
+                if ta:
+                    tag_advas.add(ta)
 
-        if not _keep(pkt_for_print):
-            continue
+                if plot_cfo:
+                    cfo = r.get("cfo", None)
+                    adva = r.get("adva_for_cfo", None)
+                    if cfo is not None and adva is not None:
+                        cfo_by_adva[adva].append(float(cfo))
 
-        if pkt_for_print.get("is_tag_ecosystem", False):
-            adva = pkt_for_print.get("AdvA", "NO_AdvA")
-            if adva != "NO_AdvA":
-                tag_advas.add(adva)
+                        if r.get("is_tag_for_cfo", False):
+                            trans = r.get("trans", None)
+                            if isinstance(trans, dict):
+                                c00 = float(trans.get("cfo_equal_00", float("nan")))
+                                c11 = float(trans.get("cfo_equal_11", float("nan")))
+                                c10 = float(trans.get("cfo_jump_10",  float("nan")))
+                                c01 = float(trans.get("cfo_jump_01",  float("nan")))
+                                if np.isfinite(c00):
+                                    trans_cfo_by_adva[adva]["cfo_equal_00_hz"].append(c00)
+                                if np.isfinite(c11):
+                                    trans_cfo_by_adva[adva]["cfo_equal_11_hz"].append(c11)
+                                if np.isfinite(c10):
+                                    trans_cfo_by_adva[adva]["cfo_jump_10_hz"].append(c10)
+                                if np.isfinite(c01):
+                                    trans_cfo_by_adva[adva]["cfo_jump_01_hz"].append(c01)
 
-        stats["kept"] += 1
+                            row = r.get("cfo_row", None)
+                            if isinstance(row, dict):
+                                cfo_rows.append(row)
 
-        if max_packets > 0 and len(packets) < max_packets:
-            pkt_for_print["start"] = int(s_orig)
-            pkt_for_print["end"] = int(e_orig)
-            packets.append(pkt_for_print)
+                if need_pkt:
+                    p = r.get("pkt", None)
+                    if p is not None:
+                        packets.append(p)
 
-        if plot_cfo:
-            overall_cfo_hz, trans = estimate_cfo_hz(
-                freq_burst=freq_burst_base,
-                fs_out=fs_out,
-                phase=pkt_for_print["phase"],
-                aa_pos=pkt_for_print["aa_pos"],
-                sps=sps,
-                payload_len_bytes=pkt_for_print["length"],
-                window=cfo_window,
-                polarity=pkt_for_print["polarity"],
-                iq_burst=iq_burst_base,
-                return_transitions=True,
-            )
+            # Apply max_packets (same meaning; now deterministic by window order)
+            if max_packets > 0 and len(packets) > max_packets:
+                packets = packets[:max_packets]
 
-            if overall_cfo_hz is not None and np.isfinite(overall_cfo_hz):
+            # Print CRC_FAIL summaries up to crc_diag_max
+            if crc_diag and crc_fail_summaries:
+                for s in crc_fail_summaries[:max(0, int(crc_diag_max))]:
+                    print(s)
+
+        finally:
+            # Cleanup shared memory in parent
+            try:
+                freq_shm.close()
+            except Exception:
+                pass
+            try:
+                iq_shm.close()
+            except Exception:
+                pass
+            try:
+                freq_shm.unlink()
+            except Exception:
+                pass
+            try:
+                iq_shm.unlink()
+            except Exception:
+                pass
+
+    else:
+        # -------------------------
+        # Original single-process loop (kept intact)
+        # -------------------------
+        crc_fail_printed = 0
+
+        def _keep(pkt):
+            return _keep_filter(pkt, filter_tags)
+
+        for (s_up, e_up) in windows:
+            stats["bursts"] += 1
+
+            s_orig = int(round(s_up / scale))
+            e_orig = int(round(e_up / scale))
+
+            e_f = max(s_up, e_up - 1)
+            if s_up >= freq_all.size or e_f <= s_up:
+                continue
+
+            freq_burst_base = freq_all[s_up:e_f]
+            iq_burst_base = iq_up[s_up:e_f+1]  # +1 so len(iq)==len(freq)+1
+
+            burst_flags = {"aa_hit": False, "pre_hit": False, "both_hit": False, "parsed": False, "crc_ok": False}
+
+            best_any = None
+            best_any_score = None
+
+            best_crc = None
+            best_crc_score = None
+
+            for ch in ch_list:
+                any_pkt, crc_pkt, summ = decode_one_burst_from_freq(
+                    freq_burst=freq_burst_base,
+                    channel=ch,
+                    sps=sps,
+                    aa_corr_min=aa_corr_min,
+                    preamble_min=preamble_min,
+                    debug=debug,
+                    slip_sweep=slip_sweep,
+                    slip_max=slip_max,
+                    crc_diag=crc_diag,
+                )
+
+                for k in burst_flags:
+                    burst_flags[k] |= summ[k]
+
+                if any_pkt is not None:
+                    sc = (any_pkt["aa_corr"], any_pkt["pre_corr"], any_pkt["length"], int(any_pkt["crc_ok"]))
+                    if best_any is None or sc > best_any_score:
+                        best_any, best_any_score = any_pkt, sc
+
+                if crc_pkt is not None:
+                    sc = (crc_pkt["aa_corr"], crc_pkt["pre_corr"], crc_pkt["length"], 1)
+                    if best_crc is None or sc > best_crc_score:
+                        best_crc, best_crc_score = crc_pkt, sc
+
+            if burst_flags["aa_hit"]:
+                stats["aa_hit"] += 1
+            if burst_flags["pre_hit"]:
+                stats["pre_hit"] += 1
+            if burst_flags["both_hit"]:
+                stats["both_hit"] += 1
+            if burst_flags["parsed"]:
+                stats["parsed"] += 1
+            if burst_flags["crc_ok"]:
+                stats["crc_ok"] += 1
+
+            if best_any is not None:
+                if best_any.get("is_airtag", False):
+                    stats["airtag"] += 1
+                if best_any.get("is_tag_ecosystem", False):
+                    stats["tag_any"] += 1
+
+            if best_crc is not None and best_crc.get("crc_ok", False):
+                crcok_slip_hist[best_crc.get("slip", 0)] += 1
+                crcok_phase_hist[best_crc.get("phase", -1)] += 1
+                crcok_pol_hist[best_crc.get("polarity", 0)] += 1
+                crcok_chan_hist[best_crc.get("channel", -1)] += 1
+
+            if crc_diag and best_any is not None and (not best_any.get("crc_ok", False)) and (crc_fail_printed < crc_diag_max):
+                if best_any.get("aa_corr", 0) >= aa_corr_min and best_any.get("pre_corr", 0) >= preamble_min:
+                    diag = crc_diag_variants(best_any["crc_rx"], best_any["crc_calc"])
+                    print("[CRC_FAIL] AA+PRE matched but best decode still CRC_BAD")
+                    print(f"  window_samp_in=({s_orig},{e_orig}) window_samp_up=({s_up},{e_up}) ch={best_any['channel']} phase={best_any['phase']} pol={best_any['polarity']} slip={best_any.get('slip',0)}")
+                    print(f"  pdu={best_any['pdu_type_name']} len={best_any['length']} AdvA={best_any.get('AdvA','NO_AdvA')}")
+                    print(f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}")
+                    crc_fail_printed += 1
+
+            pkt_for_print = best_crc if do_crc_filter else best_any
+            if pkt_for_print is None:
+                continue
+
+            if not _keep(pkt_for_print):
+                continue
+
+            if pkt_for_print.get("is_tag_ecosystem", False):
                 adva = pkt_for_print.get("AdvA", "NO_AdvA")
-                cfo_by_adva[adva].append(float(overall_cfo_hz))
+                if adva != "NO_AdvA":
+                    tag_advas.add(adva)
 
-                if bool(pkt_for_print.get("is_tag_ecosystem", False)):
-                    c00 = float(trans.get("cfo_equal_00", float("nan")))
-                    c11 = float(trans.get("cfo_equal_11", float("nan")))
-                    c10 = float(trans.get("cfo_jump_10",  float("nan")))
-                    c01 = float(trans.get("cfo_jump_01",  float("nan")))
-                    cft = float(trans.get("cfo_overall_from_transitions", float("nan")))
+            stats["kept"] += 1
 
-                    if np.isfinite(c00):
-                        trans_cfo_by_adva[adva]["cfo_equal_00_hz"].append(c00)
-                    if np.isfinite(c11):
-                        trans_cfo_by_adva[adva]["cfo_equal_11_hz"].append(c11)
-                    if np.isfinite(c10):
-                        trans_cfo_by_adva[adva]["cfo_jump_10_hz"].append(c10)
-                    if np.isfinite(c01):
-                        trans_cfo_by_adva[adva]["cfo_jump_01_hz"].append(c01)
+            if max_packets > 0 and len(packets) < max_packets:
+                pkt_for_print["start"] = int(s_orig)
+                pkt_for_print["end"] = int(e_orig)
+                packets.append(pkt_for_print)
 
-                    cfo_rows.append({
-                        "AdvA": adva,
-                        "CFO_Hz": float(overall_cfo_hz),
-                        "CFO_00_Hz": c00,
-                        "CFO_11_Hz": c11,
-                        "CFO_10_Hz": c10,
-                        "CFO_01_Hz": c01,
-                        "CFO_from_transitions_Hz": cft,
-                        "nprod_00": int(trans.get("nprod_00", 0)),
-                        "nprod_11": int(trans.get("nprod_11", 0)),
-                        "nprod_10": int(trans.get("nprod_10", 0)),
-                        "nprod_01": int(trans.get("nprod_01", 0)),
-                        "nprod_total": int(trans.get("nprod_total", 0)),
-                        "crc_ok": int(bool(pkt_for_print.get("crc_ok", False))),
-                        "is_tag_ecosystem": 1,
-                        "pdu_type": int(pkt_for_print.get("pdu_type", -1)),
-                        "pdu_type_name": pkt_for_print.get("pdu_type_name", ""),
-                        "length": int(pkt_for_print.get("length", -1)),
-                        "channel": int(pkt_for_print.get("channel", -1)),
-                        "phase": int(pkt_for_print.get("phase", -1)),
-                        "polarity": int(pkt_for_print.get("polarity", 0)),
-                        "slip": int(pkt_for_print.get("slip", 0)),
-                        "window_start": int(s_orig),
-                        "window_end": int(e_orig),
-                        "aa_pos": int(pkt_for_print.get("aa_pos", -1)),
-                        "aa_corr": int(pkt_for_print.get("aa_corr", -1)),
-                        "pre_corr": int(pkt_for_print.get("pre_corr", -1)),
-                        "cfo_window": cfo_window,
-                    })
+            if plot_cfo:
+                overall_cfo_hz, trans = estimate_cfo_hz(
+                    freq_burst=freq_burst_base,
+                    fs_out=fs_out,
+                    phase=pkt_for_print["phase"],
+                    aa_pos=pkt_for_print["aa_pos"],
+                    sps=sps,
+                    payload_len_bytes=pkt_for_print["length"],
+                    window=cfo_window,
+                    polarity=pkt_for_print["polarity"],
+                    iq_burst=iq_burst_base,
+                    return_transitions=True,
+                )
+
+                if overall_cfo_hz is not None and np.isfinite(overall_cfo_hz):
+                    adva = pkt_for_print.get("AdvA", "NO_AdvA")
+                    cfo_by_adva[adva].append(float(overall_cfo_hz))
+
+                    if bool(pkt_for_print.get("is_tag_ecosystem", False)):
+                        c00 = float(trans.get("cfo_equal_00", float("nan")))
+                        c11 = float(trans.get("cfo_equal_11", float("nan")))
+                        c10 = float(trans.get("cfo_jump_10",  float("nan")))
+                        c01 = float(trans.get("cfo_jump_01",  float("nan")))
+                        cft = float(trans.get("cfo_overall_from_transitions", float("nan")))
+
+                        if np.isfinite(c00):
+                            trans_cfo_by_adva[adva]["cfo_equal_00_hz"].append(c00)
+                        if np.isfinite(c11):
+                            trans_cfo_by_adva[adva]["cfo_equal_11_hz"].append(c11)
+                        if np.isfinite(c10):
+                            trans_cfo_by_adva[adva]["cfo_jump_10_hz"].append(c10)
+                        if np.isfinite(c01):
+                            trans_cfo_by_adva[adva]["cfo_jump_01_hz"].append(c01)
+
+                        # --- add this right before cfo_rows.append(...) ---
+                        aa_pos_i = int(pkt_for_print.get("aa_pos", -1))
+                        phase_i  = int(pkt_for_print.get("phase", 0))
+
+                        if aa_pos_i >= 0:
+                            aa_start_up = int(s_up + phase_i + aa_pos_i * sps)          # upsampled-domain sample index
+                            aa_start_orig = int(round(aa_start_up / scale))             # original-domain sample index
+                            timestamp_s = float(aa_start_orig) / float(fs_in)           # seconds from start of capture
+                        else:
+                            timestamp_s = float("nan")
+
+                        cfo_rows.append({
+                            "timestamp": timestamp_s,
+                            "AdvA": adva,
+                            "payload": pkt_for_print.get("payload_hex", ""),
+                            "CFO_Hz": float(overall_cfo_hz),
+                            "CFO_00_Hz": c00,
+                            "CFO_11_Hz": c11,
+                            "CFO_10_Hz": c10,
+                            "CFO_01_Hz": c01,
+                            "CFO_from_transitions_Hz": cft,
+                            "nprod_00": int(trans.get("nprod_00", 0)),
+                            "nprod_11": int(trans.get("nprod_11", 0)),
+                            "nprod_10": int(trans.get("nprod_10", 0)),
+                            "nprod_01": int(trans.get("nprod_01", 0)),
+                            "nprod_total": int(trans.get("nprod_total", 0)),
+                            "crc_ok": int(bool(pkt_for_print.get("crc_ok", False))),
+                            "is_tag_ecosystem": 1,
+                            "pdu_type": int(pkt_for_print.get("pdu_type", -1)),
+                            "pdu_type_name": pkt_for_print.get("pdu_type_name", ""),
+                            "length": int(pkt_for_print.get("length", -1)),
+                            "channel": int(pkt_for_print.get("channel", -1)),
+                            "phase": phase_i,
+                            "polarity": int(pkt_for_print.get("polarity", 0)),
+                            "slip": int(pkt_for_print.get("slip", 0)),
+                            "window_start": int(s_orig),
+                            "window_end": int(e_orig),
+                            "aa_pos": aa_pos_i,
+                            "aa_corr": int(pkt_for_print.get("aa_corr", -1)),
+                            "pre_corr": int(pkt_for_print.get("pre_corr", -1)),
+                            "cfo_window": cfo_window,
+                        })
 
     def pct(x, denom):
         return 0.0 if denom <= 0 else 100.0 * x / float(denom)
@@ -1397,7 +1836,7 @@ def main():
     ap.add_argument("--channel", type=int, default=37, help="BLE channel (37/38/39)")
     ap.add_argument("--try-adv-channels", action="store_true", help="Try channels 37/38/39 per window")
 
-    ap.add_argument("--max", type=int, default=20000, help="Max packets to store/print (stats still over all windows)")
+    ap.add_argument("--max", type=int, default=20000000, help="Max packets to store/print (stats still over all windows)")
     ap.add_argument("--stats-only", action="store_true", help="Only print STATS (and optional CFO plot), do not print packets")
     ap.add_argument("--max-bursts", type=int, default=0, help="Analyze only first N windows (0 = all)")
 
@@ -1442,10 +1881,29 @@ def main():
     ap.add_argument("--fs-scan-span", type=float, default=0.05, help="Fractional span for fs scan (±span). default 0.05")
     ap.add_argument("--fs-scan-steps", type=int, default=21, help="Number of fs points (odd recommended). default 21")
 
+    ap.add_argument("--out-airtag", type=str, default="airtag_packets.txt",
+                    help="Write ONLY Tag packets to this text file (includes CRC recheck fields).")
+
+    # Multiprocessing controls (minimal additions)
+    ap.add_argument("--workers", type=int, default=0,
+                    help="Number of worker processes for window decoding (0 = use all cores; 1 = disable MP).")
+    ap.add_argument("--mp-chunksize", type=int, default=8,
+                    help="Chunksize for multiprocessing map over windows (default 8).")
+
     args = ap.parse_args()
 
     iq = load_iq_auto(args.filename)
     max_packets = 0 if args.stats_only else args.max
+
+    # Resolve workers
+    if args.workers is None or int(args.workers) < 0:
+        workers = 0
+    else:
+        workers = int(args.workers)
+    if workers == 0:
+        workers = os.cpu_count() or 1
+    if workers < 1:
+        workers = 1
 
     def run_one(fs_in_val: float):
         packets, stats = ble_sniffer(
@@ -1469,7 +1927,9 @@ def main():
             crc_diag=args.crc_diag,
             crc_diag_max=args.crc_diag_max,
             cfo_window=args.cfo_window,
-            cfo_csv=args.cfo_csv
+            cfo_csv=args.cfo_csv,
+            workers=workers,
+            mp_chunksize=args.mp_chunksize,
         )
         return packets, stats
 
@@ -1503,45 +1963,58 @@ def main():
         print("=" * 72)
         if best_fs is not None:
             print(f"[AUTO_FS] Best fs_in={best_fs:.6f}  CRC_OK={best_crc}/{best.get('bursts',1)}")
-            run_one(best_fs)
-        return
+            # return run_one(best_fs)
+            packets, stats = run_one(best_fs)
+            return packets, stats, args
+        return ([], {"bursts": 0}, args)
 
-    run_one(args.fs_in)
+    packets, stats = run_one(args.fs_in)
+    return packets, stats, args
+
 
 if __name__ == "__main__":
-    main()
+    packets, stats, args = main()
 
-    # for p in packets:
-    #     print("---- BLE PACKET ----")
-    #     print("AA corr:", p["aa_corr"], "AA pos:", p["aa_pos"], "PRE corr:", p.get("pre_corr", -1))
-    #     print("Channel:", p["channel"], "Phase:", p["phase"], "Polarity:", p["polarity"])
-    #     print("Slip:", p.get("slip", 0))
-    #     print("PDU:", p["pdu_type_name"], f"(type={p['pdu_type']})")
-    #     print("Len:", p["length"], "TxAdd:", p["txadd"], "RxAdd:", p["rxadd"])
-    #     if "AdvA" in p:
-    #         print("AdvA:", p["AdvA"])
-    #     if "ScanA" in p:
-    #         print("ScanA:", p["ScanA"])
-    #     if "InitA" in p:
-    #         print("InitA:", p["InitA"])
-    #     if "TargetA" in p:
-    #         print("TargetA:", p["TargetA"])
-    #     print(f"Tag: is_airtag={p.get('is_airtag', False)}  is_tag_ecosystem={p.get('is_tag_ecosystem', False)}  reason={p.get('tag_reason','')}")
-    #     print(f"CRC ok: {p['crc_ok']}  CRC rx: 0x{p['crc_rx']:06x}  CRC calc: 0x{p['crc_calc']:06x}")
-    #     print()
+    # with open(args.out_airtag, "w") as f:
+    #     for p in packets:
+    #         # Only Tag packets
+    #         if not p.get("is_tag_ecosystem", False):
+    #             continue
 
 # if __name__ == "__main__":
 #     main()
 
-# #!/usr/bin/env python3
-# """
-# ble_sniffer.py — BLE 1M legacy advertising sniffer for raw IQ streams (SPI int16 IQ or CF32).
+    #         if "AdvA" in p:
+    #             print("AdvA:", p["AdvA"], file=f)
+    #         if "ScanA" in p:
+    #             print("ScanA:", p["ScanA"], file=f)
+    #         if "InitA" in p:
+    #             print("InitA:", p["InitA"], file=f)
+    #         if "TargetA" in p:
+    #             print("TargetA:", p["TargetA"], file=f)
 
-# FAST + STATS + CFO (preamble->AA->header+payload; CRC excluded from CFO window):
+    #         print(f"Tag: is_airtag={p.get('is_airtag', False)}  is_tag_ecosystem={p.get('is_tag_ecosystem', False)}  reason={p.get('tag_reason','')}", file=f)
+    #         print(f"CRC ok: {p['crc_ok']}  CRC rx: 0x{p['crc_rx']:06x}  CRC calc: 0x{p['crc_calc']:06x}", file=f)
+
+    #         # Payload (already stored as hex in your pkt dict)
+    #         payload_bytes = bytes.fromhex(p["payload_hex"])
+    #         print("payload (hex):", p["payload_hex"], file=f)
+    #         print("payload (bytes):", payload_bytes, file=f)
+
+    #         # --- Fields to re-check CRC later (most important) ---
+    #         print("hp_msb_hex (dewhitened hdr+payload, BLESDR-domain):", p.get("hp_msb_hex", ""), file=f)
+    #         print("crc_rx_msb_hex (received CRC, BLESDR-domain):", p.get("crc_rx_msb_hex", ""), file=f)
+
+    #         # Optional convenience
+    #         print("hp_std_hex (hdr+payload in standard BLE byte values):", p.get("hp_std_hex", ""), file=f)
+    #         print(file=f)
+
+    # print(f"[INFO] Wrote Tag packets to: {args.out_airtag}")
+
 #   - Resamples ONCE for the whole capture
 #   - Computes discriminator ONCE
 #   - Fast AA correlation using np.correlate
-#   - Reports candidate-level percentages (AA / preamble / both / parsed / CRC)
+#   - Reports window-level percentages (preamble / AA / both / parsed / CRC)
 #   - Uses BLESDR-compatible dewhitening + CRC in the SAME byte space as BLESDR:
 #         * build "MSB-first" bytes from on-air bits (matches BLESDR ExtractByte domain)
 #         * btle_reverse_whiten(): lfsr = SwapBits(chan) | 2, poly 0x11, MSB stepping
@@ -1554,41 +2027,55 @@ if __name__ == "__main__":
 #   - Groups CFO by AdvA ONLY (regardless of CRC) and saves a boxplot to PDF.
 #   - Optional AirTag/FindMy + “tag ecosystem” detection and filtering.
 
-# CONTINUOUS SCAN MODE (minimal changes vs burst mode):
-#   - Instead of detecting bursts by energy, it scans the *entire* discriminator stream continuously:
-#       * slice bits for each (phase, polarity)
-#       * find AA hits (>= aa-min)
-#       * require preamble (>= pre-min)
-#       * decode packet around those candidates
-#   - Uses a simple "refractory" skip to avoid re-decoding the same packet multiple times.
-
 # DEBUGS ADDED (minimal changes, opt-in):
 #   - --slip-sweep : expands bit-slip search around AA boundary to ±slip-max bits
 #   - --crc-diag   : prints deterministic diagnostics when AA+preamble matches but CRC fails
 #                  and prints histograms (slip/phase/polarity/channel) for CRC-OK outcomes.
 #   - --auto-fs-scan : scans fs-in around the provided value to see if CRC is killed by fs/SPS mismatch
+
+# CHANGE (minimal):
+#   - Instead of energy-based burst detection, we scan continuously for AA matches and build
+#     small decode windows around those candidates.
+#     (The --thr parameter is now ignored.)
+
+# PERFORMANCE (minimal logic-preserving changes):
+#   - Optional multiprocessing across decode windows to use all CPU cores.
+#   - Uses shared memory for freq_all and iq_up to avoid duplicating huge arrays per worker on macOS (spawn).
 # """
 
 # import os
 # import argparse
 # from fractions import Fraction
 # from collections import defaultdict, Counter
+# import csv
+# import math
 
 # import numpy as np
 # from scipy.signal import resample_poly
-# import csv
 
 # import matplotlib
 # matplotlib.use("Agg")
 # import matplotlib.pyplot as plt
+
+# # Multiprocessing (minimal additions)
+# import multiprocessing as mp
+# from multiprocessing import shared_memory
+# from concurrent.futures import ProcessPoolExecutor
 
 
 # # ============================================================
 # # DEFAULT PARAMETERS
 # # ============================================================
 
-# FS_IN_DEFAULT = 1344039.694796
-# FS_OUT_TARGET = 4_000_000
+# FS_IN_DEFAULT = 1344106.900141  # 1_365_333.33
+
+# # Refine (decode) resample target (this is the one you set to 64e6 in your build)
+# FS_OUT_TARGET = 64_000_000
+
+# # Coarse scan resample target (Option 2): keep this LOW to avoid OOM.
+# # 4 Msps is usually enough; 8 Msps can improve miss-rate a bit.
+# FS_SCAN_TARGET = 4_000_000
+
 # SYMBOL_RATE = 1_000_000
 
 # # SPI framing (EFR32-style)
@@ -1609,190 +2096,13 @@ if __name__ == "__main__":
 #     0x6: "ADV_SCAN_IND",
 # }
 
-# # (Kept for compatibility; not used in continuous scan mode)
+# # Burst detector defaults (kept for CLI compatibility; not used in continuous scan mode)
 # DEFAULT_THR_K = 8.0
 # DEFAULT_SMOOTH_US = 50.0
 # DEFAULT_MIN_LEN_US = 80.0
 # DEFAULT_GAP_US = 30.0
 # DEFAULT_PRE_US = 140.0
 # DEFAULT_POST_US = 220.0
-
-
-# # ============================================================
-# # CFO helper (omega) (kept; not used in this version’s decode path)
-# # ============================================================
-
-# def estimate_omega_from_preamble_aa(
-#     freq_burst: np.ndarray,
-#     fs_out: float,
-#     phase: int,
-#     aa_pos: int,
-#     sps: int,
-# ) -> float:
-#     """
-#     Estimate CFO as omega (rad/sample) from discriminator samples over preamble+AA only.
-#     Returns omega. If not computable, returns 0.0 (no correction).
-#     """
-#     if aa_pos is None or aa_pos < 8 or sps <= 0:
-#         return 0.0
-
-#     total_bits = 8 + 32  # preamble + AA
-#     start = phase + (aa_pos - 8) * sps
-#     end = start + total_bits * sps
-#     if start < 0 or end > freq_burst.size or end <= start:
-#         return 0.0
-
-#     seg = freq_burst[start:end].astype(np.float64)
-#     if seg.size < 8:
-#         return 0.0
-
-#     if seg.size < 32:
-#         omega = float(np.median(seg))
-#     else:
-#         lo = int(0.10 * seg.size)
-#         hi = int(0.90 * seg.size)
-#         srt = np.sort(seg)
-#         trim = srt[lo:hi] if hi > lo else srt
-#         omega = float(np.median(trim))
-
-#     if not np.isfinite(omega):
-#         return 0.0
-
-#     omega_max = 2.0 * np.pi * (200e3 / float(fs_out))
-#     if omega > omega_max:
-#         omega = omega_max
-#     elif omega < -omega_max:
-#         omega = -omega_max
-
-#     return omega
-
-
-# # ============================================================
-# # Bit slicers
-# # ============================================================
-
-# def slice_bits_integrate(
-#     freq: np.ndarray,
-#     phase: int,
-#     sps: int,
-#     polarity: int,
-#     *,
-#     use_mid_frac: float = 0.5,
-# ) -> np.ndarray:
-#     """
-#     Build 1 bit per symbol from discriminator stream using integrate-and-dump.
-#     Uses only the middle fraction of each symbol to avoid edge smearing.
-#     Returns: bits_all (len = floor((len(freq)-phase)/sps))
-#     """
-#     if sps <= 0:
-#         return np.zeros(0, dtype=np.uint8)
-
-#     mid = max(0.1, min(float(use_mid_frac), 1.0))
-#     edge = 0.5 * (1.0 - mid)
-#     w0 = int(round(edge * sps))
-#     w1 = int(round((1.0 - edge) * sps))
-#     w0 = max(0, min(w0, sps - 1))
-#     w1 = max(w0 + 1, min(w1, sps))
-
-#     n_syms = (freq.size - phase) // sps
-#     if n_syms <= 0:
-#         return np.zeros(0, dtype=np.uint8)
-
-#     bits = np.empty(int(n_syms), dtype=np.uint8)
-#     pol = 1.0 if polarity > 0 else -1.0
-
-#     for i in range(int(n_syms)):
-#         a = phase + i * sps + w0
-#         b = phase + i * sps + w1
-#         if b > freq.size:
-#             bits = bits[:i]
-#             break
-#         soft = float(np.sum(freq[a:b], dtype=np.float64)) * pol
-#         bits[i] = 1 if soft > 0.0 else 0
-
-#     return bits
-
-
-# def slice_bits_tracked(
-#     freq_corr: np.ndarray,
-#     phase0: int,
-#     sps: int,
-#     sym_start: int,
-#     n_bits: int,
-#     *,
-#     polarity: int = +1,
-#     block_syms: int = 16,
-#     search: int = 2,
-#     use_mid_frac: float = 0.5,
-# ):
-#     """
-#     Crude timing recovery:
-#       - Keep symbol grid fixed (sym_start + i).
-#       - Every block_syms symbols, try phase in [phase-cur-search .. phase-cur+search]
-#         and pick the one that maximizes sum(|soft|) over that block.
-#       - soft for a symbol = sum(discriminator samples in a mid-window of the symbol).
-#       - bit = 1 if (polarity*soft) > 0 else 0.
-
-#     Returns:
-#       bits (np.uint8), final_phase (int)
-#     """
-#     if sps <= 0 or n_bits <= 0:
-#         return np.zeros(0, dtype=np.uint8), int(phase0)
-
-#     phase_cur = int(phase0)
-#     phase_cur = max(0, min(phase_cur, sps - 1))
-
-#     mid = max(0.1, min(float(use_mid_frac), 1.0))
-#     edge = 0.5 * (1.0 - mid)
-#     w0 = int(round(edge * sps))
-#     w1 = int(round((1.0 - edge) * sps))
-#     w0 = max(0, min(w0, sps - 1))
-#     w1 = max(w0 + 1, min(w1, sps))
-
-#     bits_out = np.empty(int(n_bits), dtype=np.uint8)
-
-#     i = 0
-#     while i < n_bits:
-#         blk = min(int(block_syms), n_bits - i)
-
-#         p_lo = max(0, phase_cur - int(search))
-#         p_hi = min(sps - 1, phase_cur + int(search))
-
-#         best_p = phase_cur
-#         best_score = -1.0
-
-#         for p in range(p_lo, p_hi + 1):
-#             score = 0.0
-#             ok = True
-#             for k in range(blk):
-#                 sym_idx = int(sym_start + i + k)
-#                 a = p + sym_idx * sps + w0
-#                 b = p + sym_idx * sps + w1
-#                 if a < 0 or b > freq_corr.size:
-#                     ok = False
-#                     break
-#                 soft = float(np.sum(freq_corr[a:b], dtype=np.float64))
-#                 score += abs(soft)
-#             if ok and score > best_score:
-#                 best_score = score
-#                 best_p = p
-
-#         phase_cur = best_p
-
-#         for k in range(blk):
-#             sym_idx = int(sym_start + i + k)
-#             a = phase_cur + sym_idx * sps + w0
-#             b = phase_cur + sym_idx * sps + w1
-#             if a < 0 or b > freq_corr.size:
-#                 return bits_out[:i+k].astype(np.uint8, copy=False), int(phase_cur)
-
-#             soft = float(np.sum(freq_corr[a:b], dtype=np.float64))
-#             soft *= (1.0 if polarity > 0 else -1.0)
-#             bits_out[i + k] = 1 if soft > 0.0 else 0
-
-#         i += blk
-
-#     return bits_out, int(phase_cur)
 
 
 # # ============================================================
@@ -1824,6 +2134,7 @@ if __name__ == "__main__":
 #     return bytes(out)
 
 # def fmt_mac(b: bytes) -> str:
+#     # BLE addresses are typically displayed MSB-first (reverse of on-air/payload byte order)
 #     b = b[::-1]
 #     return ":".join(f"{x:02X}" for x in b)
 
@@ -1839,9 +2150,8 @@ if __name__ == "__main__":
 # AA_BITS = aa_bits_onair(AA_ADV)
 # AA_PM = (AA_BITS.astype(np.int8) * 2 - 1)  # 0->-1, 1->+1
 
-
 # def correlate_access_address_fast(bits: np.ndarray):
-#     """Fast AA correlation using dot-product over +/-1 sequences (best only)."""
+#     """Fast AA correlation using dot-product over +/-1 sequences."""
 #     if bits.size < 32:
 #         return None, -1
 #     b_pm = bits.astype(np.int8) * 2 - 1
@@ -1850,25 +2160,6 @@ if __name__ == "__main__":
 #     best_dot = int(dots[i])
 #     best_matches = (best_dot + 32) // 2
 #     return i, int(best_matches)
-
-
-# def correlate_access_address_positions(bits: np.ndarray, aa_corr_min: int):
-#     """
-#     Return ALL AA candidate positions where match>=aa_corr_min.
-#     Returns: (pos_array, match_array)
-#     """
-#     if bits.size < 32:
-#         return np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int16)
-
-#     b_pm = bits.astype(np.int8) * 2 - 1
-#     dots = np.correlate(b_pm, AA_PM, mode="valid")
-#     matches = (dots.astype(np.int16) + 32) // 2  # 0..32
-
-#     pos = np.nonzero(matches >= int(aa_corr_min))[0]
-#     if pos.size == 0:
-#         return pos.astype(np.int64, copy=False), np.zeros(0, dtype=np.int16)
-
-#     return pos.astype(np.int64, copy=False), matches[pos].astype(np.int16, copy=False)
 
 
 # # ============================================================
@@ -1926,7 +2217,7 @@ if __name__ == "__main__":
 #     if payload.size % 2 != 0:
 #         payload = payload[:-1]
 
-#     words = payload.view("<i2")
+#     words = payload.view("<i2")  # little-endian int16
 #     I = words[0::2].astype(np.float32) / 32768.0
 #     Q = words[1::2].astype(np.float32) / 32768.0
 #     iq = (I + 1j * Q).astype(np.complex64)
@@ -1962,6 +2253,107 @@ if __name__ == "__main__":
 
 
 # # ============================================================
+# # CONTINUOUS AA SCAN -> WINDOWS
+# # ============================================================
+
+# def find_decode_windows_continuous(
+#     freq_all: np.ndarray,
+#     sps: int,
+#     aa_corr_min: int,
+#     preamble_min: int,
+#     slip_max: int,
+#     max_windows: int = 0,
+#     debug: bool = False,
+#     return_aa_samples: bool = False,
+# ):
+#     """
+#     Continuously scan symbol streams (for every phase and polarity) for AA matches,
+#     then build small sample-index windows around each AA candidate.
+
+#     Returns:
+#       if return_aa_samples == False:
+#           windows: list of (s_up, e_up) in freq_all sample indices (upsampled domain)
+#       else:
+#           kept: list of (aa_sample, s_up, e_up) in freq_all sample indices
+#                 where aa_sample is approx AA start in sample domain.
+#     """
+#     if sps <= 0:
+#         return []
+
+#     # Conservative window sizes (symbols) around AA start
+#     MAX_PAYLOAD = 37
+#     MAX_TOTAL_BITS = 8 + 32 + (2 + MAX_PAYLOAD + 3) * 8  # 376 bits @1Mbps
+#     pre_symbols = max(48, 8 + 32 + 8 + abs(int(slip_max)))  # margin to re-find preamble+AA
+#     post_symbols = MAX_TOTAL_BITS + 32 + abs(int(slip_max))  # hdr+payload+crc + margin
+
+#     cand = []
+
+#     for phase in range(sps):
+#         sym = freq_all[phase::sps]
+#         if sym.size < 64:
+#             continue
+
+#         for polarity in (+1, -1):
+#             x = sym if polarity > 0 else -sym
+#             bits = (x > 0).astype(np.uint8)
+
+#             b_pm = bits.astype(np.int8) * 2 - 1
+#             dots = np.correlate(b_pm, AA_PM, mode="valid")
+#             matches = ((dots + 32) // 2).astype(np.int16)
+
+#             idx = np.flatnonzero(matches >= aa_corr_min)
+#             if idx.size == 0:
+#                 continue
+
+#             for aa_pos in idx.tolist():
+#                 pre_corr = preamble_corr_at(bits, aa_pos)
+#                 if pre_corr < preamble_min:
+#                     continue
+
+#                 aa_sample = int(phase + aa_pos * sps)
+#                 sc = (int(matches[aa_pos]), int(pre_corr), int(phase), int(polarity))
+#                 cand.append((aa_sample, sc))
+
+#     if not cand:
+#         return []
+
+#     cand.sort(key=lambda t: t[0])
+
+#     # NMS dedup
+#     min_sep_samples = int((MAX_TOTAL_BITS * sps) // 2)
+#     kept = []
+#     for aa_sample, sc in cand:
+#         if not kept:
+#             kept.append([aa_sample, sc])
+#             continue
+#         prev_sample, prev_sc = kept[-1]
+#         if aa_sample - prev_sample <= min_sep_samples:
+#             if sc > prev_sc:
+#                 kept[-1] = [aa_sample, sc]
+#         else:
+#             kept.append([aa_sample, sc])
+
+#     if max_windows and max_windows > 0:
+#         kept = kept[:max_windows]
+
+#     out = []
+#     for aa_sample, _sc in kept:
+#         s_up = max(0, aa_sample - pre_symbols * sps)
+#         e_up = min(freq_all.size, aa_sample + post_symbols * sps)
+#         if e_up - s_up >= (64 * sps):
+#             if return_aa_samples:
+#                 out.append((int(aa_sample), int(s_up), int(e_up)))
+#             else:
+#                 out.append((int(s_up), int(e_up)))
+
+#     if debug:
+#         print(f"[DEBUG] Continuous scan candidates={len(cand)} kept={len(out)} "
+#               f"(pre_symbols={pre_symbols}, post_symbols={post_symbols}, min_sep_samples={min_sep_samples})")
+
+#     return out
+
+
+# # ============================================================
 # # BLESDR SwapBits, Whitening, CRC (BYTE DOMAIN)
 # # ============================================================
 
@@ -1978,6 +2370,15 @@ if __name__ == "__main__":
 #     return int(_SWAP_LUT[v & 0xFF])
 
 # def blesdr_reverse_whiten(chan: int, data: bytearray) -> None:
+#     """
+#     Exact BLESDR logic:
+#         lfsr = SwapBits(chan) | 2;
+#         for each byte:
+#             for mask = 0x80..0x01:
+#                 if (lfsr & 0x80) { lfsr ^= 0x11; byte ^= mask; }
+#                 lfsr <<= 1;
+#     This assumes 'data' bytes are in BLESDR's "ExtractByte" domain (MSB-first per byte).
+#     """
 #     lfsr = (swap_bits8(chan) | 0x02) & 0xFF
 #     for i in range(len(data)):
 #         b = data[i]
@@ -1991,6 +2392,11 @@ if __name__ == "__main__":
 #         data[i] = b
 
 # def blesdr_reverse_crc(data: bytes, init_adv: bool = True) -> int:
+#     """
+#     Exact BLESDR btle_reverse_crc() behavior.
+#     init for advertising uses dst = [0x55,0x55,0x55], then shifts left.
+#     Returns 24-bit integer assembled big-endian from dst bytes.
+#     """
 #     dst0 = 0x55 if init_adv else 0x00
 #     dst1 = 0x55 if init_adv else 0x00
 #     dst2 = 0x55 if init_adv else 0x00
@@ -1999,9 +2405,11 @@ if __name__ == "__main__":
 #         d = swap_bits8(byte)
 #         for _ in range(8):
 #             t = (dst0 >> 7) & 1
+
 #             dst0 = ((dst0 << 1) & 0xFF) | ((dst1 >> 7) & 1)
 #             dst1 = ((dst1 << 1) & 0xFF) | ((dst2 >> 7) & 1)
 #             dst2 = ((dst2 << 1) & 0xFF)
+
 #             if t != (d & 1):
 #                 dst2 ^= 0x5B
 #                 dst1 ^= 0x06
@@ -2015,6 +2423,11 @@ if __name__ == "__main__":
 # # ============================================================
 
 # def bits_to_bytes_msbfirst_time(bits: np.ndarray) -> bytes:
+#     """
+#     Build bytes so that the *first* bit in time becomes bit7 (MSB) of the byte,
+#     next becomes bit6, ..., last becomes bit0.
+#     This matches BLESDR's ExtractByte().
+#     """
 #     n = (bits.size // 8) * 8
 #     bits = bits[:n]
 #     out = bytearray(n // 8)
@@ -2033,6 +2446,11 @@ if __name__ == "__main__":
 # # ============================================================
 
 # def parse_legacy_adv_from_blesdr_bytes(packet_data_msb: bytes):
+#     """
+#     packet_data_msb: header(2) + payload(length) + crc(3) all in BLESDR byte domain,
+#                      already dewhitened.
+#     We interpret header/payload by SwapBits() each byte to convert to normal on-air byte value.
+#     """
 #     if len(packet_data_msb) < 2 + 3:
 #         raise ValueError("Too short")
 
@@ -2077,13 +2495,18 @@ if __name__ == "__main__":
 
 
 # # ============================================================
-# # Tag detection
+# # Tag detection (AirTag/FindMy + other tag ecosystems)
 # # ============================================================
 
 # def _is_tag_service_uuid(uuid16: int) -> bool:
 #     return uuid16 in (0xFEAA, 0xFEED, 0xFD5A)
 
 # def is_findmy_or_tag_ecosystem(pdu_std_bytes: bytes):
+#     """
+#     pdu_std_bytes: header(2) + payload + crc(3) in STANDARD BLE byte values.
+#     Mirrors your C helper logic.
+#     Returns: (is_airtag_findmy, is_tag_ecosystem, reason_str)
+#     """
 #     if len(pdu_std_bytes) < 8:
 #         return False, False, ""
 
@@ -2114,13 +2537,19 @@ if __name__ == "__main__":
 #                         if (findmy_prefix == 0x12) and (pos + 6 < ad_len) and (ad_data[pos + 5] == 0x19):
 #                             return True, True, "Apple 0x004C + 0x12 0x19"
 
+#         if ad_type == 0x16 and length >= 3:
+#             if pos + 4 <= ad_len:
+#                 svc_uuid = ad_data[pos + 2] | (ad_data[pos + 3] << 8)
+#                 if _is_tag_service_uuid(svc_uuid):
+#                     return False, True, f"ServiceData UUID 0x{svc_uuid:04X}"
+
 #         pos += 1 + length
 
 #     return False, False, ""
 
 
 # # ============================================================
-# # Debug helper: CRC comparison variants
+# # Debug helper: CRC comparison variants (to spot endian/domain mismatch)
 # # ============================================================
 
 # def crc_diag_variants(crc_rx: int, crc_calc: int):
@@ -2152,6 +2581,9 @@ if __name__ == "__main__":
 #     iq_burst: np.ndarray = None,
 #     return_transitions: bool = True,
 # ):
+#     """
+#     Returns overall CFO (trimmed-median discriminator CFO) and optional transition CFOs.
+#     """
 #     if aa_pos is None or aa_pos < 8 or sps <= 0:
 #         return None if not return_transitions else (None, None)
 
@@ -2169,7 +2601,7 @@ if __name__ == "__main__":
 #     if start < 0 or end > freq_burst.size or end <= start:
 #         return None if not return_transitions else (None, None)
 
-#     seg = freq_burst[start:end].astype(np.float64)
+#     seg = freq_burst[start:end].astype(np.float64, copy=False)
 #     hz = seg * (fs_out / (2.0 * np.pi))
 
 #     if hz.size < 32:
@@ -2226,17 +2658,18 @@ if __name__ == "__main__":
 #     if iq_win.size < 2:
 #         return overall_cfo, trans
 
-#     def add_prod(acc, x0, x1):
-#         z = x1 * np.conj(x0)
-#         acc[0] += float(np.real(z))
-#         acc[1] += float(np.imag(z))
-#         acc[2] += 1
-
+#     # C-style accumulators
 #     A00 = [0.0, 0.0, 0]
 #     A11 = [0.0, 0.0, 0]
 #     A10 = [0.0, 0.0, 0]
 #     A01 = [0.0, 0.0, 0]
 #     At  = [0.0, 0.0, 0]
+
+#     def add_prod(acc, x0, x1):
+#         z = x1 * np.conj(x0)
+#         acc[0] += float(np.real(z))
+#         acc[1] += float(np.imag(z))
+#         acc[2] += 1
 
 #     first_bit = int(bits[0])
 #     first_acc = A00 if first_bit == 0 else A11
@@ -2354,7 +2787,6 @@ if __name__ == "__main__":
 #     print(f"[CFO] Groups plotted: {len(labels)} (excluded: NO_AdvA; tag ecosystem only; min_count>={min_count})")
 #     return True
 
-
 # def save_transition_cfo_violin_boxplots_by_adva(
 #     trans_cfo_by_adva: dict,
 #     out_pdf_prefix: str,
@@ -2446,28 +2878,20 @@ if __name__ == "__main__":
 
 
 # # ============================================================
-# # Candidate decode (continuous scan): known (phase,polarity,aa_pos)
+# # PER-WINDOW DECODE (BLESDR byte-domain dewhiten+CRC)
 # # ============================================================
 
-# def decode_one_candidate_from_stream(
-#     freq_all: np.ndarray,
+# def decode_one_burst_from_freq(
+#     freq_burst: np.ndarray,
 #     channel: int,
 #     sps: int,
 #     aa_corr_min: int,
 #     preamble_min: int,
-#     *,
-#     phase: int,
-#     polarity: int,
-#     aa_pos: int,
+#     debug: bool = False,
 #     slip_sweep: bool = False,
 #     slip_max: int = 8,
-#     debug: bool = False,
 #     crc_diag: bool = False,
 # ):
-#     """
-#     Decode around a specific AA candidate at symbol index aa_pos (AA start) on a given (phase, polarity).
-#     Uses the same tracked slicing logic as your burst decoder but without scanning phases.
-#     """
 #     aa_hit_any = False
 #     pre_hit_any = False
 #     both_hit_any = False
@@ -2475,7 +2899,8 @@ if __name__ == "__main__":
 #     crc_ok_any = False
 
 #     best_any = None
-#     best_any_score = None
+#     best_any_score = None  # (aa_corr, pre_corr, length, crc_ok)
+
 #     best_crc = None
 #     best_crc_score = None
 
@@ -2484,141 +2909,136 @@ if __name__ == "__main__":
 #     else:
 #         slip_list = [0, -1, 1, -2, 2, -3, 3]
 
-#     # This candidate already exists because AA>=aa_min in coarse scan,
-#     # but slip can move it; we re-validate after tracked slicing.
-#     for slip in slip_list:
-#         aa0 = int(aa_pos) + int(slip)
-#         if aa0 < 8:
-#             continue
+#     for phase in range(sps):
+#         sym = freq_burst[phase::sps]
+#         for polarity in (+1, -1):
+#             x = sym if polarity > 0 else -sym
+#             bits = (x > 0).astype(np.uint8)
 
-#         aa_hit_any = True
+#             aa_pos, corr = correlate_access_address_fast(bits)
+#             if aa_pos is None:
+#                 continue
 
-#         sym0 = aa0 - 8  # preamble start
-#         total_bits_max = 40 + (2 + 37 + 3) * 8  # pre+AA + max(header+payload+crc) bits
+#             pre_corr = preamble_corr_at(bits, aa_pos)
 
-#         bits_local, _phase_end = slice_bits_tracked(
-#             freq_corr=freq_all,
-#             phase0=int(phase),
-#             sps=int(sps),
-#             sym_start=int(sym0),
-#             n_bits=int(total_bits_max),
-#             polarity=int(polarity),
-#             block_syms=16,
-#             search=2,
-#             use_mid_frac=0.5,
-#         )
+#             if corr >= aa_corr_min:
+#                 aa_hit_any = True
+#             if pre_corr >= preamble_min:
+#                 pre_hit_any = True
+#             if (corr >= aa_corr_min) and (pre_corr >= preamble_min):
+#                 both_hit_any = True
+#             else:
+#                 continue
 
-#         if bits_local.size < 56:
-#             continue
+#             for slip in slip_list:
+#                 aa0 = aa_pos + slip
+#                 if aa0 < 8:
+#                     continue
+#                 pre_corr0 = preamble_corr_at(bits, aa0)
+#                 if pre_corr0 < preamble_min:
+#                     continue
 
-#         pre_corr0 = int(np.sum(bits_local[0:8] == PRE_BITS))
-#         if pre_corr0 >= preamble_min:
-#             pre_hit_any = True
-#         else:
-#             continue
+#                 start = aa0 + 32
+#                 if start + (2+3)*8 > bits.size:
+#                     continue
 
-#         corr0 = int(np.sum(bits_local[8:40] == AA_BITS))
-#         if corr0 >= aa_corr_min:
-#             both_hit_any = True
-#         else:
-#             continue
+#                 hdr_bits = bits[start:start + 16]
+#                 hdr_msb = bytearray(bits_to_bytes_msbfirst_time(hdr_bits))
+#                 hdr_msb_before = bytes(hdr_msb)
 
-#         # Header bits -> BLESDR domain -> dewhiten header
-#         hdr_bits = bits_local[40:56]
-#         hdr_msb = bytearray(bits_to_bytes_msbfirst_time(hdr_bits))
-#         hdr_msb_before = bytes(hdr_msb)
+#                 blesdr_reverse_whiten(channel, hdr_msb)
+#                 hdr_msb_after = bytes(hdr_msb)
 
-#         blesdr_reverse_whiten(channel, hdr_msb)
-#         hdr_msb_after = bytes(hdr_msb)
+#                 h0 = swap_bits8(hdr_msb[0])
+#                 h1 = swap_bits8(hdr_msb[1])
+#                 length = h1 & 0x3F
+#                 pdu_type = h0 & 0x0F
+#                 txadd = (h0 >> 6) & 1
+#                 rxadd = (h0 >> 7) & 1
 
-#         h0 = swap_bits8(hdr_msb[0])
-#         h1 = swap_bits8(hdr_msb[1])
-#         length = h1 & 0x3F
-#         pdu_type = h0 & 0x0F
+#                 if length > 37:
+#                     continue
 
-#         if length > 37:
-#             continue
+#                 total_bytes = 2 + length + 3
+#                 total_bits = total_bytes * 8
+#                 if start + total_bits > bits.size:
+#                     continue
 
-#         total_bytes = 2 + length + 3
-#         total_bits = total_bytes * 8
+#                 pkt_bits = bits[start:start + total_bits]
+#                 pkt_msb = bytearray(bits_to_bytes_msbfirst_time(pkt_bits))
+#                 pkt_msb_before = bytes(pkt_msb)
 
-#         if bits_local.size < 40 + total_bits:
-#             continue
+#                 blesdr_reverse_whiten(channel, pkt_msb)
+#                 pkt_msb_after = bytes(pkt_msb)
 
-#         pkt_bits = bits_local[40:40 + total_bits]
-#         pkt_msb = bytearray(bits_to_bytes_msbfirst_time(pkt_bits))
-#         pkt_msb_before = bytes(pkt_msb)
+#                 crc_calc = blesdr_reverse_crc(bytes(pkt_msb[:2+length]), init_adv=True)
+#                 crc_rx = ((pkt_msb[2+length] << 16) |
+#                           (pkt_msb[2+length+1] << 8) |
+#                           (pkt_msb[2+length+2])) & 0xFFFFFF
+#                 crc_ok = (crc_rx == crc_calc)
 
-#         blesdr_reverse_whiten(channel, pkt_msb)
-#         pkt_msb_after = bytes(pkt_msb)
+#                 if crc_ok:
+#                     crc_ok_any = True
 
-#         crc_calc = blesdr_reverse_crc(bytes(pkt_msb[:2 + length]), init_adv=True)
-#         crc_rx = ((pkt_msb[2 + length] << 16) |
-#                   (pkt_msb[2 + length + 1] << 8) |
-#                   (pkt_msb[2 + length + 2])) & 0xFFFFFF
-#         crc_ok = (crc_rx == crc_calc)
+#                 try:
+#                     _, _, pdu_type2, txadd2, rxadd2, length2, payload = parse_legacy_adv_from_blesdr_bytes(bytes(pkt_msb))
+#                     parsed_any = True
+#                 except Exception:
+#                     continue
 
-#         if crc_ok:
-#             crc_ok_any = True
+#                 addrs = extract_addresses(pdu_type2, payload)
 
-#         try:
-#             _, _, pdu_type2, txadd2, rxadd2, length2, payload = parse_legacy_adv_from_blesdr_bytes(bytes(pkt_msb))
-#             parsed_any = True
-#         except Exception:
-#             continue
+#                 pkt_std = bytes(swap_bits8(b) for b in pkt_msb)
+#                 is_airtag, is_tag, reason = is_findmy_or_tag_ecosystem(pkt_std)
 
-#         addrs = extract_addresses(pdu_type2, payload)
+#                 pkt = {
+#                     "aa_pos": int(aa0),
+#                     "aa_corr": int(corr),
+#                     "pre_corr": int(pre_corr0),
+#                     "channel": int(channel),
+#                     "phase": int(phase),
+#                     "polarity": int(polarity),
+#                     "slip": int(slip),
 
-#         pkt_std = bytes(swap_bits8(b) for b in pkt_msb)
-#         is_airtag, is_tag, reason = is_findmy_or_tag_ecosystem(pkt_std)
+#                     "pdu_type": int(pdu_type2),
+#                     "pdu_type_name": PDU_TYPE_NAMES.get(pdu_type2, f"UNKNOWN({pdu_type2})"),
+#                     "txadd": int(txadd2),
+#                     "rxadd": int(rxadd2),
+#                     "length": int(length2),
 
-#         pkt = {
-#             "aa_pos": int(aa0),
-#             "aa_corr": int(corr0),
-#             "pre_corr": int(pre_corr0),
-#             "channel": int(channel),
-#             "phase": int(phase),
-#             "polarity": int(polarity),
-#             "slip": int(slip),
+#                     "payload_hex": payload.hex(),
 
-#             "pdu_type": int(pdu_type2),
-#             "pdu_type_name": PDU_TYPE_NAMES.get(pdu_type2, f"UNKNOWN({pdu_type2})"),
-#             "txadd": int(txadd2),
-#             "rxadd": int(rxadd2),
-#             "length": int(length2),
+#                     "crc_ok": bool(crc_ok),
+#                     "crc_rx": int(crc_rx),
+#                     "crc_calc": int(crc_calc),
 
-#             "payload_hex": payload.hex(),
+#                     "is_airtag": bool(is_airtag),
+#                     "is_tag_ecosystem": bool(is_tag),
+#                     "tag_reason": reason,
+#                 }
+#                 for k, v in addrs.items():
+#                     pkt[k] = fmt_mac(v)
 
-#             "crc_ok": bool(crc_ok),
-#             "crc_rx": int(crc_rx),
-#             "crc_calc": int(crc_calc),
+#                 sc = (corr, pre_corr0, length2, int(crc_ok))
+#                 if best_any is None or sc > best_any_score:
+#                     best_any, best_any_score = pkt, sc
 
-#             "is_airtag": bool(is_airtag),
-#             "is_tag_ecosystem": bool(is_tag),
-#             "tag_reason": reason,
-#         }
-#         for k, v in addrs.items():
-#             pkt[k] = fmt_mac(v)
+#                 if crc_ok:
+#                     if best_crc is None or sc > best_crc_score:
+#                         best_crc, best_crc_score = pkt, sc
 
-#         sc = (int(corr0), int(pre_corr0), int(length2), int(crc_ok))
-#         if best_any is None or sc > best_any_score:
-#             best_any, best_any_score = pkt, sc
+#                 if crc_diag and (not crc_ok):
+#                     diag = crc_diag_variants(crc_rx, crc_calc)
+#                     if debug:
+#                         print("[CRC_DIAG] AA+PRE matched but CRC failed")
+#                         print(f"  phase={phase} polarity={polarity} ch={channel} slip={slip}")
+#                         print(f"  aa_pos={aa0} aa_corr={corr} pre_corr={pre_corr0}")
+#                         print(f"  hdr_msb_before={hdr_msb_before.hex()} hdr_msb_after={hdr_msb_after.hex()}  hdr_std={h0:02x}{h1:02x} len={length} type={pdu_type}")
+#                         print(f"  pkt_msb_before[0:8]={pkt_msb_before[:8].hex()} pkt_msb_after[0:8]={pkt_msb_after[:8].hex()}")
+#                         print(f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==calc={diag['rx==calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}")
 
-#         if crc_ok:
-#             if best_crc is None or sc > best_crc_score:
-#                 best_crc, best_crc_score = pkt, sc
-
-#         if crc_diag and (not crc_ok) and debug:
-#             diag = crc_diag_variants(crc_rx, crc_calc)
-#             print("[CRC_DIAG] AA+PRE matched but CRC failed")
-#             print(f"  phase={phase} polarity={polarity} ch={channel} slip={slip}")
-#             print(f"  aa_pos={aa0} aa_corr={corr0} pre_corr={pre_corr0}")
-#             print(f"  hdr_msb_before={hdr_msb_before.hex()} hdr_msb_after={hdr_msb_after.hex()}  hdr_std={h0:02x}{h1:02x} len={length} type={pdu_type}")
-#             print(f"  pkt_msb_before[0:8]={pkt_msb_before[:8].hex()} pkt_msb_after[0:8]={pkt_msb_after[:8].hex()}")
-#             print(f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==calc={diag['rx==calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}")
-
-#         if crc_ok:
-#             break
+#                 if crc_ok:
+#                     break
 
 #     summary = {
 #         "aa_hit": bool(aa_hit_any),
@@ -2631,7 +3051,460 @@ if __name__ == "__main__":
 
 
 # # ============================================================
-# # TOP-LEVEL SNIFFER (CONTINUOUS SCAN)
+# # MULTIPROCESS SHARED-MEM WORKER (minimal additions)
+# # ============================================================
+
+# _MP_FREQ = None
+# _MP_IQ = None
+# _MP_SHM_FREQ = None
+# _MP_SHM_IQ = None
+
+# def _mp_init_shared(freq_shm_name, freq_shape, freq_dtype_str,
+#                     iq_shm_name, iq_shape, iq_dtype_str):
+#     """Initializer: attach to shared memory once per worker process."""
+#     global _MP_FREQ, _MP_IQ, _MP_SHM_FREQ, _MP_SHM_IQ
+#     _MP_SHM_FREQ = shared_memory.SharedMemory(name=freq_shm_name)
+#     _MP_SHM_IQ = shared_memory.SharedMemory(name=iq_shm_name)
+#     _MP_FREQ = np.ndarray(tuple(freq_shape), dtype=np.dtype(freq_dtype_str), buffer=_MP_SHM_FREQ.buf)
+#     _MP_IQ = np.ndarray(tuple(iq_shape), dtype=np.dtype(iq_dtype_str), buffer=_MP_SHM_IQ.buf)
+
+# def _mp_close_shared():
+#     """Best-effort close in workers (not strictly required)."""
+#     global _MP_SHM_FREQ, _MP_SHM_IQ
+#     try:
+#         if _MP_SHM_FREQ is not None:
+#             _MP_SHM_FREQ.close()
+#     except Exception:
+#         pass
+#     try:
+#         if _MP_SHM_IQ is not None:
+#             _MP_SHM_IQ.close()
+#     except Exception:
+#         pass
+
+# def _keep_filter(pkt, filter_tags: str):
+#     if filter_tags == "none":
+#         return True
+#     if filter_tags == "drop-airtag":
+#         return not pkt.get("is_airtag", False)
+#     if filter_tags == "only-airtag":
+#         return pkt.get("is_airtag", False)
+#     if filter_tags == "drop-tags":
+#         return not pkt.get("is_tag_ecosystem", False)
+#     if filter_tags == "only-tags":
+#         return pkt.get("is_tag_ecosystem", False)
+#     return True
+
+# def _process_one_window_task_option2(task):
+#     """
+#     Option 2 worker:
+#       - takes a SMALL original-domain iq slice
+#       - resamples ONLY that slice to FS_OUT_TARGET
+#       - runs discriminator + existing decode_one_burst_from_freq
+#     """
+#     (idx, iq_slice, s_orig, e_orig,
+#      fs_in, fs_out_target,
+#      ch_list,
+#      aa_corr_min, preamble_min,
+#      do_crc_filter, debug,
+#      slip_sweep, slip_max,
+#      crc_diag, crc_diag_max_unused,
+#      cfo_window, plot_cfo, filter_tags,
+#      need_pkt, need_cfo_row) = task
+
+#     out = {
+#         "idx": idx,
+#         "bursts": 1,
+#         "aa_hit": 0,
+#         "pre_hit": 0,
+#         "both_hit": 0,
+#         "parsed": 0,
+#         "crc_ok": 0,
+#         "airtag": 0,
+#         "tag_any": 0,
+#         "kept": 0,
+#         "pkt": None,
+#         "tag_adva": None,
+#         "cfo": None,
+#         "adva_for_cfo": None,
+#         "is_tag_for_cfo": False,
+#         "trans": None,
+#         "cfo_row": None,
+#         "crc_fail_summary": None,
+#         "crcok_hist": None,
+#     }
+
+#     # Refine resample ratio for this slice ONLY
+#     Lr, Mr = pick_resample_ratio(fs_in, fs_out_target, max_den=4096)
+#     fs_out = fs_in * (Lr / Mr)
+#     sps = int(round(fs_out / SYMBOL_RATE))
+#     if sps <= 0:
+#         return out
+
+#     try:
+#         iq_up = upsample(iq_slice, Lr, Mr)
+#     except Exception:
+#         return out
+
+#     if iq_up.size < 4:
+#         return out
+
+#     freq_burst = gfsk_discriminator(iq_up)
+#     if freq_burst.size < 64:
+#         return out
+
+#     iq_burst_for_cfo = iq_up  # for transition CFO logic
+
+#     burst_flags = {"aa_hit": False, "pre_hit": False, "both_hit": False, "parsed": False, "crc_ok": False}
+
+#     best_any = None
+#     best_any_score = None
+#     best_crc = None
+#     best_crc_score = None
+
+#     for ch in ch_list:
+#         any_pkt, crc_pkt, summ = decode_one_burst_from_freq(
+#             freq_burst=freq_burst,
+#             channel=ch,
+#             sps=sps,
+#             aa_corr_min=aa_corr_min,
+#             preamble_min=preamble_min,
+#             debug=debug,
+#             slip_sweep=slip_sweep,
+#             slip_max=slip_max,
+#             crc_diag=crc_diag,
+#         )
+
+#         for k in burst_flags:
+#             burst_flags[k] |= summ[k]
+
+#         if any_pkt is not None:
+#             sc = (any_pkt["aa_corr"], any_pkt["pre_corr"], any_pkt["length"], int(any_pkt["crc_ok"]))
+#             if best_any is None or sc > best_any_score:
+#                 best_any, best_any_score = any_pkt, sc
+
+#         if crc_pkt is not None:
+#             sc = (crc_pkt["aa_corr"], crc_pkt["pre_corr"], crc_pkt["length"], 1)
+#             if best_crc is None or sc > best_crc_score:
+#                 best_crc, best_crc_score = crc_pkt, sc
+
+#     if burst_flags["aa_hit"]:
+#         out["aa_hit"] = 1
+#     if burst_flags["pre_hit"]:
+#         out["pre_hit"] = 1
+#     if burst_flags["both_hit"]:
+#         out["both_hit"] = 1
+#     if burst_flags["parsed"]:
+#         out["parsed"] = 1
+#     if burst_flags["crc_ok"]:
+#         out["crc_ok"] = 1
+
+#     if best_any is not None:
+#         if best_any.get("is_airtag", False):
+#             out["airtag"] = 1
+#         if best_any.get("is_tag_ecosystem", False):
+#             out["tag_any"] = 1
+
+#     if best_crc is not None and best_crc.get("crc_ok", False):
+#         out["crcok_hist"] = (
+#             int(best_crc.get("slip", 0)),
+#             int(best_crc.get("phase", -1)),
+#             int(best_crc.get("polarity", 0)),
+#             int(best_crc.get("channel", -1)),
+#         )
+
+#     if crc_diag and best_any is not None and (not best_any.get("crc_ok", False)):
+#         if best_any.get("aa_corr", 0) >= aa_corr_min and best_any.get("pre_corr", 0) >= preamble_min:
+#             diag = crc_diag_variants(best_any["crc_rx"], best_any["crc_calc"])
+#             out["crc_fail_summary"] = (
+#                 "[CRC_FAIL] AA+PRE matched but best decode still CRC_BAD\n"
+#                 f"  window_samp_in=({s_orig},{e_orig}) "
+#                 f"ch={best_any['channel']} phase={best_any['phase']} pol={best_any['polarity']} slip={best_any.get('slip',0)}\n"
+#                 f"  pdu={best_any['pdu_type_name']} len={best_any['length']} AdvA={best_any.get('AdvA','NO_AdvA')}\n"
+#                 f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}"
+#             )
+
+#     pkt_for_print = best_crc if do_crc_filter else best_any
+#     if pkt_for_print is None:
+#         return out
+
+#     if not _keep_filter(pkt_for_print, filter_tags):
+#         return out
+
+#     out["kept"] = 1
+
+#     if pkt_for_print.get("is_tag_ecosystem", False):
+#         adva = pkt_for_print.get("AdvA", "NO_AdvA")
+#         if adva != "NO_AdvA":
+#             out["tag_adva"] = adva
+
+#     if need_pkt:
+#         pkt_det = dict(pkt_for_print)
+#         pkt_det["start"] = int(s_orig)
+#         pkt_det["end"] = int(e_orig)
+#         out["pkt"] = pkt_det
+
+#     if plot_cfo:
+#         overall_cfo_hz, trans = estimate_cfo_hz(
+#             freq_burst=freq_burst,
+#             fs_out=fs_out,
+#             phase=pkt_for_print["phase"],
+#             aa_pos=pkt_for_print["aa_pos"],
+#             sps=sps,
+#             payload_len_bytes=pkt_for_print["length"],
+#             window=cfo_window,
+#             polarity=pkt_for_print["polarity"],
+#             iq_burst=iq_burst_for_cfo,
+#             return_transitions=True,
+#         )
+#         if overall_cfo_hz is not None and np.isfinite(overall_cfo_hz):
+#             adva = pkt_for_print.get("AdvA", "NO_AdvA")
+#             out["cfo"] = float(overall_cfo_hz)
+#             out["adva_for_cfo"] = adva
+#             out["is_tag_for_cfo"] = bool(pkt_for_print.get("is_tag_ecosystem", False))
+#             out["trans"] = trans
+
+#             if need_cfo_row and out["is_tag_for_cfo"]:
+#                 out["cfo_row"] = {
+#                     "AdvA": adva,
+#                     "CFO_Hz": float(overall_cfo_hz),
+#                     "CFO_00_Hz": float(trans.get("cfo_equal_00", float("nan"))),
+#                     "CFO_11_Hz": float(trans.get("cfo_equal_11", float("nan"))),
+#                     "CFO_10_Hz": float(trans.get("cfo_jump_10",  float("nan"))),
+#                     "CFO_01_Hz": float(trans.get("cfo_jump_01",  float("nan"))),
+#                     "CFO_from_transitions_Hz": float(trans.get("cfo_overall_from_transitions", float("nan"))),
+#                     "nprod_00": int(trans.get("nprod_00", 0)),
+#                     "nprod_11": int(trans.get("nprod_11", 0)),
+#                     "nprod_10": int(trans.get("nprod_10", 0)),
+#                     "nprod_01": int(trans.get("nprod_01", 0)),
+#                     "nprod_total": int(trans.get("nprod_total", 0)),
+#                     "crc_ok": int(bool(pkt_for_print.get("crc_ok", False))),
+#                     "is_tag_ecosystem": 1,
+#                     "pdu_type": int(pkt_for_print.get("pdu_type", -1)),
+#                     "pdu_type_name": pkt_for_print.get("pdu_type_name", ""),
+#                     "length": int(pkt_for_print.get("length", -1)),
+#                     "channel": int(pkt_for_print.get("channel", -1)),
+#                     "phase": int(pkt_for_print.get("phase", -1)),
+#                     "polarity": int(pkt_for_print.get("polarity", 0)),
+#                     "slip": int(pkt_for_print.get("slip", 0)),
+#                     "window_start": int(s_orig),
+#                     "window_end": int(e_orig),
+#                     "aa_pos": int(pkt_for_print.get("aa_pos", -1)),
+#                     "aa_corr": int(pkt_for_print.get("aa_corr", -1)),
+#                     "pre_corr": int(pkt_for_print.get("pre_corr", -1)),
+#                     "cfo_window": cfo_window,
+#                 }
+
+#     return out
+
+# def _process_one_window_task(task):
+#     """
+#     Worker: process one window using global shared-memory arrays.
+#     Returns a compact dict for aggregation.
+#     """
+#     # Unpack task (keep it flat for speed/serialization)
+#     (idx, s_up, e_up,
+#      scale, sps, fs_out,
+#      ch_list,
+#      aa_corr_min, preamble_min,
+#      do_crc_filter, debug,
+#      slip_sweep, slip_max,
+#      crc_diag, crc_diag_max_unused,  # max handled in main
+#      cfo_window, plot_cfo, filter_tags,
+#      need_pkt, need_cfo_row) = task
+
+#     # Local result skeleton
+#     out = {
+#         "idx": idx,
+#         "bursts": 1,
+#         "aa_hit": 0,
+#         "pre_hit": 0,
+#         "both_hit": 0,
+#         "parsed": 0,
+#         "crc_ok": 0,
+#         "airtag": 0,
+#         "tag_any": 0,
+#         "kept": 0,
+#         "pkt": None,
+#         "tag_adva": None,
+#         "cfo": None,
+#         "adva_for_cfo": None,
+#         "is_tag_for_cfo": False,
+#         "trans": None,
+#         "cfo_row": None,
+#         "crc_fail_summary": None,
+#         "crcok_hist": None,  # optional: (slip, phase, pol, chan) if CRC_OK
+#     }
+
+#     # For reporting (original domain): approx inverse-scale
+#     s_orig = int(round(s_up / scale))
+#     e_orig = int(round(e_up / scale))
+
+#     e_f = max(s_up, e_up - 1)
+#     if s_up >= _MP_FREQ.size or e_f <= s_up:
+#         return out
+
+#     freq_burst_base = _MP_FREQ[s_up:e_f]
+#     iq_burst_base = _MP_IQ[s_up:e_f+1]  # +1 so len(iq)==len(freq)+1
+
+#     burst_flags = {"aa_hit": False, "pre_hit": False, "both_hit": False, "parsed": False, "crc_ok": False}
+
+#     best_any = None
+#     best_any_score = None
+
+#     best_crc = None
+#     best_crc_score = None
+
+#     for ch in ch_list:
+#         any_pkt, crc_pkt, summ = decode_one_burst_from_freq(
+#             freq_burst=freq_burst_base,
+#             channel=ch,
+#             sps=sps,
+#             aa_corr_min=aa_corr_min,
+#             preamble_min=preamble_min,
+#             debug=debug,
+#             slip_sweep=slip_sweep,
+#             slip_max=slip_max,
+#             crc_diag=crc_diag,
+#         )
+
+#         for k in burst_flags:
+#             burst_flags[k] |= summ[k]
+
+#         if any_pkt is not None:
+#             sc = (any_pkt["aa_corr"], any_pkt["pre_corr"], any_pkt["length"], int(any_pkt["crc_ok"]))
+#             if best_any is None or sc > best_any_score:
+#                 best_any, best_any_score = any_pkt, sc
+
+#         if crc_pkt is not None:
+#             sc = (crc_pkt["aa_corr"], crc_pkt["pre_corr"], crc_pkt["length"], 1)
+#             if best_crc is None or sc > best_crc_score:
+#                 best_crc, best_crc_score = crc_pkt, sc
+
+#     # Update window-level stats
+#     if burst_flags["aa_hit"]:
+#         out["aa_hit"] = 1
+#     if burst_flags["pre_hit"]:
+#         out["pre_hit"] = 1
+#     if burst_flags["both_hit"]:
+#         out["both_hit"] = 1
+#     if burst_flags["parsed"]:
+#         out["parsed"] = 1
+#     if burst_flags["crc_ok"]:
+#         out["crc_ok"] = 1
+
+#     if best_any is not None:
+#         if best_any.get("is_airtag", False):
+#             out["airtag"] = 1
+#         if best_any.get("is_tag_ecosystem", False):
+#             out["tag_any"] = 1
+
+#     if best_crc is not None and best_crc.get("crc_ok", False):
+#         out["crcok_hist"] = (
+#             int(best_crc.get("slip", 0)),
+#             int(best_crc.get("phase", -1)),
+#             int(best_crc.get("polarity", 0)),
+#             int(best_crc.get("channel", -1)),
+#         )
+
+#     # CRC_FAIL summary (printed in main with global limit)
+#     if crc_diag and best_any is not None and (not best_any.get("crc_ok", False)):
+#         if best_any.get("aa_corr", 0) >= aa_corr_min and best_any.get("pre_corr", 0) >= preamble_min:
+#             diag = crc_diag_variants(best_any["crc_rx"], best_any["crc_calc"])
+#             out["crc_fail_summary"] = (
+#                 "[CRC_FAIL] AA+PRE matched but best decode still CRC_BAD\n"
+#                 f"  window_samp_in=({s_orig},{e_orig}) window_samp_up=({s_up},{e_up}) "
+#                 f"ch={best_any['channel']} phase={best_any['phase']} pol={best_any['polarity']} slip={best_any.get('slip',0)}\n"
+#                 f"  pdu={best_any['pdu_type_name']} len={best_any['length']} AdvA={best_any.get('AdvA','NO_AdvA')}\n"
+#                 f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}"
+#             )
+
+#     pkt_for_print = best_crc if do_crc_filter else best_any
+#     if pkt_for_print is None:
+#         return out
+
+#     if not _keep_filter(pkt_for_print, filter_tags):
+#         return out
+
+#     out["kept"] = 1
+
+#     # Tag AdvA set for plotting filter later
+#     if pkt_for_print.get("is_tag_ecosystem", False):
+#         adva = pkt_for_print.get("AdvA", "NO_AdvA")
+#         if adva != "NO_AdvA":
+#             out["tag_adva"] = adva
+
+#     # Packet capture for printing (only if requested)
+#     if need_pkt:
+#         pkt_for_print = dict(pkt_for_print)  # detach from any shared references
+#         pkt_for_print["start"] = int(s_orig)
+#         pkt_for_print["end"] = int(e_orig)
+#         out["pkt"] = pkt_for_print
+
+#     # CFO (only if requested)
+#     if plot_cfo:
+#         overall_cfo_hz, trans = estimate_cfo_hz(
+#             freq_burst=freq_burst_base,
+#             fs_out=fs_out,
+#             phase=pkt_for_print["phase"],
+#             aa_pos=pkt_for_print["aa_pos"],
+#             sps=sps,
+#             payload_len_bytes=pkt_for_print["length"],
+#             window=cfo_window,
+#             polarity=pkt_for_print["polarity"],
+#             iq_burst=iq_burst_base,
+#             return_transitions=True,
+#         )
+
+#         if overall_cfo_hz is not None and np.isfinite(overall_cfo_hz):
+#             adva = pkt_for_print.get("AdvA", "NO_AdvA")
+#             out["cfo"] = float(overall_cfo_hz)
+#             out["adva_for_cfo"] = adva
+#             out["is_tag_for_cfo"] = bool(pkt_for_print.get("is_tag_ecosystem", False))
+#             out["trans"] = trans
+
+#             if need_cfo_row and out["is_tag_for_cfo"]:
+#                 c00 = float(trans.get("cfo_equal_00", float("nan")))
+#                 c11 = float(trans.get("cfo_equal_11", float("nan")))
+#                 c10 = float(trans.get("cfo_jump_10",  float("nan")))
+#                 c01 = float(trans.get("cfo_jump_01",  float("nan")))
+#                 cft = float(trans.get("cfo_overall_from_transitions", float("nan")))
+
+#                 out["cfo_row"] = {
+#                     "AdvA": adva,
+#                     "CFO_Hz": float(overall_cfo_hz),
+#                     "CFO_00_Hz": c00,
+#                     "CFO_11_Hz": c11,
+#                     "CFO_10_Hz": c10,
+#                     "CFO_01_Hz": c01,
+#                     "CFO_from_transitions_Hz": cft,
+#                     "nprod_00": int(trans.get("nprod_00", 0)),
+#                     "nprod_11": int(trans.get("nprod_11", 0)),
+#                     "nprod_10": int(trans.get("nprod_10", 0)),
+#                     "nprod_01": int(trans.get("nprod_01", 0)),
+#                     "nprod_total": int(trans.get("nprod_total", 0)),
+#                     "crc_ok": int(bool(pkt_for_print.get("crc_ok", False))),
+#                     "is_tag_ecosystem": 1,
+#                     "pdu_type": int(pkt_for_print.get("pdu_type", -1)),
+#                     "pdu_type_name": pkt_for_print.get("pdu_type_name", ""),
+#                     "length": int(pkt_for_print.get("length", -1)),
+#                     "channel": int(pkt_for_print.get("channel", -1)),
+#                     "phase": int(pkt_for_print.get("phase", -1)),
+#                     "polarity": int(pkt_for_print.get("polarity", 0)),
+#                     "slip": int(pkt_for_print.get("slip", 0)),
+#                     "window_start": int(s_orig),
+#                     "window_end": int(e_orig),
+#                     "aa_pos": int(pkt_for_print.get("aa_pos", -1)),
+#                     "aa_corr": int(pkt_for_print.get("aa_corr", -1)),
+#                     "pre_corr": int(pkt_for_print.get("pre_corr", -1)),
+#                     "cfo_window": cfo_window,
+#                 }
+
+#     return out
+
+
+# # ============================================================
+# # TOP-LEVEL SNIFFER
 # # ============================================================
 
 # def ble_sniffer(
@@ -2642,10 +3515,10 @@ if __name__ == "__main__":
 #     max_packets: int,
 #     aa_corr_min: int,
 #     preamble_min: int,
-#     thr_k: float,            # kept for CLI compatibility; not used
+#     thr_k: float,
 #     do_crc_filter: bool,
 #     debug: bool,
-#     max_bursts: int,         # reused as "max candidates to process" in continuous scan
+#     max_bursts: int,
 #     plot_cfo: bool,
 #     cfo_pdf: str,
 #     cfo_top: int,
@@ -2655,7 +3528,9 @@ if __name__ == "__main__":
 #     crc_diag: bool,
 #     crc_diag_max: int,
 #     cfo_window: str,
-#     cfo_csv: str
+#     cfo_csv: str,
+#     workers: int,
+#     mp_chunksize: int,
 # ):
 #     L, M = pick_resample_ratio(fs_in, FS_OUT_TARGET, max_den=4096)
 #     fs_out = fs_in * (L / M)
@@ -2666,7 +3541,7 @@ if __name__ == "__main__":
 #     print(f"[INFO] SPS = {sps} (fs_out/symbol_rate), CRC_filter={'on' if do_crc_filter else 'off'}")
 #     print(f"[INFO] Dewhiten: BLESDR byte/MSB stepping (SwapBits(chan)|2, poly 0x11)")
 #     print(f"[INFO] CRC: BLESDR reverse_crc (init 0x555555 for adv)")
-#     print(f"[INFO] Continuous scan: AA correlation over full stream (no energy burst detector)")
+#     print(f"[INFO] Continuous scan enabled: energy burst detector disabled (note: --thr ignored)")
 #     print(f"[INFO] CFO window: {cfo_window}")
 #     if plot_cfo:
 #         print(f"[INFO] CFO grouping: AdvA only (top {cfo_top if cfo_top > 0 else 'ALL'})")
@@ -2676,13 +3551,60 @@ if __name__ == "__main__":
 #     if crc_diag:
 #         print(f"[INFO] CRC diagnostics enabled (max detailed prints={crc_diag_max}, gated by --debug for per-candidate dumps)")
 
-#     iq_up = upsample(iq, L, M)
-#     freq_all = gfsk_discriminator(iq_up)
+#     # -------------------------
+#     # OPTION 2:
+#     #   Stage A: coarse scan at FS_SCAN_TARGET (low memory)
+#     #   Stage B: refine only candidate windows at FS_OUT_TARGET (your big target)
+#     # -------------------------
+
+#     # Stage A (scan) resample
+#     scan_target = float(min(FS_SCAN_TARGET, FS_OUT_TARGET))
+#     Ls, Ms = pick_resample_ratio(fs_in, scan_target, max_den=4096)
+#     fs_scan = fs_in * (Ls / Ms)
+#     sps_scan = int(round(fs_scan / SYMBOL_RATE))
+
+#     print(f"[INFO] Scan fs_out target={scan_target:.0f}  ratio L/M={Ls}/{Ms}  fs_scan≈{fs_scan:.2f}  SPS_scan={sps_scan}")
+
+#     iq_scan = upsample(iq, Ls, Ms)
+#     freq_scan = gfsk_discriminator(iq_scan)
+#     del iq_scan  # free memory early
 
 #     ch_list = [37, 38, 39] if try_adv_channels else [channel]
 
+#     # Get AA anchors in scan-domain sample indices
+#     scan_hits = find_decode_windows_continuous(
+#         freq_all=freq_scan,
+#         sps=sps_scan,
+#         aa_corr_min=aa_corr_min,
+#         preamble_min=preamble_min,
+#         slip_max=slip_max,
+#         max_windows=max_bursts if (max_bursts and max_bursts > 0) else 0,
+#         debug=debug,
+#         return_aa_samples=True,
+#     )
+#     print(f"[INFO] Scan hits kept (AA-anchored windows): {len(scan_hits)}")
+
+#     # Convert each scan hit -> original-domain window using time (seconds)
+#     # Keep the same symbol margins as the scanner uses (in SYMBOLS, not samples)
+#     MAX_PAYLOAD = 37
+#     MAX_TOTAL_BITS = 8 + 32 + (2 + MAX_PAYLOAD + 3) * 8
+#     pre_symbols = max(48, 8 + 32 + 8 + abs(int(slip_max)))
+#     post_symbols = MAX_TOTAL_BITS + 32 + abs(int(slip_max))
+#     pre_t = pre_symbols / float(SYMBOL_RATE)
+#     post_t = post_symbols / float(SYMBOL_RATE)
+
+#     windows_orig = []
+#     for (aa_samp_scan, _s_up, _e_up) in scan_hits:
+#         aa_time = aa_samp_scan / float(fs_scan)
+#         s0 = int(max(0, math.floor((aa_time - pre_t) * fs_in)))
+#         e0 = int(min(iq.size, math.ceil((aa_time + post_t) * fs_in)))
+#         if e0 - s0 >= 16:
+#             windows_orig.append((s0, e0))
+
+#     print(f"[INFO] Original-domain windows to refine: {len(windows_orig)}")
+
 #     stats = {
-#         "candidates_total": 0,
+#         "bursts": 0,   # now "windows"
 #         "aa_hit": 0,
 #         "pre_hit": 0,
 #         "both_hit": 0,
@@ -2691,7 +3613,6 @@ if __name__ == "__main__":
 #         "airtag": 0,
 #         "tag_any": 0,
 #         "kept": 0,
-#         "decoded": 0,
 #     }
 
 #     crcok_slip_hist = Counter()
@@ -2699,255 +3620,227 @@ if __name__ == "__main__":
 #     crcok_pol_hist = Counter()
 #     crcok_chan_hist = Counter()
 
-#     crc_fail_printed = 0
-
 #     packets = []
 #     tag_advas = set()
 #     cfo_by_adva = defaultdict(list)
 #     trans_cfo_by_adva = defaultdict(lambda: defaultdict(list))
 #     cfo_rows = []
 
-#     def _keep(pkt):
-#         if filter_tags == "none":
-#             return True
-#         if filter_tags == "drop-airtag":
-#             return not pkt.get("is_airtag", False)
-#         if filter_tags == "only-airtag":
-#             return pkt.get("is_airtag", False)
-#         if filter_tags == "drop-tags":
-#             return not pkt.get("is_tag_ecosystem", False)
-#         if filter_tags == "only-tags":
-#             return pkt.get("is_tag_ecosystem", False)
-#         return True
+#     # -------------------------
+#     # Multiprocessing over windows (minimal change, preserves logic)
+#     # -------------------------
+#     use_mp = (workers is not None and int(workers) > 1 and len(windows_orig) > 0)
 
-#     # ------------------------------------------------------------
-#     # Build AA+preamble candidates across all (phase, polarity)
-#     # ------------------------------------------------------------
-#     candidates = []
-#     aa_hits = 0
-#     pre_hits = 0
+#     if not windows_orig:
+#         return packets, stats
 
-#     for phase in range(sps):
-#         for polarity in (+1, -1):
-#             bits = slice_bits_integrate(freq_all, phase, sps, polarity, use_mid_frac=0.5)
-#             if bits.size < 40:
-#                 continue
+#     # Determine what we actually need to return from workers
+#     need_pkt = (max_packets > 0)
+#     need_cfo_row = bool(plot_cfo)
 
-#             pos, corrv = correlate_access_address_positions(bits, aa_corr_min)
-#             if pos.size == 0:
-#                 continue
+#     if use_mp:
+#         tasks = []
+#         for idx, (s0, e0) in enumerate(windows_orig):
+#             # IMPORTANT: slice is SMALL (hundreds/thousands of samples) -> cheap to pickle/send
+#             iq_slice = iq[s0:e0].astype(np.complex64, copy=False)
+#             tasks.append((
+#                 idx, iq_slice, int(s0), int(e0),
+#                 float(fs_in), float(FS_OUT_TARGET),
+#                 ch_list,
+#                 int(aa_corr_min), int(preamble_min),
+#                 bool(do_crc_filter), bool(debug),
+#                 bool(slip_sweep), int(slip_max),
+#                 bool(crc_diag), int(crc_diag_max),
+#                 str(cfo_window), bool(plot_cfo), str(filter_tags),
+#                 bool(need_pkt), bool(need_cfo_row),
+#             ))
 
-#             aa_hits += int(pos.size)
+#         chunksize = int(mp_chunksize) if mp_chunksize and mp_chunksize > 0 else 16
+#         print(f"[INFO] Multiprocessing enabled (Option2 refine): workers={workers}, windows={len(windows_orig)}, chunksize={chunksize}")
 
-#             for aa_pos, aa_corr in zip(pos.tolist(), corrv.tolist()):
-#                 pre_corr = preamble_corr_at(bits, int(aa_pos))
-#                 if pre_corr >= preamble_min:
-#                     pre_hits += 1
-#                     samp = int(phase + int(aa_pos) * sps)
-#                     candidates.append((samp, int(phase), int(polarity), int(aa_pos), int(aa_corr), int(pre_corr)))
+#         ctx = mp.get_context("spawn")
 
-#     candidates.sort(key=lambda t: t[0])
+#         crc_fail_summaries = []
 
-#     stats["aa_hit"] = int(aa_hits)
-#     stats["pre_hit"] = int(pre_hits)
-#     stats["both_hit"] = int(pre_hits)  # in continuous mode, "candidates" are AA+PRE
+#         with ProcessPoolExecutor(max_workers=int(workers), mp_context=ctx) as ex:
+#             results = list(ex.map(_process_one_window_task_option2, tasks, chunksize=chunksize))
 
-#     if max_bursts > 0:
-#         candidates = candidates[:max_bursts]
+#         results.sort(key=lambda d: d.get("idx", 0))
 
-#     stats["candidates_total"] = int(len(candidates))
-#     print(f"[INFO] Candidates (AA>= {aa_corr_min} and PRE>= {preamble_min}) to process: {len(candidates)}")
+#         for r in results:
+#             stats["bursts"] += int(r.get("bursts", 0))
+#             stats["aa_hit"] += int(r.get("aa_hit", 0))
+#             stats["pre_hit"] += int(r.get("pre_hit", 0))
+#             stats["both_hit"] += int(r.get("both_hit", 0))
+#             stats["parsed"] += int(r.get("parsed", 0))
+#             stats["crc_ok"] += int(r.get("crc_ok", 0))
+#             stats["airtag"] += int(r.get("airtag", 0))
+#             stats["tag_any"] += int(r.get("tag_any", 0))
+#             stats["kept"] += int(r.get("kept", 0))
 
-#     # Refractory skip in output-sample units (avoid re-decoding same packet repeatedly)
-#     next_allowed_sample = 0
+#             h = r.get("crcok_hist", None)
+#             if h is not None:
+#                 slip_v, ph_v, pol_v, ch_v = h
+#                 crcok_slip_hist[slip_v] += 1
+#                 crcok_phase_hist[ph_v] += 1
+#                 crcok_pol_hist[pol_v] += 1
+#                 crcok_chan_hist[ch_v] += 1
 
-#     # ------------------------------------------------------------
-#     # Process candidates in time order
-#     # ------------------------------------------------------------
-#     for (cand_samp, cand_phase, cand_pol, cand_aa_pos, cand_aa_corr, cand_pre_corr) in candidates:
-#         if cand_samp < next_allowed_sample:
-#             continue
+#             if crc_diag:
+#                 s = r.get("crc_fail_summary", None)
+#                 if s:
+#                     crc_fail_summaries.append(s)
 
-#         best_any = None
-#         best_any_score = None
-#         best_crc = None
-#         best_crc_score = None
+#             ta = r.get("tag_adva", None)
+#             if ta:
+#                 tag_advas.add(ta)
 
-#         cand_flags = {"aa_hit": True, "pre_hit": True, "both_hit": True, "parsed": False, "crc_ok": False}
+#             if plot_cfo:
+#                 cfo = r.get("cfo", None)
+#                 adva = r.get("adva_for_cfo", None)
+#                 if cfo is not None and adva is not None:
+#                     cfo_by_adva[adva].append(float(cfo))
 
-#         for ch in ch_list:
-#             any_pkt, crc_pkt, summ = decode_one_candidate_from_stream(
-#                 freq_all=freq_all,
-#                 channel=ch,
-#                 sps=sps,
-#                 aa_corr_min=aa_corr_min,
-#                 preamble_min=preamble_min,
-#                 phase=cand_phase,
-#                 polarity=cand_pol,
-#                 aa_pos=cand_aa_pos,
-#                 slip_sweep=slip_sweep,
-#                 slip_max=slip_max,
-#                 debug=debug,
-#                 crc_diag=crc_diag,
-#             )
+#                     if r.get("is_tag_for_cfo", False):
+#                         trans = r.get("trans", None)
+#                         if isinstance(trans, dict):
+#                             c00 = float(trans.get("cfo_equal_00", float("nan")))
+#                             c11 = float(trans.get("cfo_equal_11", float("nan")))
+#                             c10 = float(trans.get("cfo_jump_10",  float("nan")))
+#                             c01 = float(trans.get("cfo_jump_01",  float("nan")))
+#                             if np.isfinite(c00):
+#                                 trans_cfo_by_adva[adva]["cfo_equal_00_hz"].append(c00)
+#                             if np.isfinite(c11):
+#                                 trans_cfo_by_adva[adva]["cfo_equal_11_hz"].append(c11)
+#                             if np.isfinite(c10):
+#                                 trans_cfo_by_adva[adva]["cfo_jump_10_hz"].append(c10)
+#                             if np.isfinite(c01):
+#                                 trans_cfo_by_adva[adva]["cfo_jump_01_hz"].append(c01)
 
-#             for k in cand_flags:
-#                 cand_flags[k] |= summ.get(k, False)
+#                         row = r.get("cfo_row", None)
+#                         if isinstance(row, dict):
+#                             cfo_rows.append(row)
 
-#             if any_pkt is not None:
-#                 sc = (any_pkt["aa_corr"], any_pkt["pre_corr"], any_pkt["length"], int(any_pkt["crc_ok"]))
-#                 if best_any is None or sc > best_any_score:
-#                     best_any, best_any_score = any_pkt, sc
+#             if need_pkt:
+#                 p = r.get("pkt", None)
+#                 if p is not None:
+#                     packets.append(p)
 
-#             if crc_pkt is not None:
-#                 sc = (crc_pkt["aa_corr"], crc_pkt["pre_corr"], crc_pkt["length"], 1)
-#                 if best_crc is None or sc > best_crc_score:
-#                     best_crc, best_crc_score = crc_pkt, sc
+#         if max_packets > 0 and len(packets) > max_packets:
+#             packets = packets[:max_packets]
 
-#         if cand_flags["parsed"]:
-#             stats["parsed"] += 1
-#         if cand_flags["crc_ok"]:
-#             stats["crc_ok"] += 1
+#         if crc_diag and crc_fail_summaries:
+#             for s in crc_fail_summaries[:max(0, int(crc_diag_max))]:
+#                 print(s)
 
-#         if best_any is not None:
-#             stats["decoded"] += 1
-#             if best_any.get("is_airtag", False):
-#                 stats["airtag"] += 1
-#             if best_any.get("is_tag_ecosystem", False):
-#                 stats["tag_any"] += 1
+#         # finally:
+#         #     # Cleanup shared memory in parent
+#         #     try:
+#         #         freq_shm.close()
+#         #     except Exception:
+#         #         pass
+#         #     try:
+#         #         iq_shm.close()
+#         #     except Exception:
+#         #         pass
+#         #     try:
+#         #         freq_shm.unlink()
+#         #     except Exception:
+#         #         pass
+#         #     try:
+#         #         iq_shm.unlink()
+#         #     except Exception:
+#         #         pass
 
-#         if best_crc is not None and best_crc.get("crc_ok", False):
-#             crcok_slip_hist[best_crc.get("slip", 0)] += 1
-#             crcok_phase_hist[best_crc.get("phase", -1)] += 1
-#             crcok_pol_hist[best_crc.get("polarity", 0)] += 1
-#             crcok_chan_hist[best_crc.get("channel", -1)] += 1
+#         else:
+#             crc_fail_printed = 0
+#             for idx, (s0, e0) in enumerate(windows_orig):
+#                 iq_slice = iq[s0:e0].astype(np.complex64, copy=False)
+#                 r = _process_one_window_task_option2((
+#                     idx, iq_slice, int(s0), int(e0),
+#                     float(fs_in), float(FS_OUT_TARGET),
+#                     ch_list,
+#                     int(aa_corr_min), int(preamble_min),
+#                     bool(do_crc_filter), bool(debug),
+#                     bool(slip_sweep), int(slip_max),
+#                     bool(crc_diag), int(crc_diag_max),
+#                     str(cfo_window), bool(plot_cfo), str(filter_tags),
+#                     bool(need_pkt), bool(need_cfo_row),
+#                 ))
 
-#         if crc_diag and best_any is not None and (not best_any.get("crc_ok", False)) and (crc_fail_printed < crc_diag_max):
-#             if best_any.get("aa_corr", 0) >= aa_corr_min and best_any.get("pre_corr", 0) >= preamble_min:
-#                 diag = crc_diag_variants(best_any["crc_rx"], best_any["crc_calc"])
-#                 print("[CRC_FAIL] AA+PRE matched but best decode still CRC_BAD")
-#                 print(f"  cand_samp={cand_samp} ch={best_any['channel']} phase={best_any['phase']} pol={best_any['polarity']} slip={best_any.get('slip',0)}")
-#                 print(f"  pdu={best_any['pdu_type_name']} len={best_any['length']} AdvA={best_any.get('AdvA','NO_AdvA')}")
-#                 print(f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}")
-#                 crc_fail_printed += 1
+#                 stats["bursts"] += int(r.get("bursts", 0))
+#                 stats["aa_hit"] += int(r.get("aa_hit", 0))
+#                 stats["pre_hit"] += int(r.get("pre_hit", 0))
+#                 stats["both_hit"] += int(r.get("both_hit", 0))
+#                 stats["parsed"] += int(r.get("parsed", 0))
+#                 stats["crc_ok"] += int(r.get("crc_ok", 0))
+#                 stats["airtag"] += int(r.get("airtag", 0))
+#                 stats["tag_any"] += int(r.get("tag_any", 0))
+#                 stats["kept"] += int(r.get("kept", 0))
 
-#         pkt_for_print = best_crc if do_crc_filter else best_any
-#         if pkt_for_print is None:
-#             continue
+#                 h = r.get("crcok_hist", None)
+#                 if h is not None:
+#                     slip_v, ph_v, pol_v, ch_v = h
+#                     crcok_slip_hist[slip_v] += 1
+#                     crcok_phase_hist[ph_v] += 1
+#                     crcok_pol_hist[pol_v] += 1
+#                     crcok_chan_hist[ch_v] += 1
 
-#         if not _keep(pkt_for_print):
-#             continue
+#                 if crc_diag:
+#                     s = r.get("crc_fail_summary", None)
+#                     if s and crc_fail_printed < crc_diag_max:
+#                         print(s)
+#                         crc_fail_printed += 1
 
-#         # Tag AdvA collection (for plotting filter)
-#         if pkt_for_print.get("is_tag_ecosystem", False):
-#             adva = pkt_for_print.get("AdvA", "NO_AdvA")
-#             if adva != "NO_AdvA":
-#                 tag_advas.add(adva)
+#                 ta = r.get("tag_adva", None)
+#                 if ta:
+#                     tag_advas.add(ta)
 
-#         stats["kept"] += 1
+#                 if plot_cfo:
+#                     cfo = r.get("cfo", None)
+#                     adva = r.get("adva_for_cfo", None)
+#                     if cfo is not None and adva is not None:
+#                         cfo_by_adva[adva].append(float(cfo))
+#                         if r.get("is_tag_for_cfo", False):
+#                             trans = r.get("trans", None)
+#                             if isinstance(trans, dict):
+#                                 c00 = float(trans.get("cfo_equal_00", float("nan")))
+#                                 c11 = float(trans.get("cfo_equal_11", float("nan")))
+#                                 c10 = float(trans.get("cfo_jump_10",  float("nan")))
+#                                 c01 = float(trans.get("cfo_jump_01",  float("nan")))
+#                                 if np.isfinite(c00):
+#                                     trans_cfo_by_adva[adva]["cfo_equal_00_hz"].append(c00)
+#                                 if np.isfinite(c11):
+#                                     trans_cfo_by_adva[adva]["cfo_equal_11_hz"].append(c11)
+#                                 if np.isfinite(c10):
+#                                     trans_cfo_by_adva[adva]["cfo_jump_10_hz"].append(c10)
+#                                 if np.isfinite(c01):
+#                                     trans_cfo_by_adva[adva]["cfo_jump_01_hz"].append(c01)
+#                             row = r.get("cfo_row", None)
+#                             if isinstance(row, dict):
+#                                 cfo_rows.append(row)
 
-#         # Compute start/end in *input* sample indices (best-effort)
-#         aa0 = int(pkt_for_print["aa_pos"])
-#         ph = int(pkt_for_print["phase"])
-#         length = int(pkt_for_print["length"])
-#         total_bytes = 2 + length + 3
-#         total_bits = 40 + total_bytes * 8  # pre+AA + hdr/payload/crc bytes
+#                 if need_pkt:
+#                     p = r.get("pkt", None)
+#                     if p is not None:
+#                         packets.append(p)
 
-#         start_out = ph + (aa0 - 8) * sps
-#         end_out = start_out + total_bits * sps
-
-#         start_in = int(round(start_out / scale))
-#         end_in = int(round(end_out / scale))
-
-#         start_in = max(0, min(start_in, int(iq.size)))
-#         end_in = max(0, min(end_in, int(iq.size)))
-
-#         pkt_for_print["start"] = int(start_in)
-#         pkt_for_print["end"] = int(end_in)
-
-#         # Refractory: skip until after this decoded packet ends (output domain)
-#         next_allowed_sample = max(next_allowed_sample, int(end_out))
-
-#         if max_packets > 0 and len(packets) < max_packets:
-#             packets.append(pkt_for_print)
-
-#         if plot_cfo:
-#             overall_cfo_hz, trans = estimate_cfo_hz(
-#                 freq_burst=freq_all,
-#                 fs_out=fs_out,
-#                 phase=pkt_for_print["phase"],
-#                 aa_pos=pkt_for_print["aa_pos"],
-#                 sps=sps,
-#                 payload_len_bytes=pkt_for_print["length"],
-#                 window=cfo_window,
-#                 polarity=pkt_for_print["polarity"],
-#                 iq_burst=iq_up,
-#                 return_transitions=True,
-#             )
-
-#             if overall_cfo_hz is not None and np.isfinite(overall_cfo_hz):
-#                 adva = pkt_for_print.get("AdvA", "NO_AdvA")
-#                 cfo_by_adva[adva].append(float(overall_cfo_hz))
-
-#                 # Per-packet CFO log row (CSV) — ONLY tag ecosystem packets
-#                 if pkt_for_print.get("is_tag_ecosystem", False) is True:
-#                     c00 = float(trans.get("cfo_equal_00", float("nan")))
-#                     c11 = float(trans.get("cfo_equal_11", float("nan")))
-#                     c10 = float(trans.get("cfo_jump_10",  float("nan")))
-#                     c01 = float(trans.get("cfo_jump_01",  float("nan")))
-#                     cft = float(trans.get("cfo_overall_from_transitions", float("nan")))
-
-#                     if np.isfinite(c00):
-#                         trans_cfo_by_adva[adva]["cfo_equal_00_hz"].append(c00)
-#                     if np.isfinite(c11):
-#                         trans_cfo_by_adva[adva]["cfo_equal_11_hz"].append(c11)
-#                     if np.isfinite(c10):
-#                         trans_cfo_by_adva[adva]["cfo_jump_10_hz"].append(c10)
-#                     if np.isfinite(c01):
-#                         trans_cfo_by_adva[adva]["cfo_jump_01_hz"].append(c01)
-
-#                     cfo_rows.append({
-#                         "AdvA": adva,
-#                         "CFO_Hz": float(overall_cfo_hz),
-#                         "CFO_00_Hz": c00,
-#                         "CFO_11_Hz": c11,
-#                         "CFO_10_Hz": c10,
-#                         "CFO_01_Hz": c01,
-#                         "CFO_from_transitions_Hz": cft,
-#                         "nprod_00": int(trans.get("nprod_00", 0)),
-#                         "nprod_11": int(trans.get("nprod_11", 0)),
-#                         "nprod_10": int(trans.get("nprod_10", 0)),
-#                         "nprod_01": int(trans.get("nprod_01", 0)),
-#                         "nprod_total": int(trans.get("nprod_total", 0)),
-#                         "crc_ok": int(bool(pkt_for_print.get("crc_ok", False))),
-#                         "is_tag_ecosystem": 1,
-#                         "pdu_type": int(pkt_for_print.get("pdu_type", -1)),
-#                         "pdu_type_name": pkt_for_print.get("pdu_type_name", ""),
-#                         "length": int(pkt_for_print.get("length", -1)),
-#                         "channel": int(pkt_for_print.get("channel", -1)),
-#                         "phase": int(pkt_for_print.get("phase", -1)),
-#                         "polarity": int(pkt_for_print.get("polarity", 0)),
-#                         "slip": int(pkt_for_print.get("slip", 0)),
-#                         "burst_start": int(start_in),
-#                         "burst_end": int(end_in),
-#                         "aa_pos": int(pkt_for_print.get("aa_pos", -1)),
-#                         "aa_corr": int(pkt_for_print.get("aa_corr", -1)),
-#                         "pre_corr": int(pkt_for_print.get("pre_corr", -1)),
-#                         "cfo_window": cfo_window,
-#                     })
+#                 if max_packets > 0 and len(packets) >= max_packets:
+#                     break
 
 #     def pct(x, denom):
 #         return 0.0 if denom <= 0 else 100.0 * x / float(denom)
 
-#     print("[STATS] Continuous scan quality (candidate-level)")
-#     print(f"  AA hits across all (phase,pol) (>= {aa_corr_min}/32)      : {stats['aa_hit']}")
-#     print(f"  Candidates with PRE (>= {preamble_min}/8)                 : {stats['candidates_total']}")
-#     print(f"  Parsed among candidates                                    : {stats['parsed']} ({pct(stats['parsed'], stats['candidates_total']):.2f}%)")
-#     print(f"  CRC OK among candidates                                    : {stats['crc_ok']} ({pct(stats['crc_ok'], stats['candidates_total']):.2f}%)")
-#     print(f"  Decoded packets (best_any exists)                          : {stats['decoded']} ({pct(stats['decoded'], stats['candidates_total']):.2f}%)")
-#     print(f"  AirTag/FindMy (best_any per candidate)                     : {stats['airtag']} ({pct(stats['airtag'], stats['candidates_total']):.2f}%)")
-#     print(f"  Tag-ecosystem (best_any; incl. AirTag)                     : {stats['tag_any']} ({pct(stats['tag_any'], stats['candidates_total']):.2f}%)")
-#     print(f"  Kept after tag filter (printing/CFO inputs)                : {stats['kept']} ({pct(stats['kept'], stats['candidates_total']):.2f}%)")
+#     print("[STATS] Window-level detection quality (continuous AA scan)")
+#     print(f"  Windows total                                 : {stats['bursts']}")
+#     print(f"  AA match (>= {aa_corr_min}/32)                            : {stats['aa_hit']} ({pct(stats['aa_hit'], stats['bursts']):.2f}%)")
+#     print(f"  Preamble match (>= {preamble_min}/8)                      : {stats['pre_hit']} ({pct(stats['pre_hit'], stats['bursts']):.2f}%)")
+#     print(f"  BOTH (AA & preamble)                           : {stats['both_hit']} ({pct(stats['both_hit'], stats['bursts']):.2f}%)")
+#     print(f"  Parsed header/payload (BOTH-based)             : {stats['parsed']} ({pct(stats['parsed'], stats['bursts']):.2f}%)")
+#     print(f"  CRC OK (any BOTH-based candidate)              : {stats['crc_ok']} ({pct(stats['crc_ok'], stats['bursts']):.2f}%)")
+#     print(f"  AirTag/FindMy (best_any per window)            : {stats['airtag']} ({pct(stats['airtag'], stats['bursts']):.2f}%)")
+#     print(f"  Tag-ecosystem (best_any; incl. AirTag)         : {stats['tag_any']} ({pct(stats['tag_any'], stats['bursts']):.2f}%)")
+#     print(f"  Kept after tag filter (printing/CFO inputs)    : {stats['kept']} ({pct(stats['kept'], stats['bursts']):.2f}%)")
 
 #     if crc_diag:
 #         print("[DIAG] CRC-OK parameter histograms (if any CRC OK occurred)")
@@ -2971,7 +3864,6 @@ if __name__ == "__main__":
 #             tag_advas=tag_advas,
 #             min_count=100,
 #         )
-
 #         if saved:
 #             total_cfo = sum(len(v) for v in cfo_by_adva.values())
 #             uniq = sum(1 for v in cfo_by_adva.values() if len(v) > 0)
@@ -2999,15 +3891,15 @@ if __name__ == "__main__":
 #     ap.add_argument("filename", help="IQ file: .cf32/.cfile or raw SPI .bin")
 #     ap.add_argument("--fs-in", type=float, default=FS_IN_DEFAULT, help="Input IQ sampling rate (Hz)")
 #     ap.add_argument("--channel", type=int, default=37, help="BLE channel (37/38/39)")
-#     ap.add_argument("--try-adv-channels", action="store_true", help="Try channels 37/38/39 per burst/candidate")
+#     ap.add_argument("--try-adv-channels", action="store_true", help="Try channels 37/38/39 per window")
 
-#     ap.add_argument("--max", type=int, default=20000, help="Max packets to store/print (stats still over all candidates)")
+#     ap.add_argument("--max", type=int, default=20000, help="Max packets to store/print (stats still over all windows)")
 #     ap.add_argument("--stats-only", action="store_true", help="Only print STATS (and optional CFO plot), do not print packets")
-#     ap.add_argument("--max-bursts", type=int, default=0, help="In continuous mode: process only first N candidates (0 = all)")
+#     ap.add_argument("--max-bursts", type=int, default=0, help="Analyze only first N windows (0 = all)")
 
 #     ap.add_argument("--aa-min", type=int, default=28, help="Min AA bit-match correlation (0..32)")
 #     ap.add_argument("--pre-min", type=int, default=7, help="Min preamble bit-match (0..8)")
-#     ap.add_argument("--thr", type=float, default=DEFAULT_THR_K, help="(unused in continuous mode) Burst threshold multiplier")
+#     ap.add_argument("--thr", type=float, default=DEFAULT_THR_K, help="(Ignored) Burst threshold multiplier (MAD-based)")
 
 #     ap.add_argument("--no-crc", action="store_true",
 #                     help="Disable CRC FILTERING for printed packets (CRC is still computed for stats)")
@@ -3040,16 +3932,32 @@ if __name__ == "__main__":
 #     ap.add_argument("--slip-sweep", action="store_true", help="Sweep bit-slip around AA boundary to deterministically detect off-by-k alignment")
 #     ap.add_argument("--slip-max", type=int, default=8, help="Max slip magnitude (bits) used with --slip-sweep (default ±8)")
 #     ap.add_argument("--crc-diag", action="store_true", help="Enable CRC diagnostics and histograms (deterministic)")
-#     ap.add_argument("--crc-diag-max", type=int, default=20, help="Max CRC_FAIL summaries to print (default 20)")
+#     ap.add_argument("--crc-diag-max", type=int, default=20, help="Max per-window CRC_FAIL summaries to print (default 20)")
 
 #     ap.add_argument("--auto-fs-scan", action="store_true", help="Scan fs-in around provided value and pick the one maximizing CRC_OK")
 #     ap.add_argument("--fs-scan-span", type=float, default=0.05, help="Fractional span for fs scan (±span). default 0.05")
 #     ap.add_argument("--fs-scan-steps", type=int, default=21, help="Number of fs points (odd recommended). default 21")
 
+#     # Multiprocessing controls (minimal additions)
+#     ap.add_argument("--workers", type=int, default=0,
+#                     help="Number of worker processes for window decoding (0 = use all cores; 1 = disable MP).")
+#     ap.add_argument("--mp-chunksize", type=int, default=8,
+#                     help="Chunksize for multiprocessing map over windows (default 8).")
+
 #     args = ap.parse_args()
 
 #     iq = load_iq_auto(args.filename)
 #     max_packets = 0 if args.stats_only else args.max
+
+#     # Resolve workers
+#     if args.workers is None or int(args.workers) < 0:
+#         workers = 0
+#     else:
+#         workers = int(args.workers)
+#     if workers == 0:
+#         workers = os.cpu_count() or 1
+#     if workers < 1:
+#         workers = 1
 
 #     def run_one(fs_in_val: float):
 #         packets, stats = ble_sniffer(
@@ -3073,7 +3981,9 @@ if __name__ == "__main__":
 #             crc_diag=args.crc_diag,
 #             crc_diag_max=args.crc_diag_max,
 #             cfo_window=args.cfo_window,
-#             cfo_csv=args.cfo_csv
+#             cfo_csv=args.cfo_csv,
+#             workers=workers,
+#             mp_chunksize=args.mp_chunksize,
 #         )
 #         return packets, stats
 
@@ -3097,8 +4007,8 @@ if __name__ == "__main__":
 #             print(f"[AUTO_FS] fs_in={fs_try:.6f}")
 #             _, st = run_one(fs_try)
 #             crc_ok = st.get("crc_ok", 0)
-#             cand = max(1, st.get("candidates_total", 1))
-#             print(f"[AUTO_FS] CRC_OK={crc_ok}/{cand} ({(100.0*crc_ok/max(1,cand)):.2f}%)")
+#             wins = st.get("bursts", 1)
+#             print(f"[AUTO_FS] CRC_OK={crc_ok}/{wins} ({(100.0*crc_ok/max(1,wins)):.2f}%)")
 #             if crc_ok > best_crc:
 #                 best_crc = crc_ok
 #                 best_fs = fs_try
@@ -3106,14 +4016,31 @@ if __name__ == "__main__":
 
 #         print("=" * 72)
 #         if best_fs is not None:
-#             print(f"[AUTO_FS] Best fs_in={best_fs:.6f}  CRC_OK={best_crc}/{best.get('candidates_total',1)}")
-#             run_one(best_fs)
-#         return
+#             print(f"[AUTO_FS] Best fs_in={best_fs:.6f}  CRC_OK={best_crc}/{best.get('bursts',1)}")
+#             return run_one(best_fs)
+#         return ([], {"bursts": 0})
 
-#     run_one(args.fs_in)
+#     return run_one(args.fs_in)
 
-#     if args.stats_only:
-#         return
 
 # if __name__ == "__main__":
-#     main()
+#     packets, stats = main()
+
+#     for p in packets:
+#         print("---- BLE PACKET ----")
+#         print("AA corr:", p["aa_corr"], "AA pos:", p["aa_pos"], "PRE corr:", p.get("pre_corr", -1))
+#         print("Channel:", p["channel"], "Phase:", p["phase"], "Polarity:", p["polarity"])
+#         print("Slip:", p.get("slip", 0))
+#         print("PDU:", p["pdu_type_name"], f"(type={p['pdu_type']})")
+#         print("Len:", p["length"], "TxAdd:", p["txadd"], "RxAdd:", p["rxadd"])
+#         if "AdvA" in p:
+#             print("AdvA:", p["AdvA"])
+#         if "ScanA" in p:
+#             print("ScanA:", p["ScanA"])
+#         if "InitA" in p:
+#             print("InitA:", p["InitA"])
+#         if "TargetA" in p:
+#             print("TargetA:", p["TargetA"])
+#         print(f"Tag: is_airtag={p.get('is_airtag', False)}  is_tag_ecosystem={p.get('is_tag_ecosystem', False)}  reason={p.get('tag_reason','')}")
+#         print(f"CRC ok: {p['crc_ok']}  CRC rx: 0x{p['crc_rx']:06x}  CRC calc: 0x{p['crc_calc']:06x}")
+#         print()

@@ -1,0 +1,647 @@
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: FF:E8:62:AC:0E:D2
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0xc9c7f2  CRC calc: 0xc9c1a9
+payload (hex): d20eac62e8ff1eff4c0012196031aa11efd125e621c922904322ed7442cdec086dab690159
+payload (bytes): b'\xd2\x0e\xacb\xe8\xff\x1e\xffL\x00\x12\x19`1\xaa\x11\xef\xd1%\xe6!\xc9"\x90C"\xedtB\xcd\xec\x08m\xabi\x01Y'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a44b70354617ff78ff32004898068c5588f78ba46784934409c244b72e42b33710b6d596809a
+crc_rx_msb_hex (received CRC, BLESDR-domain): c9c7f2
+hp_std_hex (hdr+payload in standard BLE byte values): 4025d20eac62e8ff1eff4c0012196031aa11efd125e621c922904322ed7442cdec086dab690159
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 310
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 02a44b70354617ff78ff32004898068c5588f78ba46784934409c244b72e42b33710b6d596809b
+  crc_calc_fixed_hex: c9c7f2
+  crc_rx_trusted_hex: c9c7f2
+  crc_calc_orig_hex: c9c1a9
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: FF:E8:62:AC:0E:D2
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0xc9c7f2  CRC calc: 0xc9ea1d
+payload (hex): d20eac62e8ff1eff4c0012196031aa11efd125e621c922904322ed7442cdec086dab690169
+payload (bytes): b'\xd2\x0e\xacb\xe8\xff\x1e\xffL\x00\x12\x19`1\xaa\x11\xef\xd1%\xe6!\xc9"\x90C"\xedtB\xcd\xec\x08m\xabi\x01i'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a44b70354617ff78ff32004898068c5588f78ba46784934409c244b72e42b33710b6d5968096
+crc_rx_msb_hex (received CRC, BLESDR-domain): c9c7f2
+hp_std_hex (hdr+payload in standard BLE byte values): 4025d20eac62e8ff1eff4c0012196031aa11efd125e621c922904322ed7442cdec086dab690169
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 307
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 02a44b70354617ff78ff32004898068c5588f78ba46784934409c244b72e42b33710b6d596809b
+  crc_calc_fixed_hex: c9c7f2
+  crc_rx_trusted_hex: c9c7f2
+  crc_calc_orig_hex: c9ea1d
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 7F:CC:BF:4B:DA:DE
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFEAA
+CRC ok: False  CRC rx: 0xef4377  CRC calc: 0xef4fc1
+payload (hex): deda4bbfcc7f0201061916aafe404f66d8cc892e46cb950f04ade5ceb115bb5d74b0d8
+payload (bytes): b'\xde\xdaK\xbf\xcc\x7f\x02\x01\x06\x19\x16\xaa\xfe@Of\xd8\xcc\x89.F\xcb\x95\x0f\x04\xad\xe5\xce\xb1\x15\xbb]t\xb0\xd8'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c47b5bd2fd33fe4080609868557f02f2661b33917462d3a9f020b5a7738da8ddba2e0d1b
+crc_rx_msb_hex (received CRC, BLESDR-domain): ef4377
+hp_std_hex (hdr+payload in standard BLE byte values): 6023deda4bbfcc7f0201061916aafe404f66d8cc892e46cb950f04ade5ceb115bb5d74b0d8
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 293
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06c47b5bd2fd33fe4080609868557f02f2661b33917462d3a9f020b5a7738da8ddba2e0d19
+  crc_calc_fixed_hex: ef4377
+  crc_rx_trusted_hex: ef4377
+  crc_calc_orig_hex: ef4fc1
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: EA:32:7A:C5:8D:BF
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x5707a0  CRC calc: 0x571421
+payload (hex): bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50d77995b8f01a3
+payload (bytes): b'\xbf\x8d\xc5z2\xea\x1e\xffL\x00\x12\x19`\xcf\x9d9T8\xad\xb5\x8269\x96m\x9b\x03T\xb5\xf5\rw\x99[\x8f\x01\xa3'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a4fdb1a35e4c5778ff3200489806f3b99c2a1cb5ad416c9c69b6d9c02aadafb0ee99daf180c5
+crc_rx_msb_hex (received CRC, BLESDR-domain): 5707a0
+hp_std_hex (hdr+payload in standard BLE byte values): 4025bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50d77995b8f01a3
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 306
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 02a4fdb1a35e4c5778ff3200489806f3b99c2a1cb5ad416c9c69b6d9c02aadafb0ee99daf180c2
+  crc_calc_fixed_hex: 5707a0
+  crc_rx_trusted_hex: 5707a0
+  crc_calc_orig_hex: 571421
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: C6:70:C1:4D:DA:68
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x6d652c  CRC calc: 0x6d6fc1
+payload (hex): 68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b2917bbf46008f
+payload (bytes): b'h\xdaM\xc1p\xc6\x1e\xffL\x00\x12\x19 \x01\x94Mx\x04\x9c\xd9\xc0\\wf\xcc\x1dh\x19!C\xb2\x91{\xbfF\x00\x8f'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a4165bb2830e6378ff32004898048029b21e20399b033aee6633b8169884c24d89defd6200f1
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d652c
+hp_std_hex (hdr+payload in standard BLE byte values): 402568da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b2917bbf46008f
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 310
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 02a4165bb2830e6378ff32004898048029b21e20399b033aee6633b8169884c24d89defd6200f2
+  crc_calc_fixed_hex: 6d652c
+  crc_rx_trusted_hex: 6d652c
+  crc_calc_orig_hex: 6d6fc1
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: E9:5A:FB:9E:46:7C
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x12b7c6  CRC calc: 0x12b19d
+payload (hex): 7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa81e4bf000d1
+payload (bytes): b'|F\x9e\xfbZ\xe9\x1e\xffL\x00\x12\x19\x10\xe9Y\xa5`\xe2a\x07\x1f\x94\xa7z*\x1f\xb2\xc7\x8adz\xa8\x1eK\xf0\x00\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43e6279df5a9778ff3200489808979aa5064786e0f829e55e54f84de351265e1578d20f008b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 12b7c6
+hp_std_hex (hdr+payload in standard BLE byte values): 60257c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa81e4bf000d1
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 311
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06a43e6279df5a9778ff3200489808979aa5064786e0f829e55e54f84de351265e1578d20f008a
+  crc_calc_fixed_hex: 12b7c6
+  crc_rx_trusted_hex: 12b7c6
+  crc_calc_orig_hex: 12b19d
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:CF:E8:02:99:A5
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFEAA
+CRC ok: False  CRC rx: 0x372bcd  CRC calc: 0x372120
+payload (hex): a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa2ad3d11b9
+payload (bytes): b'\xa5\x99\x02\xe8\xcfC\x02\x01\x06\x19\x16\xaa\xfe@\x96C\xed\x99\x90\xd8\x19\xd2\xc9\x11\xb3\xb39\xc5\xa9\xbf\xa2\xad=\x11\xb9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4a5994017f3c24080609868557f0269c2b799091b984b9388cdcd9ca395fd45b5bc889d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 372bcd
+hp_std_hex (hdr+payload in standard BLE byte values): 6023a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa2ad3d11b9
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 291
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 06c4a5994017f3c24080609868557f0269c2b799091b984b9388cdcd9ca395fd45b5bc889e
+  crc_calc_fixed_hex: 372bcd
+  crc_rx_trusted_hex: 372bcd
+  crc_calc_orig_hex: 372120
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 57:A4:BC:C5:0D:C9
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFEAA
+CRC ok: False  CRC rx: 0x79564b  CRC calc: 0x79f276
+payload (hex): c90dc5bca4570201061916aafe4195f82e4795b128ef69fe7bf031f8b133662fea24b8
+payload (bytes): b'\xc9\r\xc5\xbc\xa4W\x02\x01\x06\x19\x16\xaa\xfeA\x95\xf8.G\x95\xb1(\xefi\xfe{\xf01\xf8\xb13f/\xea$\xb8'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c493b0a33d25ea4080609868557f82a91f74e2a98d14f7967fde0f8c1f8dcc66f457241d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 79564b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c90dc5bca4570201061916aafe4195f82e4795b128ef69fe7bf031f8b133662fea24b8
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 290
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 06c493b0a33d25ea4080609868557f82a91f74e2a98d14f7967fde0f8c1f8dcc66f457242e
+  crc_calc_fixed_hex: 79564b
+  crc_rx_trusted_hex: 79564b
+  crc_calc_orig_hex: 79f276
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: E9:5A:FB:9E:46:7C
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x12b7c6  CRC calc: 0x12b19d
+payload (hex): 7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa81e4bf000d1
+payload (bytes): b'|F\x9e\xfbZ\xe9\x1e\xffL\x00\x12\x19\x10\xe9Y\xa5`\xe2a\x07\x1f\x94\xa7z*\x1f\xb2\xc7\x8adz\xa8\x1eK\xf0\x00\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43e6279df5a9778ff3200489808979aa5064786e0f829e55e54f84de351265e1578d20f008b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 12b7c6
+hp_std_hex (hdr+payload in standard BLE byte values): 60257c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa81e4bf000d1
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 311
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06a43e6279df5a9778ff3200489808979aa5064786e0f829e55e54f84de351265e1578d20f008a
+  crc_calc_fixed_hex: 12b7c6
+  crc_rx_trusted_hex: 12b7c6
+  crc_calc_orig_hex: 12b19d
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 42:69:81:1B:81:A1
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFD5A
+CRC ok: False  CRC rx: 0xcf199a  CRC calc: 0xcf1fc1
+payload (hex): a1811b81694202010403025afd17165afd1322f3026b0a0cd12dbdb4c2a70000004ac2ebff
+payload (bytes): b'\xa1\x81\x1b\x81iB\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13"\xf3\x02k\n\x0c\xd1-\xbd\xb4\xc2\xa7\x00\x00\x00J\xc2\xeb\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a48581d8819642408020c0405abfe8685abfc844cf40d650308bb4bd2d43e50000005243d7ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): cf199a
+hp_std_hex (hdr+payload in standard BLE byte values): 6025a1811b81694202010403025afd17165afd1322f3026b0a0cd12dbdb4c2a70000004ac2ebff
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 311
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06a48581d8819642408020c0405abfe8685abfc844cf40d650308bb4bd2d43e50000005243d7fe
+  crc_calc_fixed_hex: cf199a
+  crc_rx_trusted_hex: cf199a
+  crc_calc_orig_hex: cf1fc1
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 7C:24:AF:57:9B:5D
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFEAA
+CRC ok: False  CRC rx: 0x919f80  CRC calc: 0x9199db
+payload (hex): 5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf96583768020f49dd
+payload (bytes): b']\x9bW\xaf$|\x02\x01\x06\x19\x16\xaa\xfeA\xf0\x8ew\xad\xbdg\xf95\xb1\xf52@\xcf\x96X7h\x02\x0fI\xdd'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4bad9eaf5243e4080609868557f820f71eeb5bde69fac8daf4c02f3691aec1640f092bb
+crc_rx_msb_hex (received CRC, BLESDR-domain): 919f80
+hp_std_hex (hdr+payload in standard BLE byte values): 60235d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf96583768020f49dd
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 295
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06c4bad9eaf5243e4080609868557f820f71eeb5bde69fac8daf4c02f3691aec1640f092ba
+  crc_calc_fixed_hex: 919f80
+  crc_rx_trusted_hex: 919f80
+  crc_calc_orig_hex: 9199db
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: C6:70:C1:4D:DA:68
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x6d652c  CRC calc: 0x6d6377
+payload (hex): 68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b2917bbf4600cf
+payload (bytes): b'h\xdaM\xc1p\xc6\x1e\xffL\x00\x12\x19 \x01\x94Mx\x04\x9c\xd9\xc0\\wf\xcc\x1dh\x19!C\xb2\x91{\xbfF\x00\xcf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a4165bb2830e6378ff32004898048029b21e20399b033aee6633b8169884c24d89defd6200f3
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d652c
+hp_std_hex (hdr+payload in standard BLE byte values): 402568da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b2917bbf4600cf
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 311
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 02a4165bb2830e6378ff32004898048029b21e20399b033aee6633b8169884c24d89defd6200f2
+  crc_calc_fixed_hex: 6d652c
+  crc_rx_trusted_hex: 6d652c
+  crc_calc_orig_hex: 6d6377
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: D2:99:4B:25:3A:8F
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x565827  CRC calc: 0x96eca4
+payload (hex): 8f3a254b99d21eff4c00121900fa22607778c2bbbc7e0224bcb32d4583769c30e94a910000
+payload (bytes): b'\x8f:%K\x99\xd2\x1e\xffL\x00\x12\x19\x00\xfa"`wx\xc2\xbb\xbc~\x02$\xbc\xb3-E\x83v\x9c0\xe9J\x91\x00\x00'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4f15ca4d2994b78ff32004898005f4406ee1e43dd3d7e40243dcdb4a2c16e390c9752890000
+crc_rx_msb_hex (received CRC, BLESDR-domain): 565827
+hp_std_hex (hdr+payload in standard BLE byte values): 42258f3a254b99d21eff4c00121900fa22607778c2bbbc7e0224bcb32d4583769c30e94a910000
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 294
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 42a4f15ca4d2994b78ff32004898005f4406ee1e43dd3d7e40243dcdb4a2c16e390c97528a8000
+  crc_calc_fixed_hex: 565827
+  crc_rx_trusted_hex: 565827
+  crc_calc_orig_hex: 96eca4
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 74:E3:6C:AF:C8:28
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFD5A
+CRC ok: False  CRC rx: 0xe52fd5  CRC calc: 0xe5298e
+payload (hex): 28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea7000000a42808f0
+payload (bytes): b'(\xc8\xafl\xe3t\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13"\xf3\x02\xf2Vu\x0fd\xdf\xc3\xae\xa7\x00\x00\x00\xa4(\x08\xf0'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a41413f536c72e408020c0405abfe8685abfc844cf404f6aaef026fbc375e50000002514100f
+crc_rx_msb_hex (received CRC, BLESDR-domain): e52fd5
+hp_std_hex (hdr+payload in standard BLE byte values): 602528c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea7000000a42808f0
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 311
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06a41413f536c72e408020c0405abfe8685abfc844cf404f6aaef026fbc375e50000002514100e
+  crc_calc_fixed_hex: e52fd5
+  crc_rx_trusted_hex: e52fd5
+  crc_calc_orig_hex: e5298e
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: E9:5A:FB:9E:46:7C
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x125712  CRC calc: 0x125149
+payload (hex): 7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa81e4bf000e5
+payload (bytes): b'|F\x9e\xfbZ\xe9\x1e\xffL\x00\x12\x19\x10\xe9Y\xa5`\xe2a\x07\x1f\x94\xa7z*\x1f\xb2\xc7\x8adz\xa8\x1eK\xf0\x00\xe5'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43e6279df5a9778ff3200489808979aa5064786e0f829e55e54f84de351265e1578d20f00a7
+crc_rx_msb_hex (received CRC, BLESDR-domain): 125712
+hp_std_hex (hdr+payload in standard BLE byte values): 60257c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa81e4bf000e5
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 311
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06a43e6279df5a9778ff3200489808979aa5064786e0f829e55e54f84de351265e1578d20f00a6
+  crc_calc_fixed_hex: 125712
+  crc_rx_trusted_hex: 125712
+  crc_calc_orig_hex: 125149
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: C5:68:6B:99:6A:C5
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0xbc4d49  CRC calc: 0xbc7f91
+payload (hex): c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4fc2bf0f463c54c0304
+payload (bytes): b'\xc5j\x99kh\xc5\x1e\xffL\x00\x12\x19\x10\xc6\xe5\xabz\x90\xb2\xe4\xc1\xc0(us\x9f\xcc\xd4\xfc+\xf0\xf4c\xc5L\x03\x04'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4a35699d616a378ff320048980863a7d55e094d27830314aecef9332b3fd40f2fc6a332c020
+crc_rx_msb_hex (received CRC, BLESDR-domain): bc4d49
+hp_std_hex (hdr+payload in standard BLE byte values): 6025c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4fc2bf0f463c54c0304
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 308
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 06a4a35699d616a378ff320048980863a7d55e094d27830314aecef9332b3fd40f2fc6a332c028
+  crc_calc_fixed_hex: bc4d49
+  crc_rx_trusted_hex: bc4d49
+  crc_calc_orig_hex: bc7f91
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 60:A3:1C:E9:99:F4
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFD5A
+CRC ok: False  CRC rx: 0xd2d007  CRC calc: 0xd2d65c
+payload (hex): f499e91ca36002010403025afd17165afd1323f302f256750f64dfc3aea7000000f9744644
+payload (bytes): b'\xf4\x99\xe9\x1c\xa3`\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13#\xf3\x02\xf2Vu\x0fd\xdf\xc3\xae\xa7\x00\x00\x00\xf9tFD'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a42f999738c506408020c0405abfe8685abfc8c4cf404f6aaef026fbc375e50000009f2e6222
+crc_rx_msb_hex (received CRC, BLESDR-domain): d2d007
+hp_std_hex (hdr+payload in standard BLE byte values): 6025f499e91ca36002010403025afd17165afd1323f302f256750f64dfc3aea7000000f9744644
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 310
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 06a42f999738c506408020c0405abfe8685abfc8c4cf404f6aaef026fbc375e50000009f2e6223
+  crc_calc_fixed_hex: d2d007
+  crc_rx_trusted_hex: d2d007
+  crc_calc_orig_hex: d2d65c
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: C5:68:6B:99:6A:C5
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0xbc4d49  CRC calc: 0xbc7f91
+payload (hex): c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4fc2bf0f463c54c0304
+payload (bytes): b'\xc5j\x99kh\xc5\x1e\xffL\x00\x12\x19\x10\xc6\xe5\xabz\x90\xb2\xe4\xc1\xc0(us\x9f\xcc\xd4\xfc+\xf0\xf4c\xc5L\x03\x04'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4a35699d616a378ff320048980863a7d55e094d27830314aecef9332b3fd40f2fc6a332c020
+crc_rx_msb_hex (received CRC, BLESDR-domain): bc4d49
+hp_std_hex (hdr+payload in standard BLE byte values): 6025c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4fc2bf0f463c54c0304
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 308
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 06a4a35699d616a378ff320048980863a7d55e094d27830314aecef9332b3fd40f2fc6a332c028
+  crc_calc_fixed_hex: bc4d49
+  crc_rx_trusted_hex: bc4d49
+  crc_calc_orig_hex: bc7f91
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 4A:01:B9:78:EA:1D
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFEAA
+CRC ok: False  CRC rx: 0x01b2ca  CRC calc: 0x01b491
+payload (hex): 1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37950af9ff767f
+payload (bytes): b'\x1d\xeax\xb9\x01J\x02\x01\x06\x19\x16\xaa\xfeA\xab\tN\xdd\xf3\x08\xe1\x9d\x8a\xf6\xaf\x0b\xe2o7\x95\n\xf9\xffv\x7f'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4b8571e9d80524080609868557f82d59072bbcf1087b9516ff5d047f6eca9509fff6efe
+crc_rx_msb_hex (received CRC, BLESDR-domain): 01b2ca
+hp_std_hex (hdr+payload in standard BLE byte values): 60231dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37950af9ff767f
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 288
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 06c4b8571e9d80524080609868557f82d59072bbcf1087b9516ff5d047f6eca9509fff6eff
+  crc_calc_fixed_hex: 01b2ca
+  crc_rx_trusted_hex: 01b2ca
+  crc_calc_orig_hex: 01b491
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: C6:70:C1:4D:DA:68
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x6eae23  CRC calc: 0x6e6543
+payload (hex): 68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b2917bbf4600fe
+payload (bytes): b'h\xdaM\xc1p\xc6\x1e\xffL\x00\x12\x19 \x01\x94Mx\x04\x9c\xd9\xc0\\wf\xcc\x1dh\x19!C\xb2\x91{\xbfF\x00\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a4165bb2830e6378ff32004898048029b21e20399b033aee6633b8169884c24d89defd62007f
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6eae23
+hp_std_hex (hdr+payload in standard BLE byte values): 402568da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b2917bbf4600fe
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 306
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 02a4165bb2830e6378ff32004898048029b21e20399b033aee6633b8169884c24d89defd62005f
+  crc_calc_fixed_hex: 6eae23
+  crc_rx_trusted_hex: 6eae23
+  crc_calc_orig_hex: 6e6543
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CB:F7:96:33:13:13
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0xe59a28  CRC calc: 0xe58344
+payload (hex): 13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565baa5756ac001d
+payload (bytes): b'\x13\x133\x96\xf7\xcb\x1e\xffL\x00\x12\x19 \x9eG\xd3\xe8\xb8- \x1b9\xbf\xb9\x04-\xdb\x05\x1aV[\xaaWV\xac\x00\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a4c8c8cc69efd378ff320048980479e2cb171db404d89cfd9d20b4dba0586ada55ea6a3500b8
+crc_rx_msb_hex (received CRC, BLESDR-domain): e59a28
+hp_std_hex (hdr+payload in standard BLE byte values): 402513133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565baa5756ac001d
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 306
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 02a4c8c8cc69efd378ff320048980479e2cb171db404d89cfd9d20b4dba0586ada55ea6a3500bc
+  crc_calc_fixed_hex: e59a28
+  crc_rx_trusted_hex: e59a28
+  crc_calc_orig_hex: e58344
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: DD:32:8F:12:9C:BD
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x0897a3  CRC calc: 0x0891f8
+payload (hex): bd9c128f32dd1eff4c00121900d3d03d920a95fae680e3c91213d0f98aff4ced5a25150080
+payload (bytes): b'\xbd\x9c\x12\x8f2\xdd\x1e\xffL\x00\x12\x19\x00\xd3\xd0=\x92\n\x95\xfa\xe6\x80\xe3\xc9\x12\x13\xd0\xf9\x8a\xffL\xedZ%\x15\x00\x80'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4bd3948f14cbb78ff3200489800cb0bbc4950a95f6701c79348c80b9f51ff32b75aa4a80001
+crc_rx_msb_hex (received CRC, BLESDR-domain): 0897a3
+hp_std_hex (hdr+payload in standard BLE byte values): 4225bd9c128f32dd1eff4c00121900d3d03d920a95fae680e3c91213d0f98aff4ced5a25150080
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 293
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 42a4bd3948f14cbb78ff3200489800cb0bbc4950a95f6701c79348c80b9f51ff32b75aa4a80000
+  crc_calc_fixed_hex: 0897a3
+  crc_rx_trusted_hex: 0897a3
+  crc_calc_orig_hex: 0891f8
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: C6:70:C1:4D:DA:68
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x6eae23  CRC calc: 0x6ea878
+payload (hex): 68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b2917bbf46007a
+payload (bytes): b'h\xdaM\xc1p\xc6\x1e\xffL\x00\x12\x19 \x01\x94Mx\x04\x9c\xd9\xc0\\wf\xcc\x1dh\x19!C\xb2\x91{\xbfF\x00z'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a4165bb2830e6378ff32004898048029b21e20399b033aee6633b8169884c24d89defd62005e
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6eae23
+hp_std_hex (hdr+payload in standard BLE byte values): 402568da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b2917bbf46007a
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 307
+  fix_bit: 1
+  hp_msb_hex_fixed_or_padded: 02a4165bb2830e6378ff32004898048029b21e20399b033aee6633b8169884c24d89defd62005f
+  crc_calc_fixed_hex: 6eae23
+  crc_rx_trusted_hex: 6eae23
+  crc_calc_orig_hex: 6ea878
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 44:27:8B:7A:64:72
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFEAA
+CRC ok: False  CRC rx: 0x203c43  CRC calc: 0x203a18
+payload (hex): 72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053687f1b4e5808883
+payload (bytes): b"rdz\x8b'D\x02\x01\x06\x19\x16\xaa\xfeA\xdfk1W\r\xd7\x8dZJ\xc1\x01>\x056\x87\xf1\xb4\xe5\x80\x88\x83"
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c44e265ed1e4224080609868557f82fbd68ceab0ebb15a5283807ca06ce18f2da70111c1
+crc_rx_msb_hex (received CRC, BLESDR-domain): 203c43
+hp_std_hex (hdr+payload in standard BLE byte values): 602372647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053687f1b4e5808883
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 290
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06c44e265ed1e4224080609868557f82fbd68ceab0ebb15a5283807ca06ce18f2da70111c0
+  crc_calc_fixed_hex: 203c43
+  crc_rx_trusted_hex: 203c43
+  crc_calc_orig_hex: 203a18
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 7D:C9:C0:BD:85:B3
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFEAA
+CRC ok: False  CRC rx: 0xdf233b  CRC calc: 0xdf29d6
+payload (hex): b385bdc0c97d0201061916aafe41f0dee90ff4b2d83725fb5e4a72f80c7d0ad527fe46
+payload (bytes): b"\xb3\x85\xbd\xc0\xc9}\x02\x01\x06\x19\x16\xaa\xfeA\xf0\xde\xe9\x0f\xf4\xb2\xd87%\xfb^Jr\xf8\x0c}\n\xd5'\xfeF"
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4cda1bd0393be4080609868557f820f7b97f02f4d1beca4df7a524e1f30be50abe47f62
+crc_rx_msb_hex (received CRC, BLESDR-domain): df233b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023b385bdc0c97d0201061916aafe41f0dee90ff4b2d83725fb5e4a72f80c7d0ad527fe46
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 291
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06c4cda1bd0393be4080609868557f820f7b97f02f4d1beca4df7a524e1f30be50abe47f61
+  crc_calc_fixed_hex: df233b
+  crc_rx_trusted_hex: df233b
+  crc_calc_orig_hex: df29d6
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: F6:FE:7E:BD:D0:B3
+Tag: is_airtag=True  is_tag_ecosystem=True  reason=Apple 0x004C + 0x12 0x19
+CRC ok: False  CRC rx: 0x42b023  CRC calc: 0x42b678
+payload (hex): b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca54848ae308a83190185
+payload (bytes): b'\xb3\xd0\xbd~\xfe\xf6\x1e\xffL\x00\x12\x19 \x01+\xcf\x8eZ \xdc\xea,\x82H\xdb\xf8\x8c\xa5HH\xae0\x8a\x83\x19\x01\x85'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a4cd0bbd7e7f6f78ff320048980480d4f3715a043b57344112db1f31a51212750c51c19880a1
+crc_rx_msb_hex (received CRC, BLESDR-domain): 42b023
+hp_std_hex (hdr+payload in standard BLE byte values): 4025b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca54848ae308a83190185
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 307
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 02a4cd0bbd7e7f6f78ff320048980480d4f3715a043b57344112db1f31a51212750c51c19880a0
+  crc_calc_fixed_hex: 42b023
+  crc_rx_trusted_hex: 42b023
+  crc_calc_orig_hex: 42b678
+
+---- BLE PACKET ----
+AA corr: 32 AA pos: 56 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 44:27:8B:7A:64:72
+Tag: is_airtag=False  is_tag_ecosystem=True  reason=ServiceData UUID 0xFEAA
+CRC ok: False  CRC rx: 0xd8a107  CRC calc: 0xd8b86b
+payload (hex): 72647a8b27440201061916aafe417a545ccfb8eeb54fc13743ac52cf41f4f44e0b56f6
+payload (bytes): b"rdz\x8b'D\x02\x01\x06\x19\x16\xaa\xfeAzT\\\xcf\xb8\xee\xb5O\xc17C\xacR\xcfA\xf4\xf4N\x0bV\xf6"
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c44e265ed1e4224080609868557f825e2a3af31d77adf283ecc2354af3822f2f72d06a6f
+crc_rx_msb_hex (received CRC, BLESDR-domain): d8a107
+hp_std_hex (hdr+payload in standard BLE byte values): 602372647a8b27440201061916aafe417a545ccfb8eeb54fc13743ac52cf41f4f44e0b56f6
+
+[CRC_RECHECK_FIX]
+  method: INS_TRUST
+  fix_pos: 293
+  fix_bit: 0
+  hp_msb_hex_fixed_or_padded: 06c44e265ed1e4224080609868557f825e2a3af31d77adf283ecc2354af3822f2f72d06a6b
+  crc_calc_fixed_hex: d8a107
+  crc_rx_trusted_hex: d8a107
+  crc_calc_orig_hex: d8b86b

@@ -1,0 +1,31 @@
+[INFO] Loading RAW SPI int16 IQ from /home/mishra/Downloads/big_jan5.bin
+[INFO] Resample ratio L/M = 9282/3119 => fs_out ≈ 4000000.08 (target 4000000)
+[INFO] SPS = 4 (fs_out/symbol_rate), CRC_filter=off
+[INFO] Dewhiten: BLESDR byte/MSB stepping (SwapBits(chan)|2, poly 0x11)
+[INFO] CRC: BLESDR reverse_crc (init 0x555555 for adv)
+[INFO] Continuous scan enabled: energy burst detector disabled (note: --thr ignored)
+[INFO] CFO window: pre_aa_hdr_payload
+[INFO] CFO grouping: AdvA only (top 100)
+[INFO] Tag filter: none
+[INFO] Decode windows found (analyzed): 211058
+[INFO] Multiprocessing enabled: workers=12, windows=211058, chunksize=8
+[STATS] Window-level detection quality (continuous AA scan)
+  Windows total                                 : 211058
+  AA match (>= 28/32)                            : 211058 (100.00%)
+  Preamble match (>= 7/8)                      : 210973 (99.96%)
+  BOTH (AA & preamble)                           : 210950 (99.95%)
+  Parsed header/payload (BOTH-based)             : 208579 (98.83%)
+  CRC OK (any BOTH-based candidate)              : 66629 (31.57%)
+  AirTag/FindMy (best_any per window)            : 8574 (4.06%)
+  Tag-ecosystem (best_any; incl. AirTag)         : 16203 (7.68%)
+  Kept after tag filter (printing/CFO inputs)    : 208579 (98.83%)
+[INFO] Packets stored for printing: 208579 (max=20000000)
+[CFO] Plotting CFO violin+box for top 45 AdvAs (tag ecosystem only, min_count>=100).
+[CFO] Saved violin+box plot to: cfo_boxplot_by_adva.pdf
+[CFO] Groups plotted: 45 (excluded: NO_AdvA; tag ecosystem only; min_count>=100)
+[CFO] Plotting transition CFO 'cfo_equal_00_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_equal_00_hz.pdf
+[CFO] Plotting transition CFO 'cfo_equal_11_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_equal_11_hz.pdf
+[CFO] Plotting transition CFO 'cfo_jump_10_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_jump_10_hz.pdf
+[CFO] Plotting transition CFO 'cfo_jump_01_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_jump_01_hz.pdf
+[CFO] Total CFO samples plotted: 208579  (unique AdvA groups: 24786)
+[CFO] Saved per-packet CFO samples to CSV: cfo_samples_rail.csv  (rows=16203)
