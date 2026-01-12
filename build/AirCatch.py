@@ -432,7 +432,7 @@ def aircatch_stream(df: pd.DataFrame,
 
         # (filter) lostmode prefix
         if REQUIRE_LOSTMODE_PREFIX:
-            if not (isinstance(p_k, str) and has_lostmode_prefix(p_k)):
+            if not (isinstance(p_k, str) ):# and has_lostmode_prefix(p_k)):
                 continue
 
         # Extract key
