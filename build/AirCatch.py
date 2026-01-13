@@ -58,7 +58,7 @@ OUT_MACBAR_PDF = os.path.join(OUTPUT_DIR, "aircatch_clusters_mac_counts.pdf")
 OUT_MACBAR_PNG = os.path.join(OUTPUT_DIR, "aircatch_clusters_mac_counts.png")
 
 # --- AirCatch params (Algorithm) ---
-SEGMENT_SIZE_P = 50              # p
+SEGMENT_SIZE_P = 160              # p
 ASSOC_GAP_DT = 2.0               # kept for compatibility, NOT USED in option B
 T_MIN = 30.0                    # T_min (seconds)
 N_MIN = 1                        # N_min (segments)
@@ -73,8 +73,7 @@ USE_ZSPACE = True
 
 # Initial gamma (used until AUTO_GAMMA learns a better one).
 # In z-space, squared Mahalanobis typically sits around O(d) for matches.
-GATE_GAMMA_Z_INIT = 0.5
-GATE_GAMMA_RAW_INIT = 1.0e10  # raw is scale-dependent; recommended to keep AUTO_GAMMA on, or tune for your data.
+GATE_GAMMA_Z_INIT = 8
 
 # Scatter stability threshold differs by space
 ETA_TRACE_MAX_Z = 8.0
@@ -88,7 +87,7 @@ GLOBAL_NORM_UPDATE_EVERY = 1
 GLOBAL_NORM_MIN_STD = 1e-3
 
 # Optional: freeze global scaler after N segment updates to prevent z-drift (recommended for z-space)
-GLOBAL_NORM_FREEZE_AFTER = 120  # set None to never freeze
+GLOBAL_NORM_FREEZE_AFTER = 10  # set None to never freeze
 
 # OPTION B: clusters must remain persistent -> disable pruning
 PRUNE_INACTIVE_AFTER = None      # MUST be None for persistent clusters
@@ -96,20 +95,18 @@ PRUNE_INACTIVE_AFTER = None      # MUST be None for persistent clusters
 # --------------------------- NEW: warmup + auto-gamma ---------------------------
 
 WARMUP_SEGS = 10                 # warm up scaler for first N segments (z-space)
-AUTO_GAMMA = True                # learn gamma from match distances
-AUTO_GAMMA_Q = 0.995             # quantile used as gamma
-AUTO_GAMMA_MIN_MATCHES = 40      # start learning once we have enough matches
-AUTO_GAMMA_MULT = 1.10           # safety margin
 
 # Raw-mode diag covariance prior floor (Hz^2)
 RAW_DIAG_FLOOR_HZ = 200.0        # min std per feature ~200 Hz
 
+MIN_CLUSTER_SIZE_FOR_MATCH = 2  # min segments in cluster to consider for matching
+
 # CFO feature columns likely present
 OPTIONAL_CFO_COLS = [
     "CFO_Hz", "cfo_hz", "cfo_quick_hz",
-    # "CFO_00_Hz", "CFO_11_Hz", "CFO_10_Hz", "CFO_01_Hz",
-    # "cfo_equal_00_hz", "cfo_equal_11_hz",
-    # "cfo_jump_10_hz", "cfo_jump_01_hz",
+    "CFO_00_Hz", "CFO_11_Hz", "CFO_10_Hz", "CFO_01_Hz",
+    "cfo_equal_00_hz", "cfo_equal_11_hz",
+    "cfo_jump_10_hz", "cfo_jump_01_hz",
 ]
 
 # Prefer these 5 for plotting if present
@@ -216,10 +213,10 @@ def has_lostmode_prefix(payload_hex: str) -> bool:
                     if data[2] == 0x12 and data[3] == 0x19:
                         return True
 
-            if ad_type == 0x16 and len(data) >= 2:
-                svc_uuid = data[0] | (data[1] << 8)
-                if svc_uuid in TAG_SERVICE_UUIDS:
-                    return True
+            # if ad_type == 0x16 and len(data) >= 2:
+            #     svc_uuid = data[0] | (data[1] << 8)
+            #     if svc_uuid in TAG_SERVICE_UUIDS:
+            #         return True
 
             pos = end
         return False
@@ -365,13 +362,15 @@ class Tracklet:
         delta2 = x - self.mu
         self.M2 += np.outer(delta, delta2)
 
-    def merge_segment(self, t_s: float, t_e: float, mac: str, keys_in_seg: Set[str]) -> None:
+    def merge_segment(self, t_s: float, t_e: float, mac: str, keys_in_seg: Set[str], tag_type: Optional[str] = None) -> None:
         self.t_min = min(self.t_min, float(t_s))
         self.t_max = max(self.t_max, float(t_e))
         if isinstance(mac, str) and mac != "":
             self.macs.add(mac)
         for k in keys_in_seg:
             self.keys.add(k)
+        if tag_type:
+            self.keys.add(f"tag:{tag_type}")
 
     def score(self) -> int:
         """
@@ -440,7 +439,7 @@ def aircatch_stream(df: pd.DataFrame,
     seg_count = 0
 
     # ---------------- debug knobs ----------------
-    DEBUG = True
+    DEBUG = False
     DEBUG_EVERY_SEG = 1
     DEBUG_TOPK = 5
     DEBUG_SCALER_EVERY = 25
@@ -457,6 +456,7 @@ def aircatch_stream(df: pd.DataFrame,
     spawned_d_list: List[float] = []
     matched_d_list: List[float] = []
     per_mac_segments: Dict[str, int] = {}
+    mac_to_tag: Dict[str, str] = {}
 
     # Live gamma (AUTO_GAMMA can raise it)
     gamma_live = float(params.gamma)
@@ -477,6 +477,9 @@ def aircatch_stream(df: pd.DataFrame,
         m_k = str(row[mac_col])
 
         p_k = row.get(payload_col, None) if payload_col else None
+
+        if isinstance(p_k, str) and m_k not in mac_to_tag:
+            mac_to_tag[m_k] = extract_tag_type(p_k)
 
         # (filter) tag ecosystems
         if REQUIRE_LOSTMODE_PREFIX:
@@ -530,16 +533,32 @@ def aircatch_stream(df: pd.DataFrame,
 
         if C:
             for tau in C:
+                if tau.n < MIN_CLUSTER_SIZE_FOR_MATCH:
+                    if m_k not in tau.macs:
+                        continue
                 dist = tau.mahalanobis(x, eps=params.eps)
+                if m_k not in tau.macs:
+                    dist *= 1.15
                 if dist < d_best:
                     d_best = dist
                     best = tau
                 if DEBUG:
                     dist_list.append((dist, tau.id))
 
-        # gate/spawn
+        # gate/spawn (MAC-anchored relaxed gate)
         spawned = False
-        if (best is None) or (d_best > gamma_live):
+
+        spawn = False
+        if best is None:
+            spawn = True
+        elif d_best > gamma_live:
+            # allow looser gate for SAME-MAC reassociation
+            if (m_k in best.macs) and (d_best <= 2.5 * gamma_live):
+                spawn = False
+            else:
+                spawn = True
+
+        if spawn:
             tau = Tracklet(id=next_id, d=d)
             next_id += 1
             if not USE_ZSPACE:
@@ -553,17 +572,24 @@ def aircatch_stream(df: pd.DataFrame,
             n_match += 1
             matched_d_list.append(d_best)
 
-            # --- auto gamma update from match distances ---
-            if AUTO_GAMMA and np.isfinite(d_best):
-                match_d_hist.append(float(d_best))
-                if len(match_d_hist) >= int(AUTO_GAMMA_MIN_MATCHES):
-                    q = float(np.quantile(np.asarray(match_d_hist, dtype=float), float(AUTO_GAMMA_Q)))
-                    gamma_live = max(gamma_live, float(AUTO_GAMMA_MULT) * q)
-            # ---------------------------------------------
+            # # --- auto gamma update from match distances ---
+            # if AUTO_GAMMA and np.isfinite(d_best):
+            #     match_d_hist.append(float(d_best))
+            #     if len(match_d_hist) >= int(AUTO_GAMMA_MIN_MATCHES):
+            #         q = float(np.quantile(np.asarray(match_d_hist, dtype=float),
+            #                             float(AUTO_GAMMA_Q)))
+            #         gamma_live = max(gamma_live, float(AUTO_GAMMA_MULT) * q)
+            # # ---------------------------------------------
 
         # update cluster stats (in chosen space)
         tau.update_stats_welford(x)
-        tau.merge_segment(t_s=t_s, t_e=t_e, mac=m_k, keys_in_seg=K_s)
+        tau.merge_segment(
+            t_s=t_s,
+            t_e=t_e,
+            mac=m_k,
+            keys_in_seg=K_s,
+            tag_type=mac_to_tag.get(m_k)
+        )
 
         # record per-segment assignment for plotting (raw CFO Hz segment means)
         rec = {
@@ -685,6 +711,78 @@ def _resolve_plot_cfo_cols(seg_df: pd.DataFrame, cfo_cols: List[str]) -> List[st
     if not chosen_actual:
         chosen_actual = cfo_cols[:5]
     return [f"seg_{c}" for c in chosen_actual]
+
+def extract_tag_type(payload_hex: str) -> Optional[str]:
+    """
+    Classifies BLE tag ecosystem by parsing AD structures.
+
+    Returns one of:
+      - "APPLE_FINDMY"
+      - "EDDYSTONE"
+      - "TILE"
+      - "SAMSUNG_SMARTTAG"
+      - "CHIPLO"
+      - None (not a known tag)
+    """
+    if not isinstance(payload_hex, str):
+        return None
+
+    s = payload_hex.strip().lower()
+    if s.startswith("0x"):
+        s = s[2:]
+    s = "".join(ch for ch in s if ch in "0123456789abcdef")
+    if len(s) < 2:
+        return None
+
+    try:
+        b = bytes.fromhex(s)
+    except ValueError:
+        return None
+
+    def parse_ad_structures(ad: bytes) -> Optional[str]:
+        pos = 0
+        n = len(ad)
+        while pos + 1 <= n:
+            length = ad[pos]
+            if length == 0:
+                break
+            end = pos + 1 + length
+            if end > n:
+                break
+
+            ad_type = ad[pos + 1]
+            data = ad[pos + 2:end]
+
+            # Apple Find My
+            if ad_type == 0xFF and len(data) >= 4:
+                company_id = data[0] | (data[1] << 8)
+                if company_id == 0x004C:
+                    if data[2] == 0x12 and data[3] == 0x19:
+                        return "APPLE_FINDMY"
+
+            # Service Data (16-bit UUID)
+            if ad_type == 0x16 and len(data) >= 2:
+                svc_uuid = data[0] | (data[1] << 8)
+                if svc_uuid == 0xFEAA:
+                    return "GOOGLE"
+                if svc_uuid == 0xFEED:
+                    return "TILE"
+                if svc_uuid == 0xFD5A:
+                    return "SAMSUNG_SMARTTAG"
+                if svc_uuid == 0xFD59:
+                    return "SAMSUNG_SMARTTAG"
+
+            pos = end
+        return None
+
+    # Try both [AdvA(6) + AD] and [AD only] — SAME AS YOUR WORKING LOGIC
+    if len(b) >= 8:
+        t = parse_ad_structures(b[6:])
+        if t:
+            return t
+        return parse_ad_structures(b)
+    else:
+        return parse_ad_structures(b)
 
 def plot_cluster_cfo_boxplot(seg_df: pd.DataFrame, cfo_cols: List[str], out_pdf: str, out_png: str) -> None:
     if seg_df is None or seg_df.empty:
@@ -854,6 +952,46 @@ def plot_cluster_mac_counts(tracklets: List[Tracklet], out_pdf: str, out_png: st
     plt.close(fig)
     print(f"[✓] saved MAC-count bar: {out_pdf} and {out_png}")
 
+def compute_clustering_accuracy(seg_df: pd.DataFrame) -> None:
+    """
+    Computes unsupervised clustering accuracy using MAC purity.
+
+    Accuracy per cluster:
+      max_m count(cluster_id, mac=m) / total segments in cluster
+
+    Also reports global weighted accuracy.
+    """
+    if seg_df is None or seg_df.empty:
+        print("[accuracy] No segments; cannot compute accuracy.")
+        return
+
+    total_segments = len(seg_df)
+    weighted_correct = 0
+
+    print("\n" + "=" * 80)
+    print("[accuracy] Cluster purity (MAC-based)")
+    print("=" * 80)
+
+    for cid, g in seg_df.groupby("cluster_id"):
+        counts = g["mac"].value_counts()
+        dominant_mac = counts.idxmax()
+        correct = counts.max()
+        total = counts.sum()
+
+        acc = correct / total
+        weighted_correct += correct
+
+        print(
+            f"cluster {cid:>3} | segments={total:<4} "
+            f"dominant_mac={dominant_mac} "
+            f"acc={acc*100:5.1f}%"
+        )
+
+    global_acc = weighted_correct / total_segments
+    print("-" * 80)
+    print(f"GLOBAL weighted accuracy: {global_acc*100:.2f}%")
+    print("=" * 80 + "\n")
+
 def print_cluster_stats(tracklets: List[Tracklet], max_macs: int = 20, max_keys: int = 20) -> None:
     """
     Prints:
@@ -891,7 +1029,7 @@ def print_cluster_stats(tracklets: List[Tracklet], max_macs: int = 20, max_keys:
         mu_str = ", ".join([f"{v:+.3f}" for v in info["mu"]])
 
         print(f"\n--- Cluster id={info['id']} ---")
-        print(f"  score      : {info['score']}  (T>={T_MIN}s, N>={N_MIN}, |K|>={K_MIN}, tr<={ETA_TRACE_MAX})")
+        print(f"  score      : {info['score']}")
         print(f"  n_segments : {info['n_segments']}")
         print(f"  duration   : {info['duration']:.2f}s" if info["duration"] is not None else "  duration   : None")
         print(f"  cov_trace  : {info['cov_trace']:.3f}")
@@ -899,7 +1037,14 @@ def print_cluster_stats(tracklets: List[Tracklet], max_macs: int = 20, max_keys:
         print(f"  |MACs|     : {len(macs)}")
         print(f"  |Keys|     : {len(keys)}")
 
-        print(f"  MACs       : {', '.join(macs_show) if macs_show else '(none)'}{macs_more}")
+        def _fmt_mac(m):
+            return f"{m} [{next((k[4:] for k in keys if k.startswith('tag:')), 'UNK')}]"
+
+        print(
+            "  MACs       : " +
+            (", ".join(_fmt_mac(m) for m in macs_show) if macs_show else "(none)") +
+            macs_more
+        )
         print(f"  Keys       : {', '.join(keys_show) if keys_show else '(none)'}{keys_more}")
 
 # --------------------------- CLI / reporting ---------------------------
@@ -935,7 +1080,6 @@ def main() -> None:
     print(f"[i] CFO cols   : {cfo_cols}")
     print(f"[i] USE_ZSPACE : {USE_ZSPACE}")
     print(f"[i] WARMUP_SEGS: {WARMUP_SEGS if USE_ZSPACE else '(n/a)'}")
-    print(f"[i] AUTO_GAMMA : {AUTO_GAMMA} (q={AUTO_GAMMA_Q}, min_matches={AUTO_GAMMA_MIN_MATCHES}, mult={AUTO_GAMMA_MULT})")
     print(f"[i] THETA      : {THETA}  (T_MIN={T_MIN}, N_MIN={N_MIN}, K_MIN={K_MIN})")
 
     if REQUIRE_LOSTMODE_PREFIX and not payload_col:
@@ -963,6 +1107,7 @@ def main() -> None:
     )
 
     print_cluster_stats(clusters, max_macs=30, max_keys=30)
+    compute_clustering_accuracy(seg_df)
 
     # Save outputs
     write_jsonl(OUT_TRACKLETS_JSONL, clusters)

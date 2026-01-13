@@ -1,0 +1,1491 @@
+================================================================================
+AirCatch — Streaming BLE tracker detection via online CFO clustering (Option B)
+================================================================================
+[i] time_col   : timestamp
+[i] mac_col    : AdvA
+[i] payload_col: payload
+[i] CFO cols   : ['CFO_Hz']
+[i] USE_ZSPACE : True
+[i] WARMUP_SEGS: 10
+[i] AUTO_GAMMA : True (q=0.995, min_matches=40, mult=1.1)
+[i] THETA      : 4  (T_MIN=30.0, N_MIN=1, K_MIN=1)
+------------------------------------------------------------------------------------------
+[SEG    1] mac=CE:AA:AB:D2:FC:09  seg_dur=23.921s  |K_s|=28  clusters_now=1  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=1  d_best=inf
+          (no existing clusters yet)
+------------------------------------------------------------------------------------------
+[SEG    2] mac=D0:6D:78:47:39:4F  seg_dur=26.103s  |K_s|=28  clusters_now=2  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=2  d_best=5.439
+          top1 nearest: (id=1, d=5.44)
+------------------------------------------------------------------------------------------
+[SEG    3] mac=F6:FE:7E:BD:D0:B3  seg_dur=25.535s  |K_s|=31  clusters_now=3  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=3  d_best=1.241
+          top2 nearest: (id=2, d=1.24), (id=1, d=1.48)
+------------------------------------------------------------------------------------------
+[SEG    4] mac=57:A4:BC:C5:0D:C9  seg_dur=25.570s  |K_s|=27  clusters_now=3  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.262
+          top3 nearest: (id=2, d=0.26), (id=3, d=2.65), (id=1, d=8.09)
+------------------------------------------------------------------------------------------
+[SEG    5] mac=43:AE:D7:2A:47:DF  seg_dur=26.042s  |K_s|=19  clusters_now=3  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=3  d_best=0.027
+          top3 nearest: (id=3, d=0.03), (id=1, d=1.11), (id=2, d=17.91)
+------------------------------------------------------------------------------------------
+[SEG    6] mac=E9:5A:FB:9E:46:7C  seg_dur=26.980s  |K_s|=25  clusters_now=3  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=1  d_best=0.254
+          top3 nearest: (id=1, d=0.25), (id=2, d=72.88), (id=3, d=203.04)
+------------------------------------------------------------------------------------------
+[SEG    7] mac=52:5C:3A:99:8C:AB  seg_dur=27.901s  |K_s|=28  clusters_now=4  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=4  d_best=3.172
+          top3 nearest: (id=2, d=3.17), (id=1, d=37.92), (id=3, d=49.07)
+------------------------------------------------------------------------------------------
+[SEG    8] mac=D9:B1:51:3A:9C:30  seg_dur=28.777s  |K_s|=23  clusters_now=4  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.007
+          top4 nearest: (id=4, d=0.01), (id=2, d=2.38), (id=1, d=40.97), (id=3, d=60.15)
+------------------------------------------------------------------------------------------
+[SEG    9] mac=F4:0A:68:DD:7E:C0  seg_dur=28.539s  |K_s|=31  clusters_now=5  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=5  d_best=1.513
+          top4 nearest: (id=3, d=1.51), (id=1, d=12.24), (id=2, d=19.35), (id=4, d=262.94)
+------------------------------------------------------------------------------------------
+[SEG   10] mac=F6:72:62:ED:92:3D  seg_dur=30.060s  |K_s|=27  clusters_now=5  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.000
+          top5 nearest: (id=2, d=0.00), (id=5, d=2.54), (id=1, d=63.53), (id=4, d=97.23), (id=3, d=159.17)
+------------------------------------------------------------------------------------------
+[SEG   11] mac=4A:01:B9:78:EA:1D  seg_dur=33.233s  |K_s|=26  clusters_now=5  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.205
+          top5 nearest: (id=4, d=0.21), (id=5, d=0.93), (id=2, d=6.05), (id=1, d=38.46), (id=3, d=50.98)
+------------------------------------------------------------------------------------------
+[SEG   12] mac=7F:CC:BF:4B:DA:DE  seg_dur=30.288s  |K_s|=18  clusters_now=5  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.150
+          top5 nearest: (id=2, d=0.15), (id=5, d=2.23), (id=1, d=59.15), (id=4, d=123.51), (id=3, d=138.06)
+------------------------------------------------------------------------------------------
+[SEG   13] mac=DC:D6:44:C7:D7:A6  seg_dur=19.694s  |K_s|=30  clusters_now=6  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=6  d_best=0.603
+          top5 nearest: (id=5, d=0.60), (id=2, d=13.60), (id=4, d=19.95), (id=3, d=30.38), (id=1, d=32.22)
+------------------------------------------------------------------------------------------
+[SEG   14] mac=D5:30:D6:9E:D7:F2  seg_dur=42.028s  |K_s|=34  clusters_now=6  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=5  d_best=0.032
+          top5 nearest: (id=5, d=0.03), (id=3, d=0.11), (id=6, d=0.36), (id=1, d=16.02), (id=2, d=41.76)
+------------------------------------------------------------------------------------------
+[SEG   15] mac=43:CF:E8:02:99:A5  seg_dur=21.636s  |K_s|=22  clusters_now=6  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=6  d_best=0.023
+          top5 nearest: (id=6, d=0.02), (id=4, d=1.32), (id=2, d=8.86), (id=1, d=37.27), (id=5, d=43.53)
+[scaler] n=25 mean=[1538.657] std=[21206.131] 
+------------------------------------------------------------------------------------------
+[SEG   16] mac=C5:68:6B:99:6A:C5  seg_dur=21.791s  |K_s|=26  clusters_now=7  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=7  d_best=1.528
+          top5 nearest: (id=2, d=1.53), (id=6, d=17.36), (id=4, d=48.48), (id=1, d=51.18), (id=5, d=90.96)
+------------------------------------------------------------------------------------------
+[SEG   17] mac=FF:E8:62:AC:0E:D2  seg_dur=44.449s  |K_s|=24  clusters_now=7  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=7  d_best=0.070
+          top5 nearest: (id=7, d=0.07), (id=4, d=1.46), (id=6, d=2.93), (id=2, d=6.11), (id=1, d=41.08)
+------------------------------------------------------------------------------------------
+[SEG   18] mac=EA:32:7A:C5:8D:BF  seg_dur=45.615s  |K_s|=28  clusters_now=7  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=5  d_best=0.002
+          top5 nearest: (id=5, d=0.00), (id=3, d=0.16), (id=1, d=14.19), (id=7, d=32.80), (id=2, d=46.97)
+------------------------------------------------------------------------------------------
+[SEG   19] mac=44:27:8B:7A:64:72  seg_dur=21.262s  |K_s|=25  clusters_now=7  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.104
+          top5 nearest: (id=2, d=0.10), (id=7, d=3.08), (id=6, d=35.80), (id=1, d=59.37), (id=4, d=125.98)
+------------------------------------------------------------------------------------------
+[SEG   20] mac=CB:F7:96:33:13:13  seg_dur=22.747s  |K_s|=29  clusters_now=7  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.369
+          top5 nearest: (id=2, d=0.37), (id=7, d=7.08), (id=6, d=57.11), (id=1, d=66.95), (id=3, d=176.13)
+------------------------------------------------------------------------------------------
+[SEG   21] mac=C6:70:C1:4D:DA:68  seg_dur=24.496s  |K_s|=20  clusters_now=8  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=8  d_best=7.052
+          top5 nearest: (id=3, d=7.05), (id=6, d=14.06), (id=7, d=14.85), (id=5, d=15.60), (id=1, d=22.59)
+------------------------------------------------------------------------------------------
+[SEG   22] mac=D0:6D:78:47:39:4F  seg_dur=20.861s  |K_s|=23  clusters_now=9  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=9  d_best=1.911
+          top5 nearest: (id=8, d=1.91), (id=2, d=2.13), (id=7, d=12.35), (id=1, d=74.50), (id=6, d=81.68)
+------------------------------------------------------------------------------------------
+[SEG   23] mac=57:A4:BC:C5:0D:C9  seg_dur=20.856s  |K_s|=20  clusters_now=9  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=9  d_best=0.236
+          top5 nearest: (id=9, d=0.24), (id=8, d=3.49), (id=2, d=17.94), (id=7, d=37.28), (id=1, d=99.91)
+------------------------------------------------------------------------------------------
+[SEG   24] mac=CE:AA:AB:D2:FC:09  seg_dur=23.607s  |K_s|=20  clusters_now=10  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=10  d_best=0.623
+          top5 nearest: (id=8, d=0.62), (id=1, d=6.45), (id=3, d=17.64), (id=5, d=23.23), (id=9, d=49.33)
+------------------------------------------------------------------------------------------
+[SEG   25] mac=7D:C9:C0:BD:85:B3  seg_dur=23.628s  |K_s|=23  clusters_now=11  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=11  d_best=14.261
+          top5 nearest: (id=8, d=14.26), (id=10, d=20.85), (id=9, d=39.12), (id=2, d=228.82), (id=1, d=235.54)
+------------------------------------------------------------------------------------------
+[SEG   26] mac=5C:8E:8B:92:DE:F8  seg_dur=19.001s  |K_s|=21  clusters_now=11  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=8  d_best=0.027
+          top5 nearest: (id=8, d=0.03), (id=10, d=0.39), (id=3, d=1.50), (id=5, d=4.49), (id=11, d=15.53)
+------------------------------------------------------------------------------------------
+[SEG   27] mac=56:7F:DB:9B:89:B3  seg_dur=18.991s  |K_s|=18  clusters_now=12  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=12  d_best=0.520
+          top5 nearest: (id=7, d=0.52), (id=2, d=2.35), (id=10, d=2.72), (id=9, d=4.98), (id=11, d=8.51)
+------------------------------------------------------------------------------------------
+[SEG   28] mac=7C:24:AF:57:9B:5D  seg_dur=27.737s  |K_s|=28  clusters_now=12  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=9  d_best=0.483
+          top5 nearest: (id=9, d=0.48), (id=12, d=1.01), (id=11, d=3.65), (id=10, d=7.04), (id=2, d=17.75)
+------------------------------------------------------------------------------------------
+[SEG   29] mac=F0:E3:99:3D:ED:D2  seg_dur=51.313s  |K_s|=26  clusters_now=12  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=12  d_best=0.204
+          top5 nearest: (id=12, d=0.20), (id=2, d=1.09), (id=9, d=2.00), (id=10, d=4.41), (id=11, d=6.08)
+------------------------------------------------------------------------------------------
+[SEG   30] mac=F6:FE:7E:BD:D0:B3  seg_dur=26.005s  |K_s|=27  clusters_now=13  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=13  d_best=0.682
+          top5 nearest: (id=10, d=0.68), (id=8, d=1.04), (id=3, d=8.83), (id=12, d=10.78), (id=6, d=11.65)
+------------------------------------------------------------------------------------------
+[SEG   31] mac=52:5C:3A:99:8C:AB  seg_dur=25.302s  |K_s|=25  clusters_now=13  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.274
+          top5 nearest: (id=13, d=0.27), (id=4, d=0.30), (id=7, d=0.76), (id=10, d=1.82), (id=6, d=2.05)
+------------------------------------------------------------------------------------------
+[SEG   32] mac=E9:5A:FB:9E:46:7C  seg_dur=29.077s  |K_s|=24  clusters_now=13  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=1  d_best=0.296
+          top5 nearest: (id=1, d=0.30), (id=10, d=0.51), (id=13, d=23.60), (id=11, d=27.84), (id=12, d=65.61)
+------------------------------------------------------------------------------------------
+[SEG   33] mac=D9:B1:51:3A:9C:30  seg_dur=27.629s  |K_s|=28  clusters_now=13  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.210
+          top5 nearest: (id=13, d=0.21), (id=6, d=0.33), (id=10, d=1.58), (id=7, d=1.85), (id=4, d=2.12)
+------------------------------------------------------------------------------------------
+[SEG   34] mac=F4:0A:68:DD:7E:C0  seg_dur=27.309s  |K_s|=28  clusters_now=13  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=10  d_best=0.055
+          top5 nearest: (id=10, d=0.06), (id=3, d=4.66), (id=5, d=4.88), (id=13, d=10.58), (id=1, d=15.20)
+------------------------------------------------------------------------------------------
+[SEG   35] mac=DC:D6:44:C7:D7:A6  seg_dur=19.884s  |K_s|=26  clusters_now=13  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.011
+          top5 nearest: (id=13, d=0.01), (id=6, d=0.54), (id=7, d=4.49), (id=12, d=5.65), (id=11, d=11.91)
+------------------------------------------------------------------------------------------
+[SEG   36] mac=F6:72:62:ED:92:3D  seg_dur=31.408s  |K_s|=28  clusters_now=13  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=12  d_best=0.142
+          top5 nearest: (id=12, d=0.14), (id=2, d=0.20), (id=9, d=3.21), (id=7, d=6.57), (id=11, d=6.62)
+------------------------------------------------------------------------------------------
+[SEG   37] mac=7F:CC:BF:4B:DA:DE  seg_dur=29.095s  |K_s|=21  clusters_now=14  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=14  d_best=0.516
+          top5 nearest: (id=12, d=0.52), (id=2, d=0.91), (id=9, d=2.17), (id=11, d=6.16), (id=7, d=9.24)
+------------------------------------------------------------------------------------------
+[SEG   38] mac=7A:B4:F4:F8:AA:DD  seg_dur=31.462s  |K_s|=25  clusters_now=14  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=14  d_best=0.058
+          top5 nearest: (id=14, d=0.06), (id=12, d=0.09), (id=2, d=0.18), (id=7, d=3.08), (id=9, d=5.45)
+------------------------------------------------------------------------------------------
+[SEG   39] mac=69:8B:6F:B2:2D:F6  seg_dur=28.113s  |K_s|=25  clusters_now=14  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=10  d_best=0.177
+          top5 nearest: (id=10, d=0.18), (id=3, d=6.61), (id=5, d=7.49), (id=1, d=13.89), (id=13, d=17.23)
+------------------------------------------------------------------------------------------
+[SEG   40] mac=4A:01:B9:78:EA:1D  seg_dur=30.193s  |K_s|=28  clusters_now=14  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=7  d_best=0.051
+          top5 nearest: (id=7, d=0.05), (id=12, d=2.31), (id=13, d=3.35), (id=2, d=4.25), (id=14, d=5.72)
+[scaler] n=50 mean=[1376.999] std=[21283.561] 
+------------------------------------------------------------------------------------------
+[SEG   41] mac=43:CF:E8:02:99:A5  seg_dur=22.079s  |K_s|=30  clusters_now=14  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.013
+          top5 nearest: (id=4, d=0.01), (id=13, d=0.71), (id=6, d=1.55), (id=7, d=2.13), (id=12, d=6.12)
+------------------------------------------------------------------------------------------
+[SEG   42] mac=C5:68:6B:99:6A:C5  seg_dur=20.997s  |K_s|=23  clusters_now=15  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=15  d_best=0.891
+          top5 nearest: (id=12, d=0.89), (id=7, d=1.48), (id=2, d=1.66), (id=14, d=2.55), (id=13, d=5.87)
+------------------------------------------------------------------------------------------
+[SEG   43] mac=C6:70:C1:4D:DA:68  seg_dur=18.805s  |K_s|=32  clusters_now=16  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=16  d_best=0.751
+          top5 nearest: (id=8, d=0.75), (id=15, d=0.78), (id=13, d=2.07), (id=3, d=7.93), (id=6, d=12.80)
+------------------------------------------------------------------------------------------
+[SEG   44] mac=57:A4:BC:C5:0D:C9  seg_dur=18.463s  |K_s|=26  clusters_now=16  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=9  d_best=0.265
+          top5 nearest: (id=9, d=0.27), (id=15, d=0.90), (id=16, d=3.35), (id=11, d=3.71), (id=12, d=9.44)
+------------------------------------------------------------------------------------------
+[SEG   45] mac=44:27:8B:7A:64:72  seg_dur=20.513s  |K_s|=24  clusters_now=16  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=15  d_best=0.016
+          top5 nearest: (id=15, d=0.02), (id=12, d=0.16), (id=2, d=0.32), (id=14, d=0.72), (id=16, d=1.02)
+------------------------------------------------------------------------------------------
+[SEG   46] mac=5C:8E:8B:92:DE:F8  seg_dur=19.073s  |K_s|=20  clusters_now=16  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=16  d_best=0.043
+          top5 nearest: (id=16, d=0.04), (id=8, d=0.84), (id=3, d=1.03), (id=5, d=3.42), (id=13, d=5.50)
+------------------------------------------------------------------------------------------
+[SEG   47] mac=CE:AA:AB:D2:FC:09  seg_dur=21.353s  |K_s|=31  clusters_now=16  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=10  d_best=0.056
+          top5 nearest: (id=10, d=0.06), (id=3, d=10.44), (id=1, d=11.91), (id=5, d=12.82), (id=16, d=16.29)
+------------------------------------------------------------------------------------------
+[SEG   48] mac=CB:F7:96:33:13:13  seg_dur=22.772s  |K_s|=30  clusters_now=16  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=14  d_best=0.397
+          top5 nearest: (id=14, d=0.40), (id=12, d=0.44), (id=2, d=0.77), (id=9, d=3.71), (id=11, d=6.23)
+------------------------------------------------------------------------------------------
+[SEG   49] mac=D0:6D:78:47:39:4F  seg_dur=22.500s  |K_s|=25  clusters_now=16  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=14  d_best=0.329
+          top5 nearest: (id=14, d=0.33), (id=12, d=0.47), (id=2, d=0.83), (id=9, d=3.61), (id=11, d=6.20)
+------------------------------------------------------------------------------------------
+[SEG   50] mac=F6:FE:7E:BD:D0:B3  seg_dur=21.925s  |K_s|=26  clusters_now=17  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=17  d_best=1.287
+          top5 nearest: (id=13, d=1.29), (id=16, d=1.39), (id=8, d=2.14), (id=6, d=8.62), (id=3, d=11.69)
+------------------------------------------------------------------------------------------
+[SEG   51] mac=7D:C9:C0:BD:85:B3  seg_dur=26.214s  |K_s|=26  clusters_now=17  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=11  d_best=0.012
+          top5 nearest: (id=11, d=0.01), (id=17, d=12.82), (id=9, d=64.86), (id=12, d=116.27), (id=2, d=210.66)
+------------------------------------------------------------------------------------------
+[SEG   52] mac=42:69:81:1B:81:A1  seg_dur=20.795s  |K_s|=29  clusters_now=17  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=15  d_best=0.002
+          top5 nearest: (id=15, d=0.00), (id=12, d=0.48), (id=17, d=0.76), (id=2, d=0.90), (id=7, d=2.74)
+------------------------------------------------------------------------------------------
+[SEG   53] mac=EA:32:7A:C5:8D:BF  seg_dur=29.365s  |K_s|=26  clusters_now=17  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=3  d_best=0.000
+          top5 nearest: (id=3, d=0.00), (id=17, d=0.15), (id=5, d=0.32), (id=16, d=2.22), (id=8, d=3.63)
+------------------------------------------------------------------------------------------
+[SEG   54] mac=D2:99:4B:25:3A:8F  seg_dur=37.894s  |K_s|=30  clusters_now=18  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=18  d_best=1.234
+          top5 nearest: (id=17, d=1.23), (id=1, d=4.84), (id=10, d=12.82), (id=13, d=35.91), (id=16, d=40.79)
+------------------------------------------------------------------------------------------
+[SEG   55] mac=DC:D6:44:C7:D7:A6  seg_dur=19.187s  |K_s|=21  clusters_now=18  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=17  d_best=0.031
+          top5 nearest: (id=17, d=0.03), (id=13, d=0.13), (id=18, d=1.66), (id=6, d=1.69), (id=16, d=5.69)
+------------------------------------------------------------------------------------------
+[SEG   56] mac=7C:24:AF:57:9B:5D  seg_dur=29.519s  |K_s|=25  clusters_now=19  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=19  d_best=1.640
+          top5 nearest: (id=9, d=1.64), (id=18, d=9.43), (id=12, d=15.32), (id=2, d=27.65), (id=14, d=48.84)
+------------------------------------------------------------------------------------------
+[SEG   57] mac=D5:30:D6:9E:D7:F2  seg_dur=36.609s  |K_s|=29  clusters_now=19  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.334
+          top5 nearest: (id=18, d=0.33), (id=5, d=0.99), (id=3, d=2.96), (id=10, d=4.22), (id=16, d=6.01)
+------------------------------------------------------------------------------------------
+[SEG   58] mac=D9:B1:51:3A:9C:30  seg_dur=23.817s  |K_s|=21  clusters_now=19  gamma=0.500  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.352
+          top5 nearest: (id=13, d=0.35), (id=6, d=0.52), (id=4, d=1.98), (id=19, d=2.45), (id=7, d=3.55)
+------------------------------------------------------------------------------------------
+[SEG   59] mac=52:5C:3A:99:8C:AB  seg_dur=27.491s  |K_s|=23  clusters_now=20  gamma=0.500  space=z
+          decision=SPAWN -> cluster_id=20  d_best=0.573
+          top5 nearest: (id=7, d=0.57), (id=13, d=1.58), (id=19, d=2.00), (id=12, d=4.29), (id=6, d=4.52)
+------------------------------------------------------------------------------------------
+[SEG   60] mac=E9:5A:FB:9E:46:7C  seg_dur=26.093s  |K_s|=23  clusters_now=20  gamma=0.518  space=z
+          decision=MATCH -> cluster_id=1  d_best=0.422
+          top5 nearest: (id=1, d=0.42), (id=18, d=3.08), (id=20, d=4.35), (id=19, d=12.24), (id=10, d=60.10)
+------------------------------------------------------------------------------------------
+[SEG   61] mac=FF:E8:62:AC:0E:D2  seg_dur=38.341s  |K_s|=27  clusters_now=20  gamma=0.518  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.003
+          top5 nearest: (id=4, d=0.00), (id=20, d=0.01), (id=13, d=0.59), (id=6, d=1.42), (id=7, d=2.26)
+------------------------------------------------------------------------------------------
+[SEG   62] mac=F4:0A:68:DD:7E:C0  seg_dur=27.580s  |K_s|=28  clusters_now=20  gamma=0.518  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.282
+          top5 nearest: (id=18, d=0.28), (id=20, d=1.33), (id=10, d=1.83), (id=5, d=3.22), (id=19, d=6.58)
+------------------------------------------------------------------------------------------
+[SEG   63] mac=43:CF:E8:02:99:A5  seg_dur=20.782s  |K_s|=22  clusters_now=20  gamma=0.518  space=z
+          decision=MATCH -> cluster_id=20  d_best=0.002
+          top5 nearest: (id=20, d=0.00), (id=13, d=1.09), (id=7, d=1.19), (id=19, d=2.12), (id=4, d=2.79)
+------------------------------------------------------------------------------------------
+[SEG   64] mac=C5:68:6B:99:6A:C5  seg_dur=20.940s  |K_s|=29  clusters_now=21  gamma=0.518  space=z
+          decision=SPAWN -> cluster_id=21  d_best=0.924
+          top5 nearest: (id=12, d=0.92), (id=15, d=1.08), (id=19, d=1.32), (id=7, d=1.40), (id=2, d=1.72)
+------------------------------------------------------------------------------------------
+[SEG   65] mac=44:27:8B:7A:64:72  seg_dur=20.052s  |K_s|=27  clusters_now=21  gamma=0.518  space=z
+          decision=MATCH -> cluster_id=21  d_best=0.029
+          top5 nearest: (id=21, d=0.03), (id=12, d=0.06), (id=2, d=0.12), (id=19, d=0.96), (id=14, d=1.92)
+[scaler] n=75 mean=[219.895] std=[21591.269] 
+------------------------------------------------------------------------------------------
+[SEG   66] mac=C2:97:CC:47:79:BF  seg_dur=88.144s  |K_s|=2  clusters_now=21  gamma=0.518  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.002
+          top5 nearest: (id=4, d=0.00), (id=13, d=0.62), (id=6, d=1.49), (id=7, d=2.20), (id=19, d=2.28)
+------------------------------------------------------------------------------------------
+[SEG   67] mac=69:8B:6F:B2:2D:F6  seg_dur=23.764s  |K_s|=23  clusters_now=21  gamma=0.518  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.312
+          top5 nearest: (id=18, d=0.31), (id=5, d=2.10), (id=10, d=2.74), (id=3, d=4.93), (id=19, d=6.42)
+------------------------------------------------------------------------------------------
+[SEG   68] mac=C6:70:C1:4D:DA:68  seg_dur=22.079s  |K_s|=27  clusters_now=22  gamma=0.518  space=z
+          decision=SPAWN -> cluster_id=22  d_best=0.843
+          top5 nearest: (id=17, d=0.84), (id=16, d=1.00), (id=8, d=1.53), (id=13, d=2.28), (id=19, d=3.95)
+------------------------------------------------------------------------------------------
+[SEG   69] mac=F6:72:62:ED:92:3D  seg_dur=27.817s  |K_s|=25  clusters_now=22  gamma=0.518  space=z
+          decision=MATCH -> cluster_id=14  d_best=0.325
+          top5 nearest: (id=14, d=0.32), (id=12, d=0.53), (id=19, d=0.57), (id=2, d=0.92), (id=22, d=1.52)
+------------------------------------------------------------------------------------------
+[SEG   70] mac=D0:6D:78:47:39:4F  seg_dur=20.018s  |K_s|=22  clusters_now=22  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.481
+          top5 nearest: (id=19, d=0.48), (id=12, d=0.95), (id=14, d=1.12), (id=22, d=1.67), (id=2, d=1.68)
+------------------------------------------------------------------------------------------
+[SEG   71] mac=74:E3:6C:AF:C8:28  seg_dur=18.870s  |K_s|=27  clusters_now=22  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=22  d_best=0.272
+          top5 nearest: (id=22, d=0.27), (id=20, d=0.86), (id=13, d=1.02), (id=7, d=1.30), (id=4, d=2.61)
+------------------------------------------------------------------------------------------
+[SEG   72] mac=7A:B4:F4:F8:AA:DD  seg_dur=26.262s  |K_s|=23  clusters_now=22  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=12  d_best=0.055
+          top5 nearest: (id=12, d=0.05), (id=2, d=0.09), (id=14, d=0.35), (id=19, d=1.13), (id=21, d=2.74)
+------------------------------------------------------------------------------------------
+[SEG   73] mac=CB:F7:96:33:13:13  seg_dur=21.647s  |K_s|=30  clusters_now=22  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=14  d_best=0.002
+          top5 nearest: (id=14, d=0.00), (id=12, d=0.26), (id=2, d=0.39), (id=19, d=0.90), (id=9, d=4.45)
+------------------------------------------------------------------------------------------
+[SEG   74] mac=4A:01:B9:78:EA:1D  seg_dur=26.236s  |K_s|=27  clusters_now=22  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.006
+          top5 nearest: (id=19, d=0.01), (id=9, d=0.11), (id=12, d=7.28), (id=2, d=9.38), (id=22, d=13.21)
+------------------------------------------------------------------------------------------
+[SEG   75] mac=7F:CC:BF:4B:DA:DE  seg_dur=28.259s  |K_s|=26  clusters_now=23  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=23  d_best=0.952
+          top5 nearest: (id=19, d=0.95), (id=12, d=1.18), (id=14, d=1.31), (id=2, d=1.61), (id=9, d=2.68)
+------------------------------------------------------------------------------------------
+[SEG   76] mac=CE:AA:AB:D2:FC:09  seg_dur=23.007s  |K_s|=25  clusters_now=23  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.030
+          top5 nearest: (id=18, d=0.03), (id=10, d=0.69), (id=23, d=3.68), (id=5, d=5.70), (id=22, d=5.86)
+------------------------------------------------------------------------------------------
+[SEG   77] mac=NO_AdvA  seg_dur=92.421s  |K_s|=42  clusters_now=23  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=7  d_best=0.002
+          top5 nearest: (id=7, d=0.00), (id=23, d=0.38), (id=22, d=1.23), (id=13, d=2.97), (id=12, d=4.36)
+------------------------------------------------------------------------------------------
+[SEG   78] mac=42:69:81:1B:81:A1  seg_dur=18.153s  |K_s|=21  clusters_now=23  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=23  d_best=0.088
+          top5 nearest: (id=23, d=0.09), (id=2, d=0.18), (id=12, d=0.19), (id=21, d=0.35), (id=15, d=1.95)
+------------------------------------------------------------------------------------------
+[SEG   79] mac=DC:D9:17:9B:A7:45  seg_dur=94.157s  |K_s|=2  clusters_now=24  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=24  d_best=0.561
+          top5 nearest: (id=7, d=0.56), (id=22, d=1.81), (id=21, d=1.87), (id=12, d=2.69), (id=2, d=3.10)
+------------------------------------------------------------------------------------------
+[SEG   80] mac=F0:E3:99:3D:ED:D2  seg_dur=41.444s  |K_s|=22  clusters_now=24  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.377
+          top5 nearest: (id=19, d=0.38), (id=24, d=0.43), (id=9, d=1.24), (id=23, d=1.71), (id=12, d=2.99)
+------------------------------------------------------------------------------------------
+[SEG   81] mac=F6:FE:7E:BD:D0:B3  seg_dur=20.853s  |K_s|=27  clusters_now=24  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.115
+          top5 nearest: (id=24, d=0.11), (id=22, d=0.18), (id=13, d=0.26), (id=6, d=0.48), (id=4, d=3.68)
+------------------------------------------------------------------------------------------
+[SEG   82] mac=57:A4:BC:C5:0D:C9  seg_dur=28.638s  |K_s|=25  clusters_now=24  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=21  d_best=0.138
+          top5 nearest: (id=21, d=0.14), (id=15, d=0.17), (id=12, d=1.06), (id=2, d=1.17), (id=24, d=1.45)
+------------------------------------------------------------------------------------------
+[SEG   83] mac=DC:D6:44:C7:D7:A6  seg_dur=18.613s  |K_s|=24  clusters_now=24  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=22  d_best=0.008
+          top5 nearest: (id=22, d=0.01), (id=13, d=0.17), (id=17, d=0.82), (id=6, d=1.15), (id=24, d=2.26)
+------------------------------------------------------------------------------------------
+[SEG   84] mac=C2:97:A0:09:6A:11  seg_dur=98.157s  |K_s|=2  clusters_now=24  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=23  d_best=0.418
+          top5 nearest: (id=23, d=0.42), (id=19, d=0.97), (id=14, d=1.02), (id=12, d=1.04), (id=2, d=1.43)
+------------------------------------------------------------------------------------------
+[SEG   85] mac=52:5C:3A:99:8C:AB  seg_dur=24.857s  |K_s|=25  clusters_now=24  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.006
+          top5 nearest: (id=24, d=0.01), (id=20, d=0.30), (id=7, d=0.92), (id=22, d=1.48), (id=13, d=1.52)
+------------------------------------------------------------------------------------------
+[SEG   86] mac=43:CF:E8:02:99:A5  seg_dur=19.954s  |K_s|=23  clusters_now=24  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.026
+          top5 nearest: (id=4, d=0.03), (id=24, d=0.36), (id=13, d=0.64), (id=22, d=0.77), (id=6, d=1.57)
+------------------------------------------------------------------------------------------
+[SEG   87] mac=44:27:8B:7A:64:72  seg_dur=19.797s  |K_s|=27  clusters_now=25  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=25  d_best=1.031
+          top5 nearest: (id=9, d=1.03), (id=19, d=1.33), (id=12, d=18.90), (id=23, d=19.37), (id=2, d=23.97)
+------------------------------------------------------------------------------------------
+[SEG   88] mac=D9:B1:51:3A:9C:30  seg_dur=26.292s  |K_s|=22  clusters_now=25  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.001
+          top5 nearest: (id=4, d=0.00), (id=24, d=0.38), (id=13, d=0.62), (id=22, d=0.75), (id=6, d=1.50)
+------------------------------------------------------------------------------------------
+[SEG   89] mac=C5:68:6B:99:6A:C5  seg_dur=20.618s  |K_s|=22  clusters_now=25  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=21  d_best=0.421
+          top5 nearest: (id=21, d=0.42), (id=15, d=0.72), (id=25, d=1.16), (id=12, d=1.37), (id=2, d=1.54)
+------------------------------------------------------------------------------------------
+[SEG   90] mac=7D:C9:C0:BD:85:B3  seg_dur=33.323s  |K_s|=33  clusters_now=26  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=26  d_best=0.941
+          top5 nearest: (id=11, d=0.94), (id=25, d=2.77), (id=19, d=44.11), (id=9, d=63.52), (id=22, d=162.81)
+[scaler] n=100 mean=[1555.518] std=[20578.001] 
+------------------------------------------------------------------------------------------
+[SEG   91] mac=74:E3:6C:AF:C8:28  seg_dur=19.164s  |K_s|=18  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.003
+          top5 nearest: (id=4, d=0.00), (id=24, d=0.40), (id=13, d=0.60), (id=22, d=0.73), (id=6, d=1.45)
+------------------------------------------------------------------------------------------
+[SEG   92] mac=C6:70:C1:4D:DA:68  seg_dur=22.804s  |K_s|=28  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=16  d_best=0.060
+          top5 nearest: (id=16, d=0.06), (id=8, d=0.08), (id=22, d=1.90), (id=17, d=3.25), (id=25, d=4.14)
+------------------------------------------------------------------------------------------
+[SEG   93] mac=F4:0A:68:DD:7E:C0  seg_dur=25.820s  |K_s|=25  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=10  d_best=0.006
+          top5 nearest: (id=10, d=0.01), (id=18, d=0.06), (id=25, d=7.01), (id=5, d=11.73), (id=22, d=13.90)
+------------------------------------------------------------------------------------------
+[SEG   94] mac=D0:6D:78:47:39:4F  seg_dur=21.101s  |K_s|=25  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=23  d_best=0.279
+          top5 nearest: (id=23, d=0.28), (id=25, d=0.42), (id=14, d=0.98), (id=19, d=0.98), (id=12, d=1.02)
+------------------------------------------------------------------------------------------
+[SEG   95] mac=E9:5A:FB:9E:46:7C  seg_dur=29.076s  |K_s|=24  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=1  d_best=0.017
+          top5 nearest: (id=1, d=0.02), (id=25, d=12.97), (id=18, d=18.22), (id=26, d=27.73), (id=22, d=54.32)
+------------------------------------------------------------------------------------------
+[SEG   96] mac=7C:24:AF:57:9B:5D  seg_dur=33.490s  |K_s|=28  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=25  d_best=0.053
+          top5 nearest: (id=25, d=0.05), (id=26, d=2.06), (id=19, d=3.64), (id=9, d=3.89), (id=12, d=30.53)
+------------------------------------------------------------------------------------------
+[SEG   97] mac=CB:F7:96:33:13:13  seg_dur=22.767s  |K_s|=29  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=23  d_best=0.007
+          top5 nearest: (id=23, d=0.01), (id=14, d=0.03), (id=12, d=0.37), (id=2, d=0.55), (id=19, d=1.56)
+------------------------------------------------------------------------------------------
+[SEG   98] mac=69:8B:6F:B2:2D:F6  seg_dur=25.953s  |K_s|=20  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.000
+          top5 nearest: (id=18, d=0.00), (id=10, d=0.27), (id=5, d=8.09), (id=22, d=12.45), (id=3, d=14.15)
+------------------------------------------------------------------------------------------
+[SEG   99] mac=EA:32:7A:C5:8D:BF  seg_dur=38.674s  |K_s|=27  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=3  d_best=0.001
+          top5 nearest: (id=3, d=0.00), (id=5, d=0.28), (id=18, d=2.03), (id=8, d=3.76), (id=16, d=4.93)
+------------------------------------------------------------------------------------------
+[SEG  100] mac=CE:AA:AB:D2:FC:09  seg_dur=23.062s  |K_s|=19  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.010
+          top5 nearest: (id=18, d=0.01), (id=10, d=0.62), (id=5, d=6.63), (id=22, d=11.80), (id=3, d=17.89)
+------------------------------------------------------------------------------------------
+[SEG  101] mac=7A:B4:F4:F8:AA:DD  seg_dur=25.149s  |K_s|=23  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=12  d_best=0.001
+          top5 nearest: (id=12, d=0.00), (id=2, d=0.01), (id=23, d=0.96), (id=14, d=1.06), (id=19, d=2.63)
+------------------------------------------------------------------------------------------
+[SEG  102] mac=4A:01:B9:78:EA:1D  seg_dur=23.882s  |K_s|=22  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.001
+          top5 nearest: (id=19, d=0.00), (id=9, d=0.16), (id=26, d=4.01), (id=25, d=7.83), (id=2, d=8.77)
+------------------------------------------------------------------------------------------
+[SEG  103] mac=DC:D6:44:C7:D7:A6  seg_dur=18.636s  |K_s|=28  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=22  d_best=0.012
+          top5 nearest: (id=22, d=0.01), (id=13, d=0.20), (id=17, d=0.72), (id=6, d=1.28), (id=24, d=4.50)
+------------------------------------------------------------------------------------------
+[SEG  104] mac=42:69:81:1B:81:A1  seg_dur=22.495s  |K_s|=21  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.150
+          top5 nearest: (id=2, d=0.15), (id=12, d=0.23), (id=21, d=1.88), (id=15, d=2.25), (id=23, d=2.75)
+------------------------------------------------------------------------------------------
+[SEG  105] mac=F6:FE:7E:BD:D0:B3  seg_dur=21.754s  |K_s|=21  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.360
+          top5 nearest: (id=13, d=0.36), (id=24, d=0.72), (id=6, d=0.75), (id=22, d=0.83), (id=4, d=2.67)
+------------------------------------------------------------------------------------------
+[SEG  106] mac=F6:72:62:ED:92:3D  seg_dur=27.978s  |K_s|=19  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=14  d_best=0.013
+          top5 nearest: (id=14, d=0.01), (id=23, d=0.08), (id=12, d=0.29), (id=2, d=0.49), (id=19, d=2.40)
+------------------------------------------------------------------------------------------
+[SEG  107] mac=D5:30:D6:9E:D7:F2  seg_dur=36.836s  |K_s|=26  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.393
+          top5 nearest: (id=18, d=0.39), (id=5, d=2.06), (id=10, d=3.78), (id=3, d=7.23), (id=8, d=11.94)
+------------------------------------------------------------------------------------------
+[SEG  108] mac=FF:E8:62:AC:0E:D2  seg_dur=36.351s  |K_s|=20  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=4  d_best=0.067
+          top5 nearest: (id=4, d=0.07), (id=24, d=0.44), (id=13, d=0.50), (id=22, d=1.12), (id=6, d=1.34)
+------------------------------------------------------------------------------------------
+[SEG  109] mac=57:A4:BC:C5:0D:C9  seg_dur=25.958s  |K_s|=27  clusters_now=26  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=22  d_best=0.010
+          top5 nearest: (id=22, d=0.01), (id=13, d=0.34), (id=17, d=0.73), (id=6, d=1.28), (id=24, d=4.50)
+------------------------------------------------------------------------------------------
+[SEG  110] mac=C5:68:6B:99:6A:C5  seg_dur=20.882s  |K_s|=19  clusters_now=27  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=27  d_best=0.853
+          top5 nearest: (id=21, d=0.85), (id=15, d=1.68), (id=7, d=1.74), (id=24, d=1.97), (id=2, d=2.13)
+------------------------------------------------------------------------------------------
+[SEG  111] mac=44:27:8B:7A:64:72  seg_dur=22.037s  |K_s|=23  clusters_now=27  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=26  d_best=0.265
+          top5 nearest: (id=26, d=0.26), (id=27, d=5.08), (id=19, d=32.51), (id=9, d=33.89), (id=25, d=40.82)
+------------------------------------------------------------------------------------------
+[SEG  112] mac=52:5C:3A:99:8C:AB  seg_dur=24.538s  |K_s|=30  clusters_now=27  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=27  d_best=0.027
+          top5 nearest: (id=27, d=0.03), (id=7, d=0.03), (id=24, d=0.19), (id=13, d=2.81), (id=22, d=5.05)
+------------------------------------------------------------------------------------------
+[SEG  113] mac=74:E3:6C:AF:C8:28  seg_dur=21.745s  |K_s|=21  clusters_now=27  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.014
+          top5 nearest: (id=24, d=0.01), (id=20, d=0.10), (id=7, d=1.05), (id=13, d=1.40), (id=27, d=2.31)
+------------------------------------------------------------------------------------------
+[SEG  114] mac=C6:70:C1:4D:DA:68  seg_dur=20.656s  |K_s|=25  clusters_now=28  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=28  d_best=0.688
+          top5 nearest: (id=16, d=0.69), (id=8, d=0.69), (id=17, d=1.67), (id=22, d=2.36), (id=13, d=3.93)
+------------------------------------------------------------------------------------------
+[SEG  115] mac=7F:CC:BF:4B:DA:DE  seg_dur=41.911s  |K_s|=23  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=12  d_best=0.000
+          top5 nearest: (id=12, d=0.00), (id=2, d=0.02), (id=23, d=0.97), (id=14, d=1.25), (id=28, d=1.27)
+[scaler] n=120 mean=[564.449] std=[20445.417] (FROZEN)
+------------------------------------------------------------------------------------------
+[SEG  116] mac=F4:0A:68:DD:7E:C0  seg_dur=22.915s  |K_s|=23  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.079
+          top5 nearest: (id=18, d=0.08), (id=28, d=0.31), (id=10, d=1.78), (id=5, d=4.16), (id=3, d=12.28)
+------------------------------------------------------------------------------------------
+[SEG  117] mac=CB:F7:96:33:13:13  seg_dur=19.944s  |K_s|=19  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=23  d_best=0.024
+          top5 nearest: (id=23, d=0.02), (id=14, d=0.28), (id=12, d=0.93), (id=2, d=1.08), (id=28, d=1.61)
+------------------------------------------------------------------------------------------
+[SEG  118] mac=D9:B1:51:3A:9C:30  seg_dur=27.916s  |K_s|=26  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=28  d_best=0.297
+          top5 nearest: (id=28, d=0.30), (id=24, d=0.31), (id=13, d=0.74), (id=4, d=1.18), (id=22, d=1.96)
+------------------------------------------------------------------------------------------
+[SEG  119] mac=DC:D6:44:C7:D7:A6  seg_dur=20.601s  |K_s|=26  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=22  d_best=0.001
+          top5 nearest: (id=22, d=0.00), (id=28, d=0.00), (id=13, d=0.22), (id=6, d=0.87), (id=17, d=1.04)
+------------------------------------------------------------------------------------------
+[SEG  120] mac=69:8B:6F:B2:2D:F6  seg_dur=22.238s  |K_s|=30  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.016
+          top5 nearest: (id=18, d=0.02), (id=10, d=1.13), (id=28, d=4.86), (id=5, d=5.31), (id=3, d=14.93)
+------------------------------------------------------------------------------------------
+[SEG  121] mac=42:69:81:1B:81:A1  seg_dur=21.177s  |K_s|=20  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.282
+          top5 nearest: (id=2, d=0.28), (id=12, d=0.52), (id=21, d=1.03), (id=15, d=1.13), (id=28, d=3.72)
+------------------------------------------------------------------------------------------
+[SEG  122] mac=D0:6D:78:47:39:4F  seg_dur=26.432s  |K_s|=23  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=23  d_best=0.082
+          top5 nearest: (id=23, d=0.08), (id=14, d=0.51), (id=12, d=1.15), (id=2, d=1.62), (id=19, d=1.64)
+------------------------------------------------------------------------------------------
+[SEG  123] mac=E9:5A:FB:9E:46:7C  seg_dur=27.066s  |K_s|=33  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=1  d_best=0.000
+          top5 nearest: (id=1, d=0.00), (id=28, d=23.62), (id=18, d=37.93), (id=13, d=106.48), (id=10, d=109.40)
+------------------------------------------------------------------------------------------
+[SEG  124] mac=CE:AA:AB:D2:FC:09  seg_dur=23.264s  |K_s|=26  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=10  d_best=0.041
+          top5 nearest: (id=10, d=0.04), (id=18, d=0.32), (id=28, d=6.23), (id=5, d=12.62), (id=1, d=23.65)
+------------------------------------------------------------------------------------------
+[SEG  125] mac=7D:C9:C0:BD:85:B3  seg_dur=30.389s  |K_s|=28  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.000
+          top5 nearest: (id=24, d=0.00), (id=20, d=0.52), (id=28, d=0.82), (id=7, d=0.83), (id=13, d=1.56)
+------------------------------------------------------------------------------------------
+[SEG  126] mac=F6:FE:7E:BD:D0:B3  seg_dur=23.441s  |K_s|=27  clusters_now=28  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.001
+          top5 nearest: (id=13, d=0.00), (id=6, d=0.00), (id=28, d=0.09), (id=22, d=0.36), (id=17, d=3.22)
+------------------------------------------------------------------------------------------
+[SEG  127] mac=D2:99:4B:25:3A:8F  seg_dur=65.920s  |K_s|=31  clusters_now=29  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=29  d_best=5.819
+          top5 nearest: (id=1, d=5.82), (id=18, d=11.54), (id=28, d=13.64), (id=10, d=35.60), (id=22, d=74.95)
+------------------------------------------------------------------------------------------
+[SEG  128] mac=EA:32:7A:C5:8D:BF  seg_dur=29.807s  |K_s|=21  clusters_now=29  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=8  d_best=0.171
+          top5 nearest: (id=8, d=0.17), (id=16, d=0.29), (id=29, d=1.01), (id=28, d=1.17), (id=17, d=6.02)
+------------------------------------------------------------------------------------------
+[SEG  129] mac=57:A4:BC:C5:0D:C9  seg_dur=23.381s  |K_s|=31  clusters_now=29  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=28  d_best=0.010
+          top5 nearest: (id=28, d=0.01), (id=22, d=0.10), (id=17, d=0.33), (id=13, d=0.71), (id=29, d=1.92)
+------------------------------------------------------------------------------------------
+[SEG  130] mac=7C:24:AF:57:9B:5D  seg_dur=30.966s  |K_s|=22  clusters_now=30  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=30  d_best=1.783
+          top5 nearest: (id=25, d=1.78), (id=9, d=5.75), (id=19, d=6.67), (id=26, d=8.76), (id=29, d=11.92)
+------------------------------------------------------------------------------------------
+[SEG  131] mac=52:41:32:8B:83:1E  seg_dur=20.957s  |K_s|=22  clusters_now=30  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=17  d_best=0.028
+          top5 nearest: (id=17, d=0.03), (id=28, d=0.08), (id=22, d=0.39), (id=13, d=1.28), (id=29, d=1.78)
+------------------------------------------------------------------------------------------
+[SEG  132] mac=4A:01:B9:78:EA:1D  seg_dur=30.413s  |K_s|=28  clusters_now=31  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=31  d_best=0.874
+          top5 nearest: (id=30, d=0.87), (id=19, d=0.95), (id=23, d=1.08), (id=9, d=2.27), (id=12, d=2.55)
+------------------------------------------------------------------------------------------
+[SEG  133] mac=F0:E3:99:3D:ED:D2  seg_dur=53.350s  |K_s|=26  clusters_now=31  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=31  d_best=0.008
+          top5 nearest: (id=31, d=0.01), (id=19, d=0.39), (id=30, d=0.71), (id=9, d=1.26), (id=23, d=3.74)
+------------------------------------------------------------------------------------------
+[SEG  134] mac=C5:68:6B:99:6A:C5  seg_dur=19.775s  |K_s|=25  clusters_now=31  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=27  d_best=0.372
+          top5 nearest: (id=27, d=0.37), (id=21, d=1.14), (id=7, d=1.48), (id=30, d=2.09), (id=15, d=2.17)
+------------------------------------------------------------------------------------------
+[SEG  135] mac=44:27:8B:7A:64:72  seg_dur=19.797s  |K_s|=21  clusters_now=32  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=32  d_best=0.587
+          top5 nearest: (id=30, d=0.59), (id=26, d=0.73), (id=29, d=17.79), (id=19, d=30.24), (id=9, d=31.35)
+------------------------------------------------------------------------------------------
+[SEG  136] mac=F6:72:62:ED:92:3D  seg_dur=31.278s  |K_s|=21  clusters_now=32  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=14  d_best=0.045
+          top5 nearest: (id=14, d=0.05), (id=23, d=0.26), (id=12, d=0.29), (id=2, d=0.56), (id=30, d=1.20)
+------------------------------------------------------------------------------------------
+[SEG  137] mac=D5:30:D6:9E:D7:F2  seg_dur=33.667s  |K_s|=31  clusters_now=32  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.431
+          top5 nearest: (id=18, d=0.43), (id=29, d=0.44), (id=5, d=1.78), (id=10, d=5.36), (id=3, d=6.51)
+------------------------------------------------------------------------------------------
+[SEG  138] mac=74:E3:6C:AF:C8:28  seg_dur=20.773s  |K_s|=23  clusters_now=32  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.177
+          top5 nearest: (id=24, d=0.18), (id=20, d=0.68), (id=13, d=1.18), (id=28, d=1.30), (id=7, d=1.83)
+------------------------------------------------------------------------------------------
+[SEG  139] mac=C6:70:C1:4D:DA:68  seg_dur=22.234s  |K_s|=25  clusters_now=33  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=33  d_best=0.591
+          top5 nearest: (id=28, d=0.59), (id=29, d=1.44), (id=16, d=1.67), (id=17, d=1.79), (id=22, d=2.04)
+------------------------------------------------------------------------------------------
+[SEG  140] mac=CB:F7:96:33:13:13  seg_dur=20.020s  |K_s|=29  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.170
+          top5 nearest: (id=19, d=0.17), (id=30, d=0.62), (id=9, d=0.79), (id=33, d=2.15), (id=32, d=2.41)
+[scaler] n=120 mean=[564.449] std=[20445.417] (FROZEN)
+------------------------------------------------------------------------------------------
+[SEG  141] mac=DC:D6:44:C7:D7:A6  seg_dur=17.633s  |K_s|=22  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=28  d_best=0.001
+          top5 nearest: (id=28, d=0.00), (id=22, d=0.01), (id=33, d=0.05), (id=13, d=0.41), (id=17, d=1.26)
+------------------------------------------------------------------------------------------
+[SEG  142] mac=69:8B:6F:B2:2D:F6  seg_dur=20.081s  |K_s|=18  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.002
+          top5 nearest: (id=18, d=0.00), (id=29, d=0.33), (id=33, d=0.40), (id=10, d=1.40), (id=5, d=5.47)
+------------------------------------------------------------------------------------------
+[SEG  143] mac=D0:6D:78:47:39:4F  seg_dur=19.755s  |K_s|=26  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.305
+          top5 nearest: (id=19, d=0.30), (id=30, d=0.69), (id=31, d=0.87), (id=9, d=1.13), (id=33, d=2.03)
+------------------------------------------------------------------------------------------
+[SEG  144] mac=52:5C:3A:99:8C:AB  seg_dur=28.451s  |K_s|=25  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=21  d_best=0.002
+          top5 nearest: (id=21, d=0.00), (id=15, d=0.01), (id=33, d=0.80), (id=2, d=0.97), (id=12, d=1.49)
+------------------------------------------------------------------------------------------
+[SEG  145] mac=F4:0A:68:DD:7E:C0  seg_dur=25.855s  |K_s|=24  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.123
+          top5 nearest: (id=18, d=0.12), (id=10, d=0.19), (id=29, d=0.26), (id=33, d=0.47), (id=30, d=8.65)
+------------------------------------------------------------------------------------------
+[SEG  146] mac=D9:B1:51:3A:9C:30  seg_dur=26.169s  |K_s|=23  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.148
+          top5 nearest: (id=13, d=0.15), (id=33, d=0.16), (id=6, d=0.29), (id=28, d=0.70), (id=22, d=0.96)
+------------------------------------------------------------------------------------------
+[SEG  147] mac=CE:AA:AB:D2:FC:09  seg_dur=23.639s  |K_s|=34  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=29  d_best=0.081
+          top5 nearest: (id=29, d=0.08), (id=33, d=0.84), (id=18, d=3.61), (id=10, d=5.76), (id=30, d=10.03)
+------------------------------------------------------------------------------------------
+[SEG  148] mac=7D:C9:C0:BD:85:B3  seg_dur=23.725s  |K_s|=20  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.000
+          top5 nearest: (id=24, d=0.00), (id=33, d=0.32), (id=20, d=0.34), (id=7, d=0.90), (id=13, d=1.91)
+------------------------------------------------------------------------------------------
+[SEG  149] mac=FF:E8:62:AC:0E:D2  seg_dur=44.005s  |K_s|=21  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.247
+          top5 nearest: (id=33, d=0.25), (id=24, d=0.47), (id=13, d=0.90), (id=4, d=1.23), (id=28, d=1.61)
+------------------------------------------------------------------------------------------
+[SEG  150] mac=52:41:32:8B:83:1E  seg_dur=19.478s  |K_s|=24  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=17  d_best=0.080
+          top5 nearest: (id=17, d=0.08), (id=33, d=0.09), (id=28, d=0.09), (id=22, d=0.31), (id=13, d=1.42)
+------------------------------------------------------------------------------------------
+[SEG  151] mac=E9:5A:FB:9E:46:7C  seg_dur=28.014s  |K_s|=21  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=1  d_best=0.354
+          top5 nearest: (id=1, d=0.35), (id=29, d=12.38), (id=30, d=16.14), (id=32, d=22.89), (id=33, d=32.92)
+------------------------------------------------------------------------------------------
+[SEG  152] mac=F6:FE:7E:BD:D0:B3  seg_dur=28.514s  |K_s|=23  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.026
+          top5 nearest: (id=13, d=0.03), (id=6, d=0.06), (id=33, d=0.11), (id=28, d=0.48), (id=22, d=0.62)
+------------------------------------------------------------------------------------------
+[SEG  153] mac=C5:68:6B:99:6A:C5  seg_dur=21.161s  |K_s|=25  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=27  d_best=0.244
+          top5 nearest: (id=27, d=0.24), (id=7, d=1.43), (id=21, d=1.62), (id=30, d=2.10), (id=15, d=2.26)
+------------------------------------------------------------------------------------------
+[SEG  154] mac=44:27:8B:7A:64:72  seg_dur=20.887s  |K_s|=25  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=32  d_best=0.001
+          top5 nearest: (id=32, d=0.00), (id=26, d=0.61), (id=30, d=0.63), (id=9, d=32.55), (id=25, d=38.66)
+------------------------------------------------------------------------------------------
+[SEG  155] mac=7C:24:AF:57:9B:5D  seg_dur=26.175s  |K_s|=24  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=30  d_best=0.005
+          top5 nearest: (id=30, d=0.00), (id=25, d=3.06), (id=9, d=7.18), (id=26, d=7.70), (id=19, d=12.22)
+------------------------------------------------------------------------------------------
+[SEG  156] mac=57:A4:BC:C5:0D:C9  seg_dur=30.639s  |K_s|=31  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=28  d_best=0.010
+          top5 nearest: (id=28, d=0.01), (id=33, d=0.03), (id=22, d=0.08), (id=17, d=0.76), (id=13, d=0.99)
+------------------------------------------------------------------------------------------
+[SEG  157] mac=DC:D9:17:9B:A7:45  seg_dur=81.963s  |K_s|=2  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.227
+          top5 nearest: (id=24, d=0.23), (id=7, d=0.29), (id=33, d=1.08), (id=13, d=3.07), (id=27, d=4.04)
+------------------------------------------------------------------------------------------
+[SEG  158] mac=DC:D6:44:C7:D7:A6  seg_dur=21.369s  |K_s|=30  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.296
+          top5 nearest: (id=33, d=0.30), (id=28, d=0.61), (id=17, d=0.86), (id=22, d=1.17), (id=16, d=3.36)
+------------------------------------------------------------------------------------------
+[SEG  159] mac=C6:70:C1:4D:DA:68  seg_dur=22.324s  |K_s|=25  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=8  d_best=0.029
+          top5 nearest: (id=8, d=0.03), (id=16, d=0.14), (id=33, d=1.77), (id=28, d=3.95), (id=22, d=6.22)
+------------------------------------------------------------------------------------------
+[SEG  160] mac=51:ED:42:98:48:C1  seg_dur=20.749s  |K_s|=24  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=18  d_best=0.387
+          top5 nearest: (id=18, d=0.39), (id=5, d=2.11), (id=10, d=4.76), (id=29, d=6.37), (id=33, d=7.31)
+------------------------------------------------------------------------------------------
+[SEG  161] mac=CB:F7:96:33:13:13  seg_dur=22.584s  |K_s|=26  clusters_now=33  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=9  d_best=0.227
+          top5 nearest: (id=9, d=0.23), (id=19, d=1.30), (id=25, d=2.26), (id=26, d=17.85), (id=12, d=22.52)
+------------------------------------------------------------------------------------------
+[SEG  162] mac=60:A3:1C:E9:99:F4  seg_dur=23.086s  |K_s|=25  clusters_now=34  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=34  d_best=0.619
+          top5 nearest: (id=33, d=0.62), (id=16, d=1.04), (id=28, d=1.50), (id=22, d=2.57), (id=8, d=3.67)
+------------------------------------------------------------------------------------------
+[SEG  163] mac=F6:72:62:ED:92:3D  seg_dur=30.563s  |K_s|=20  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=12  d_best=0.077
+          top5 nearest: (id=12, d=0.08), (id=2, d=0.24), (id=14, d=0.48), (id=23, d=0.80), (id=34, d=1.32)
+------------------------------------------------------------------------------------------
+[SEG  164] mac=4A:01:B9:78:EA:1D  seg_dur=33.506s  |K_s|=25  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.083
+          top5 nearest: (id=19, d=0.08), (id=9, d=0.22), (id=34, d=2.66), (id=25, d=7.18), (id=2, d=13.32)
+------------------------------------------------------------------------------------------
+[SEG  165] mac=D0:6D:78:47:39:4F  seg_dur=24.056s  |K_s|=22  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.001
+          top5 nearest: (id=19, d=0.00), (id=9, d=0.59), (id=34, d=2.45), (id=31, d=7.20), (id=25, d=9.45)
+[scaler] n=120 mean=[564.449] std=[20445.417] (FROZEN)
+------------------------------------------------------------------------------------------
+[SEG  166] mac=CE:AA:AB:D2:FC:09  seg_dur=22.978s  |K_s|=25  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=29  d_best=0.416
+          top5 nearest: (id=29, d=0.42), (id=34, d=1.34), (id=1, d=7.43), (id=18, d=15.36), (id=33, d=25.51)
+------------------------------------------------------------------------------------------
+[SEG  167] mac=73:F8:F0:FA:28:49  seg_dur=23.241s  |K_s|=28  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=34  d_best=0.000
+          top5 nearest: (id=34, d=0.00), (id=33, d=0.50), (id=28, d=1.25), (id=16, d=1.48), (id=22, d=2.18)
+------------------------------------------------------------------------------------------
+[SEG  168] mac=52:5C:3A:99:8C:AB  seg_dur=26.576s  |K_s|=31  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=15  d_best=0.135
+          top5 nearest: (id=15, d=0.14), (id=21, d=0.25), (id=2, d=0.61), (id=12, d=1.31), (id=27, d=3.83)
+------------------------------------------------------------------------------------------
+[SEG  169] mac=7A:74:59:67:94:F4  seg_dur=36.952s  |K_s|=25  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=9  d_best=0.015
+          top5 nearest: (id=9, d=0.02), (id=19, d=0.45), (id=25, d=4.97), (id=2, d=17.04), (id=12, d=18.26)
+------------------------------------------------------------------------------------------
+[SEG  170] mac=52:92:A9:3D:A7:4C  seg_dur=29.941s  |K_s|=23  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=15  d_best=0.024
+          top5 nearest: (id=15, d=0.02), (id=21, d=0.13), (id=2, d=0.71), (id=12, d=1.47), (id=27, d=3.38)
+------------------------------------------------------------------------------------------
+[SEG  171] mac=52:41:32:8B:83:1E  seg_dur=22.662s  |K_s|=31  clusters_now=34  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.013
+          top5 nearest: (id=33, d=0.01), (id=28, d=0.08), (id=17, d=0.14), (id=22, d=0.25), (id=13, d=1.52)
+------------------------------------------------------------------------------------------
+[SEG  172] mac=F4:0A:68:DD:7E:C0  seg_dur=29.405s  |K_s|=33  clusters_now=35  gamma=0.531  space=z
+          decision=SPAWN -> cluster_id=35  d_best=1.341
+          top5 nearest: (id=29, d=1.34), (id=18, d=3.96), (id=10, d=5.72), (id=1, d=18.22), (id=33, d=24.11)
+------------------------------------------------------------------------------------------
+[SEG  173] mac=D9:B1:51:3A:9C:30  seg_dur=27.618s  |K_s|=26  clusters_now=35  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.265
+          top5 nearest: (id=33, d=0.27), (id=28, d=0.57), (id=17, d=0.74), (id=35, d=0.96), (id=22, d=1.11)
+------------------------------------------------------------------------------------------
+[SEG  174] mac=7D:C9:C0:BD:85:B3  seg_dur=27.007s  |K_s|=30  clusters_now=35  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=7  d_best=0.112
+          top5 nearest: (id=7, d=0.11), (id=24, d=0.46), (id=35, d=2.40), (id=27, d=2.98), (id=13, d=3.59)
+------------------------------------------------------------------------------------------
+[SEG  175] mac=EA:32:7A:C5:8D:BF  seg_dur=45.229s  |K_s|=23  clusters_now=35  gamma=0.531  space=z
+          decision=MATCH -> cluster_id=35  d_best=0.426
+          top5 nearest: (id=35, d=0.43), (id=16, d=1.39), (id=8, d=1.81), (id=3, d=2.63), (id=5, d=3.05)
+------------------------------------------------------------------------------------------
+[SEG  176] mac=C5:68:6B:99:6A:C5  seg_dur=20.087s  |K_s|=23  clusters_now=35  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=27  d_best=0.490
+          top5 nearest: (id=27, d=0.49), (id=21, d=0.93), (id=2, d=2.03), (id=7, d=2.73), (id=15, d=3.17)
+------------------------------------------------------------------------------------------
+[SEG  177] mac=D5:30:D6:9E:D7:F2  seg_dur=39.108s  |K_s|=32  clusters_now=35  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=16  d_best=0.007
+          top5 nearest: (id=16, d=0.01), (id=8, d=0.28), (id=35, d=0.99), (id=33, d=2.01), (id=28, d=3.02)
+------------------------------------------------------------------------------------------
+[SEG  178] mac=F6:FE:7E:BD:D0:B3  seg_dur=22.734s  |K_s|=31  clusters_now=35  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.076
+          top5 nearest: (id=13, d=0.08), (id=6, d=0.17), (id=22, d=0.81), (id=28, d=0.84), (id=33, d=1.36)
+------------------------------------------------------------------------------------------
+[SEG  179] mac=NO_AdvA  seg_dur=99.125s  |K_s|=43  clusters_now=35  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.087
+          top5 nearest: (id=13, d=0.09), (id=6, d=0.21), (id=22, d=0.86), (id=28, d=0.89), (id=33, d=1.41)
+------------------------------------------------------------------------------------------
+[SEG  180] mac=C2:97:CC:47:79:BF  seg_dur=104.845s  |K_s|=1  clusters_now=35  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.220
+          top5 nearest: (id=24, d=0.22), (id=20, d=0.47), (id=13, d=1.60), (id=7, d=2.01), (id=28, d=2.71)
+------------------------------------------------------------------------------------------
+[SEG  181] mac=44:27:8B:7A:64:72  seg_dur=22.298s  |K_s|=32  clusters_now=35  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=32  d_best=0.460
+          top5 nearest: (id=32, d=0.46), (id=26, d=0.62), (id=25, d=38.62), (id=9, d=49.59), (id=19, d=59.07)
+------------------------------------------------------------------------------------------
+[SEG  182] mac=E9:5A:FB:9E:46:7C  seg_dur=29.040s  |K_s|=35  clusters_now=36  gamma=0.534  space=z
+          decision=SPAWN -> cluster_id=36  d_best=2.232
+          top5 nearest: (id=1, d=2.23), (id=35, d=8.50), (id=29, d=26.83), (id=18, d=84.66), (id=33, d=109.83)
+------------------------------------------------------------------------------------------
+[SEG  183] mac=DC:D6:44:C7:D7:A6  seg_dur=18.921s  |K_s|=25  clusters_now=36  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.007
+          top5 nearest: (id=33, d=0.01), (id=17, d=0.02), (id=28, d=0.14), (id=22, d=0.36), (id=13, d=2.40)
+------------------------------------------------------------------------------------------
+[SEG  184] mac=57:A4:BC:C5:0D:C9  seg_dur=21.909s  |K_s|=29  clusters_now=36  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.010
+          top5 nearest: (id=33, d=0.01), (id=28, d=0.04), (id=22, d=0.17), (id=17, d=0.34), (id=13, d=1.74)
+------------------------------------------------------------------------------------------
+[SEG  185] mac=FF:E8:62:AC:0E:D2  seg_dur=31.635s  |K_s|=24  clusters_now=36  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.469
+          top5 nearest: (id=13, d=0.47), (id=6, d=0.95), (id=4, d=1.35), (id=28, d=1.52), (id=22, d=1.60)
+------------------------------------------------------------------------------------------
+[SEG  186] mac=C6:70:C1:4D:DA:68  seg_dur=23.427s  |K_s|=27  clusters_now=36  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=8  d_best=0.131
+          top5 nearest: (id=8, d=0.13), (id=16, d=0.43), (id=35, d=0.74), (id=36, d=3.04), (id=28, d=4.26)
+------------------------------------------------------------------------------------------
+[SEG  187] mac=CB:F7:96:33:13:13  seg_dur=22.499s  |K_s|=25  clusters_now=36  gamma=0.534  space=z
+          decision=MATCH -> cluster_id=9  d_best=0.305
+          top5 nearest: (id=9, d=0.31), (id=19, d=1.75), (id=25, d=2.08), (id=36, d=13.96), (id=26, d=17.62)
+------------------------------------------------------------------------------------------
+[SEG  188] mac=74:4A:24:AF:44:A3  seg_dur=21.897s  |K_s|=28  clusters_now=37  gamma=0.534  space=z
+          decision=SPAWN -> cluster_id=37  d_best=0.863
+          top5 nearest: (id=34, d=0.86), (id=33, d=1.30), (id=16, d=1.40), (id=35, d=1.45), (id=28, d=1.54)
+------------------------------------------------------------------------------------------
+[SEG  189] mac=7C:24:AF:57:9B:5D  seg_dur=32.816s  |K_s|=21  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=30  d_best=0.517
+          top5 nearest: (id=30, d=0.52), (id=25, d=3.08), (id=37, d=5.53), (id=26, d=7.69), (id=9, d=11.55)
+------------------------------------------------------------------------------------------
+[SEG  190] mac=D0:6D:78:47:39:4F  seg_dur=23.115s  |K_s|=20  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.008
+          top5 nearest: (id=19, d=0.01), (id=9, d=0.70), (id=37, d=2.54), (id=25, d=8.55), (id=31, d=9.35)
+[scaler] n=120 mean=[564.449] std=[20445.417] (FROZEN)
+------------------------------------------------------------------------------------------
+[SEG  191] mac=C2:97:A0:09:6A:11  seg_dur=101.630s  |K_s|=2  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=35  d_best=0.013
+          top5 nearest: (id=35, d=0.01), (id=37, d=0.25), (id=18, d=0.48), (id=5, d=1.69), (id=36, d=1.96)
+------------------------------------------------------------------------------------------
+[SEG  192] mac=CE:AA:AB:D2:FC:09  seg_dur=20.618s  |K_s|=21  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=29  d_best=0.091
+          top5 nearest: (id=29, d=0.09), (id=36, d=0.62), (id=37, d=1.25), (id=35, d=3.11), (id=1, d=8.66)
+------------------------------------------------------------------------------------------
+[SEG  193] mac=F0:E3:99:3D:ED:D2  seg_dur=57.511s  |K_s|=28  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.011
+          top5 nearest: (id=19, d=0.01), (id=9, d=0.67), (id=37, d=2.55), (id=25, d=8.44), (id=31, d=9.66)
+------------------------------------------------------------------------------------------
+[SEG  194] mac=4A:01:B9:78:EA:1D  seg_dur=26.512s  |K_s|=24  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.092
+          top5 nearest: (id=19, d=0.09), (id=9, d=1.47), (id=37, d=2.33), (id=31, d=4.09), (id=23, d=7.64)
+------------------------------------------------------------------------------------------
+[SEG  195] mac=73:F8:F0:FA:28:49  seg_dur=22.294s  |K_s|=25  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=37  d_best=0.002
+          top5 nearest: (id=37, d=0.00), (id=33, d=0.75), (id=28, d=1.02), (id=22, d=1.83), (id=17, d=2.36)
+------------------------------------------------------------------------------------------
+[SEG  196] mac=F6:72:62:ED:92:3D  seg_dur=28.345s  |K_s|=22  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=12  d_best=0.133
+          top5 nearest: (id=12, d=0.13), (id=14, d=0.26), (id=2, d=0.34), (id=23, d=0.57), (id=19, d=6.02)
+------------------------------------------------------------------------------------------
+[SEG  197] mac=52:41:32:8B:83:1E  seg_dur=20.877s  |K_s|=28  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.183
+          top5 nearest: (id=33, d=0.18), (id=17, d=0.32), (id=28, d=0.41), (id=22, d=0.85), (id=35, d=3.99)
+------------------------------------------------------------------------------------------
+[SEG  198] mac=C5:68:6B:99:6A:C5  seg_dur=20.177s  |K_s|=24  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=21  d_best=0.404
+          top5 nearest: (id=21, d=0.40), (id=27, d=0.83), (id=2, d=1.64), (id=15, d=1.71), (id=12, d=3.47)
+------------------------------------------------------------------------------------------
+[SEG  199] mac=E5:80:FD:45:9B:E9  seg_dur=211.861s  |K_s|=3  clusters_now=37  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=21  d_best=0.413
+          top5 nearest: (id=21, d=0.41), (id=27, d=0.72), (id=2, d=1.72), (id=15, d=1.98), (id=7, d=3.36)
+------------------------------------------------------------------------------------------
+[SEG  200] mac=44:27:8B:7A:64:72  seg_dur=20.560s  |K_s|=25  clusters_now=38  gamma=0.546  space=z
+          decision=SPAWN -> cluster_id=38  d_best=0.823
+          top5 nearest: (id=26, d=0.82), (id=32, d=6.20), (id=36, d=24.33), (id=25, d=35.28), (id=9, d=51.65)
+------------------------------------------------------------------------------------------
+[SEG  201] mac=52:5C:3A:99:8C:AB  seg_dur=27.956s  |K_s|=25  clusters_now=38  gamma=0.546  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.390
+          top5 nearest: (id=2, d=0.39), (id=15, d=0.74), (id=12, d=1.19), (id=21, d=1.42), (id=38, d=4.21)
+------------------------------------------------------------------------------------------
+[SEG  202] mac=52:92:A9:3D:A7:4C  seg_dur=26.507s  |K_s|=25  clusters_now=38  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=27  d_best=0.524
+          top5 nearest: (id=27, d=0.52), (id=21, d=0.54), (id=2, d=1.84), (id=15, d=2.56), (id=7, d=3.03)
+------------------------------------------------------------------------------------------
+[SEG  203] mac=F6:FE:7E:BD:D0:B3  seg_dur=23.008s  |K_s|=27  clusters_now=38  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.000
+          top5 nearest: (id=13, d=0.00), (id=6, d=0.03), (id=22, d=0.56), (id=28, d=0.62), (id=33, d=1.99)
+------------------------------------------------------------------------------------------
+[SEG  204] mac=75:B8:72:33:E8:54  seg_dur=16.826s  |K_s|=21  clusters_now=38  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=17  d_best=0.015
+          top5 nearest: (id=17, d=0.01), (id=33, d=0.03), (id=28, d=0.22), (id=22, d=0.52), (id=13, d=3.53)
+------------------------------------------------------------------------------------------
+[SEG  205] mac=DD:32:8F:12:9C:BD  seg_dur=49.562s  |K_s|=29  clusters_now=38  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=34  d_best=0.009
+          top5 nearest: (id=34, d=0.01), (id=37, d=0.05), (id=33, d=1.13), (id=28, d=1.36), (id=16, d=1.84)
+------------------------------------------------------------------------------------------
+[SEG  206] mac=F4:0A:68:DD:7E:C0  seg_dur=26.898s  |K_s|=21  clusters_now=39  gamma=0.570  space=z
+          decision=SPAWN -> cluster_id=39  d_best=0.835
+          top5 nearest: (id=35, d=0.84), (id=36, d=1.13), (id=18, d=2.81), (id=29, d=3.30), (id=10, d=3.37)
+------------------------------------------------------------------------------------------
+[SEG  207] mac=7A:74:59:67:94:F4  seg_dur=29.996s  |K_s|=20  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=23  d_best=0.019
+          top5 nearest: (id=23, d=0.02), (id=14, d=0.40), (id=12, d=1.10), (id=2, d=1.72), (id=38, d=3.15)
+------------------------------------------------------------------------------------------
+[SEG  208] mac=DC:D6:44:C7:D7:A6  seg_dur=21.298s  |K_s|=17  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.064
+          top5 nearest: (id=33, d=0.06), (id=17, d=0.08), (id=28, d=0.28), (id=22, d=0.62), (id=39, d=0.95)
+------------------------------------------------------------------------------------------
+[SEG  209] mac=EA:32:7A:C5:8D:BF  seg_dur=28.440s  |K_s|=36  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=39  d_best=0.350
+          top5 nearest: (id=39, d=0.35), (id=35, d=0.79), (id=3, d=1.84), (id=5, d=2.41), (id=36, d=2.74)
+------------------------------------------------------------------------------------------
+[SEG  210] mac=7D:C9:C0:BD:85:B3  seg_dur=28.163s  |K_s|=24  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=24  d_best=0.108
+          top5 nearest: (id=24, d=0.11), (id=7, d=0.51), (id=20, d=2.18), (id=13, d=3.33), (id=28, d=4.00)
+------------------------------------------------------------------------------------------
+[SEG  211] mac=D9:B1:51:3A:9C:30  seg_dur=29.252s  |K_s|=22  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=17  d_best=0.030
+          top5 nearest: (id=17, d=0.03), (id=33, d=0.04), (id=28, d=0.24), (id=22, d=0.56), (id=39, d=2.71)
+------------------------------------------------------------------------------------------
+[SEG  212] mac=C6:70:C1:4D:DA:68  seg_dur=19.230s  |K_s|=24  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=8  d_best=0.024
+          top5 nearest: (id=8, d=0.02), (id=16, d=0.28), (id=39, d=0.89), (id=35, d=1.42), (id=36, d=3.08)
+------------------------------------------------------------------------------------------
+[SEG  213] mac=E9:5A:FB:9E:46:7C  seg_dur=24.300s  |K_s|=27  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=36  d_best=0.007
+          top5 nearest: (id=36, d=0.01), (id=1, d=1.02), (id=39, d=9.28), (id=35, d=15.18), (id=38, d=23.49)
+------------------------------------------------------------------------------------------
+[SEG  214] mac=CB:F7:96:33:13:13  seg_dur=20.329s  |K_s|=25  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=9  d_best=0.482
+          top5 nearest: (id=9, d=0.48), (id=38, d=1.35), (id=25, d=1.52), (id=19, d=3.06), (id=26, d=16.85)
+------------------------------------------------------------------------------------------
+[SEG  215] mac=D5:30:D6:9E:D7:F2  seg_dur=33.247s  |K_s|=27  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=16  d_best=0.158
+          top5 nearest: (id=16, d=0.16), (id=39, d=1.29), (id=8, d=1.64), (id=35, d=2.06), (id=28, d=2.54)
+[scaler] n=120 mean=[564.449] std=[20445.417] (FROZEN)
+------------------------------------------------------------------------------------------
+[SEG  216] mac=D0:6D:78:47:39:4F  seg_dur=19.865s  |K_s|=27  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.008
+          top5 nearest: (id=19, d=0.01), (id=9, d=0.97), (id=38, d=2.08), (id=25, d=8.68), (id=31, d=9.01)
+------------------------------------------------------------------------------------------
+[SEG  217] mac=57:A4:BC:C5:0D:C9  seg_dur=27.129s  |K_s|=25  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.000
+          top5 nearest: (id=33, d=0.00), (id=17, d=0.11), (id=28, d=0.12), (id=22, d=0.33), (id=13, d=2.86)
+------------------------------------------------------------------------------------------
+[SEG  218] mac=CE:AA:AB:D2:FC:09  seg_dur=19.007s  |K_s|=26  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=29  d_best=0.000
+          top5 nearest: (id=29, d=0.00), (id=39, d=1.67), (id=35, d=2.75), (id=1, d=9.85), (id=18, d=11.59)
+------------------------------------------------------------------------------------------
+[SEG  219] mac=74:4A:24:AF:44:A3  seg_dur=21.224s  |K_s|=21  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=16  d_best=0.166
+          top5 nearest: (id=16, d=0.17), (id=39, d=1.31), (id=8, d=1.81), (id=35, d=2.09), (id=28, d=2.48)
+------------------------------------------------------------------------------------------
+[SEG  220] mac=52:41:32:8B:83:1E  seg_dur=16.527s  |K_s|=26  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.000
+          top5 nearest: (id=33, d=0.00), (id=17, d=0.09), (id=28, d=0.13), (id=22, d=0.35), (id=13, d=2.91)
+------------------------------------------------------------------------------------------
+[SEG  221] mac=7C:24:AF:57:9B:5D  seg_dur=26.190s  |K_s|=30  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=38  d_best=0.399
+          top5 nearest: (id=38, d=0.40), (id=30, d=3.20), (id=25, d=4.18), (id=26, d=6.99), (id=9, d=13.92)
+------------------------------------------------------------------------------------------
+[SEG  222] mac=73:F8:F0:FA:28:49  seg_dur=22.872s  |K_s|=23  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=37  d_best=0.187
+          top5 nearest: (id=37, d=0.19), (id=34, d=0.27), (id=28, d=1.43), (id=33, d=1.64), (id=39, d=1.74)
+------------------------------------------------------------------------------------------
+[SEG  223] mac=F6:72:62:ED:92:3D  seg_dur=22.699s  |K_s|=32  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=14  d_best=0.005
+          top5 nearest: (id=14, d=0.01), (id=23, d=0.21), (id=12, d=0.38), (id=2, d=0.86), (id=19, d=5.52)
+------------------------------------------------------------------------------------------
+[SEG  224] mac=C5:68:6B:99:6A:C5  seg_dur=21.646s  |K_s|=24  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=27  d_best=0.407
+          top5 nearest: (id=27, d=0.41), (id=21, d=0.54), (id=2, d=1.84), (id=15, d=2.57), (id=7, d=3.02)
+------------------------------------------------------------------------------------------
+[SEG  225] mac=4A:01:B9:78:EA:1D  seg_dur=25.478s  |K_s|=22  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=27  d_best=0.023
+          top5 nearest: (id=27, d=0.02), (id=7, d=1.58), (id=21, d=2.33), (id=2, d=2.81), (id=12, d=5.43)
+------------------------------------------------------------------------------------------
+[SEG  226] mac=44:27:8B:7A:64:72  seg_dur=21.056s  |K_s|=28  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=38  d_best=0.497
+          top5 nearest: (id=38, d=0.50), (id=26, d=0.83), (id=32, d=6.54), (id=25, d=35.21), (id=9, d=54.86)
+------------------------------------------------------------------------------------------
+[SEG  227] mac=DC:D6:44:C7:D7:A6  seg_dur=18.090s  |K_s|=24  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.402
+          top5 nearest: (id=33, d=0.40), (id=28, d=0.59), (id=22, d=1.15), (id=17, d=1.20), (id=39, d=2.30)
+------------------------------------------------------------------------------------------
+[SEG  228] mac=52:92:A9:3D:A7:4C  seg_dur=22.151s  |K_s|=24  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=7  d_best=0.256
+          top5 nearest: (id=7, d=0.26), (id=24, d=0.30), (id=13, d=3.91), (id=28, d=4.42), (id=20, d=4.42)
+------------------------------------------------------------------------------------------
+[SEG  229] mac=F6:FE:7E:BD:D0:B3  seg_dur=23.510s  |K_s|=27  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=22  d_best=0.006
+          top5 nearest: (id=22, d=0.01), (id=28, d=0.05), (id=6, d=0.72), (id=13, d=0.73), (id=33, d=0.86)
+------------------------------------------------------------------------------------------
+[SEG  230] mac=52:5C:3A:99:8C:AB  seg_dur=24.929s  |K_s|=19  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=2  d_best=0.295
+          top5 nearest: (id=2, d=0.30), (id=15, d=0.95), (id=12, d=1.10), (id=21, d=1.64), (id=27, d=7.05)
+------------------------------------------------------------------------------------------
+[SEG  231] mac=75:B8:72:33:E8:54  seg_dur=23.140s  |K_s|=16  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.000
+          top5 nearest: (id=33, d=0.00), (id=17, d=0.02), (id=28, d=0.16), (id=22, d=0.50), (id=39, d=2.85)
+------------------------------------------------------------------------------------------
+[SEG  232] mac=C6:70:C1:4D:DA:68  seg_dur=19.719s  |K_s|=17  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=8  d_best=0.367
+          top5 nearest: (id=8, d=0.37), (id=39, d=0.78), (id=35, d=1.23), (id=16, d=1.46), (id=28, d=4.59)
+------------------------------------------------------------------------------------------
+[SEG  233] mac=FF:E8:62:AC:0E:D2  seg_dur=41.916s  |K_s|=28  clusters_now=39  gamma=0.570  space=z
+          decision=MATCH -> cluster_id=13  d_best=0.217
+          top5 nearest: (id=13, d=0.22), (id=6, d=0.53), (id=28, d=1.20), (id=22, d=1.43), (id=24, d=3.11)
+------------------------------------------------------------------------------------------
+[SEG  234] mac=F4:0A:68:DD:7E:C0  seg_dur=24.795s  |K_s|=25  clusters_now=39  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=39  d_best=0.539
+          top5 nearest: (id=39, d=0.54), (id=35, d=0.90), (id=18, d=3.08), (id=10, d=3.92), (id=29, d=4.01)
+------------------------------------------------------------------------------------------
+[SEG  235] mac=CB:F7:96:33:13:13  seg_dur=21.981s  |K_s|=24  clusters_now=39  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=9  d_best=0.025
+          top5 nearest: (id=9, d=0.03), (id=19, d=1.72), (id=25, d=3.01), (id=38, d=8.05), (id=26, d=18.74)
+------------------------------------------------------------------------------------------
+[SEG  236] mac=D0:6D:78:47:39:4F  seg_dur=19.146s  |K_s|=22  clusters_now=39  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=19  d_best=0.013
+          top5 nearest: (id=19, d=0.01), (id=9, d=1.61), (id=31, d=6.31), (id=25, d=9.88), (id=23, d=10.85)
+------------------------------------------------------------------------------------------
+[SEG  237] mac=7D:C9:C0:BD:85:B3  seg_dur=25.682s  |K_s|=26  clusters_now=39  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=7  d_best=0.022
+          top5 nearest: (id=7, d=0.02), (id=24, d=0.76), (id=13, d=4.96), (id=28, d=5.04), (id=27, d=6.52)
+------------------------------------------------------------------------------------------
+[SEG  238] mac=7A:74:59:67:94:F4  seg_dur=28.646s  |K_s|=30  clusters_now=40  gamma=0.577  space=z
+          decision=SPAWN -> cluster_id=40  d_best=0.720
+          top5 nearest: (id=23, d=0.72), (id=31, d=1.17), (id=12, d=2.49), (id=14, d=2.54), (id=19, d=2.64)
+------------------------------------------------------------------------------------------
+[SEG  239] mac=57:A4:BC:C5:0D:C9  seg_dur=21.376s  |K_s|=34  clusters_now=40  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=27  d_best=0.127
+          top5 nearest: (id=27, d=0.13), (id=40, d=0.27), (id=7, d=2.14), (id=21, d=3.04), (id=2, d=3.18)
+------------------------------------------------------------------------------------------
+[SEG  240] mac=74:4A:24:AF:44:A3  seg_dur=20.683s  |K_s|=27  clusters_now=40  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=16  d_best=0.055
+          top5 nearest: (id=16, d=0.06), (id=8, d=1.80), (id=40, d=1.96), (id=35, d=2.01), (id=28, d=2.64)
+[scaler] n=120 mean=[564.449] std=[20445.417] (FROZEN)
+------------------------------------------------------------------------------------------
+[SEG  241] mac=52:41:32:8B:83:1E  seg_dur=21.761s  |K_s|=24  clusters_now=40  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=28  d_best=0.044
+          top5 nearest: (id=28, d=0.04), (id=33, d=0.08), (id=22, d=0.22), (id=17, d=0.62), (id=40, d=1.27)
+------------------------------------------------------------------------------------------
+[SEG  242] mac=CE:AA:AB:D2:FC:09  seg_dur=23.420s  |K_s|=28  clusters_now=40  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=29  d_best=0.247
+          top5 nearest: (id=29, d=0.25), (id=39, d=2.05), (id=35, d=3.35), (id=40, d=6.07), (id=1, d=7.96)
+------------------------------------------------------------------------------------------
+[SEG  243] mac=D9:B1:51:3A:9C:30  seg_dur=29.161s  |K_s|=20  clusters_now=40  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=33  d_best=0.114
+          top5 nearest: (id=33, d=0.11), (id=17, d=0.25), (id=28, d=0.39), (id=22, d=0.92), (id=40, d=1.44)
+------------------------------------------------------------------------------------------
+[SEG  244] mac=C5:68:6B:99:6A:C5  seg_dur=19.452s  |K_s|=26  clusters_now=40  gamma=0.577  space=z
+          decision=MATCH -> cluster_id=40  d_best=0.204
+          top5 nearest: (id=40, d=0.20), (id=21, d=0.37), (id=27, d=0.75), (id=2, d=1.70), (id=15, d=2.06)
+------------------------------------------------------------------------------------------
+[SEG  245] mac=EA:32:7A:C5:8D:BF  seg_dur=34.389s  |K_s|=22  clusters_now=40  gamma=0.593  space=z
+          decision=MATCH -> cluster_id=3  d_best=0.566
+          top5 nearest: (id=3, d=0.57), (id=35, d=0.59), (id=39, d=1.08), (id=5, d=1.22), (id=18, d=4.94)
+
+==========================================================================================
+[debug summary]
+rows_total                 : 16203
+skip_tag_filter            : 2
+skip_bad_cfo_packet         : 0
+segments_total             : 245
+clusters_final             : 40
+spawned_clusters           : 40
+matched_segments           : 205
+spawn_rate                 : 16.3%
+d_best quantiles           : p05=0.00 p25=0.01 p50=0.13 p75=0.40 p95=1.28
+d_best (matches) quantiles : p05=0.00 p50=0.07 p95=0.45
+d_best (spawns) quantiles  : p05=0.56 p50=0.89 p95=5.94
+top MACs by segments       : CE:AA:AB:D2:FC:09:11, D0:6D:78:47:39:4F:11, DC:D6:44:C7:D7:A6:11, C5:68:6B:99:6A:C5:11, F6:FE:7E:BD:D0:B3:10, 57:A4:BC:C5:0D:C9:10, 44:27:8B:7A:64:72:10, CB:F7:96:33:13:13:10, C6:70:C1:4D:DA:68:10, 52:5C:3A:99:8C:AB:9
+==========================================================================================
+
+
+================================================================================
+[stats] Clusters total: 40
+================================================================================
+
+--- Cluster id=3 ---
+  score      : 4
+  n_segments : 5
+  duration   : 255.18s
+  cov_trace  : 0.004
+  mu(z)      : [-0.983]
+  |MACs|     : 3
+  |Keys|     : 121
+  MACs       : 43:AE:D7:2A:47:DF, EA:32:7A:C5:8D:BF, F6:FE:7E:BD:D0:B3
+  Keys       : k:b3d0bd7efef61aff4c00121920012bcf8e5a20dcea2c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c0012192001296f89d540d47ba2865869caa8252cc9a736, k:b3d0bd7efef61eff4c001219200129cf8e5a20dcea2c8248dbf88ca44848ae30, k:b3d0bd7efef61eff4c00121920012b4b8d5a40d46faca65841cacc352649ae34, k:b3d0bd7efef61eff4c00121920012bc58e5a00dcebac8258c3e8cc354868ae30, k:b3d0bd7efef61eff4c00121920012bcd8e5a20dcea2c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8c5a20dcea2c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e1a20dcea2c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a00dcea2c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20c4eaac825061ca88756eeda534, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dc8a2d8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dce22c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248db908ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf884a54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca14848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca5480cae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca548482e30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca54848ae68, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca56848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca59c48ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8248dbf88ca74848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c824adbf88ca54869ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8a48dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a20dcea2c8a48dbf88ca54c48ae30, k:b3d0bd7efef61eff4c00121920012bcf8e5a28dcea2c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bcf8eca20dcea2c8248dbf88ca54848ae30, k:b3d0bd7efef61eff4c00121920012bef8e5a2094eaaa8678c3e8e8b52648af10, k:b3d0bd7efef61eff4c00121920016b7bb99501dc01e5b46c3cd75a1c913fa005, k:b3d0bd7efef61eff4c00121920062fcf8e5a20dcea2c8248dbf88ca54848ae30 ... (+91 more)
+
+--- Cluster id=7 ---
+  score      : 4
+  n_segments : 7
+  duration   : 246.01s
+  cov_trace  : 0.007
+  mu(z)      : [+0.031]
+  |MACs|     : 6
+  |Keys|     : 198
+  MACs       : 4A:01:B9:78:EA:1D, 52:92:A9:3D:A7:4C, 7D:C9:C0:BD:85:B3, C5:68:6B:99:6A:C5, FF:E8:62:AC:0E:D2, NO_AdvA
+  Keys       : k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d439, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565baa, k:1de878b9054a0221021916aafe41ab094eddf308e19d8af6af0be26f37950af9, k:1dea78b9014a0201021916aafe41ab094eddf308e19d8af6af0be26fb5950af9, k:1dea78b9014a0201060916aafe417a5c87cda803444a1e5a6981e5322a5f9c41, k:1dea78b9014a0201061916aafe213b4c8eeda801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c06eaa801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c06eba801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86cda801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86ed2807c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda101c07a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801447a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6835e53297e69ca6, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a1fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5edc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5fdc5d, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5fdcc1, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e532535ddc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5327a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5722a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5b949bafcd9, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175aa984e53b97e61cae, k:1dea78b9014a0201061916aafe413b4c86eda801c4f9175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda817c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda8a1dd79171a6981e5322a5fdd51, k:1dea78b9014a0201061916aafe413b4c86eda8d1c57a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4ce05f1b878eb011e8508d80b949bafcd9, k:1dea78b9014a0201061916aafe413b4cf2e9a801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe41ab094eddf308df9d8af6af0be26f37950af9 ... (+168 more)
+
+--- Cluster id=2 ---
+  score      : 4
+  n_segments : 10
+  duration   : 241.45s
+  cov_trace  : 0.020
+  mu(z)      : [+0.401]
+  |MACs|     : 8
+  |Keys|     : 235
+  MACs       : 42:69:81:1B:81:A1, 44:27:8B:7A:64:72, 52:5C:3A:99:8C:AB, 57:A4:BC:C5:0D:C9, 7F:CC:BF:4B:DA:DE, CB:F7:96:33:13:13, D0:6D:78:47:39:4F, F6:72:62:ED:92:3D
+  Keys       : k:13133396f7cb1eff4c001219203e44d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219208e47d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209d47f1e8b425201b39beb98421db051a465faa, k:13133396f7cb1eff4c001219209e4793e9b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e4793edb82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d368b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8780520972838888e20c3240f62dfdb, k:13133396f7cb1eff4c001219209e47d3e878e8201b39fb904b264fb405781d63, k:13133396f7cb1eff4c001219209e47d3e87c2f20a72838888e20c3240f62dfdb, k:13133396f7cb1eff4c001219209e47d3e8b02d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b828201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb8042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042dcb051a625fab, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a165baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb05315e5baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb053a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb071a725baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb851b565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042deb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfe9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39ffb8042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b3bb7b9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b89f4f6f77bf4b7a0317c35, k:13133396f7cb1eff4c001219209e47d3e8b82d201f393c888e20c3240f62dffb, k:13133396f7cb1eff4c001219209e47d3e8b839201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d7e8b82d201b39b3b9042ddb051a565baa, k:13133396f7cb1eff4c00121920de47d2e8b82f60a7283f888e20c3240f62dfdb, k:13133396f7cb1eff4c00121920de47d3e8b82d201b39b7b9042ddb051a565baa, k:3d92ed6272f61eff4c001219204ba9e799d207da2e5843fc39b0438c6a7f6b6d ... (+205 more)
+
+--- Cluster id=9 ---
+  score      : 4
+  n_segments : 9
+  duration   : 222.55s
+  cov_trace  : 0.026
+  mu(z)      : [+1.106]
+  |MACs|     : 5
+  |Keys|     : 215
+  MACs       : 57:A4:BC:C5:0D:C9, 7A:74:59:67:94:F4, 7C:24:AF:57:9B:5D, CB:F7:96:33:13:13, D0:6D:78:47:39:4F
+  Keys       : k:13133396f7cb1eff4c001219201e45d3e8a42d209f28beb9062dd3251a465baa, k:13133396f7cb1eff4c001219201e45d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219205e44d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209647d3e8b825201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209a45d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e45d3e8b82d201b39bfb9042ddb451a565baa, k:13133396f7cb1eff4c001219209e47538a64476aa72838888e20c3240f62dfdb, k:13133396f7cb1eff4c001219209e4753ed3827221b39be89042dd3051a525baa, k:13133396f7cb1eff4c001219209e47d288344f2aa728bca98e20db050f525b9a, k:13133396f7cb1eff4c001219209e47d328802d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e80228201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8182c201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8382d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e83878b4631ab3db1036eb47183e5349, k:13133396f7cb1eff4c001219209e47d3e8782c201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b02d2013283c880c21db251e56dbaa, k:13133396f7cb1eff4c001219209e47d3e8b825201b393fb98420c3240f62dfdb, k:13133396f7cb1eff4c001219209e47d3e8b82d200339bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201139bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b11bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b1b9042ddb051a5653aa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b1ba042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b3b9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b5da0036fb47321e5b6a, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39beb9042dc3240f62dfdb, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39beb9042ddb051a565bab, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb5042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9002ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb90427db051a525baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042cdb051a565baa ... (+185 more)
+
+--- Cluster id=24 ---
+  score      : 4
+  n_segments : 10
+  duration   : 220.86s
+  cov_trace  : 0.007
+  mu(z)      : [-0.054]
+  |MACs|     : 6
+  |Keys|     : 166
+  MACs       : 52:5C:3A:99:8C:AB, 74:E3:6C:AF:C8:28, 7D:C9:C0:BD:85:B3, C2:97:CC:47:79:BF, DC:D9:17:9B:A7:45, F6:FE:7E:BD:D0:B3
+  Keys       : k:28c8af6ce37402010403021af417165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025ae517165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025af017165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025af717165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd12165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322a30bd34e6e0b04c147d59af206, k:28c8af6ce37402010403025afd17165afd1322b310f056750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322e302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322e30af256750b04c143b58bf202, k:28c8af6ce37402010403025afd17165afd1322f302f216770f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f246750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f252750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256450f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750d64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64df03a9a70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3ae9f0000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70002, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70020, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70040, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea7c000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aec70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3eea50000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64efc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64f7c3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f74dfc3fdba0200, k:28c8af6ce37402010403025afd17165afd1322f302f25e7d0344c147d59af20e, k:28c8af6ce37402010403025afd17165afd1322f303f24e6c0b04c143d5baf20e, k:28c8af6ce37402010403025afd17165afd1322f33af256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f342f256750f64dfc3aea70000 ... (+136 more)
+
+--- Cluster id=8 ---
+  score      : 4
+  n_segments : 7
+  duration   : 219.45s
+  cov_trace  : 0.003
+  mu(z)      : [-0.801]
+  |MACs|     : 3
+  |Keys|     : 150
+  MACs       : 5C:8E:8B:92:DE:F8, C6:70:C1:4D:DA:68, EA:32:7A:C5:8D:BF
+  Keys       : k:68da4dc170c60eff4c0012192021944d78249cdbc05c7766cc1d68192143b291, k:68da4dc170c61bff4c0012192001944d78049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012191011944dc0049dd9425a77e6ee9c689920cbb281, k:68da4dc170c61eff4c00121920011429c2069c964a1adce7eab89aaa92e82bc6, k:68da4dc170c61eff4c00121920011c4f78ba9f924a1adce7eeb89a9a90ea3b86, k:68da4dc170c61eff4c0012192001344dc8ba9d964a1adce7eab89aaa90e82b95, k:68da4dc170c61eff4c0012192001814d78049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001904d78049cd9c05c7766cc1d68192143b2b1, k:68da4dc170c61eff4c0012192001940d18049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001942d04049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944178049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d18459c51d45c7166c815ed194554b1b1, k:68da4dc170c61eff4c0012192001944d38049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d38049cd9c05c7766cc1d685c2643b291, k:68da4dc170c61eff4c0012192001944d58059cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78019cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d780414b10f1908a779ea63734b3de76d, k:68da4dc170c61eff4c0012192001944d780498d9c05c7766ccf88aaa5acc2bc6, k:68da4dc170c61eff4c0012192001944d78049c59c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049c5bc01cdce7eeb89aaa926a2bc6, k:68da4dc170c61eff4c0012192001944d78049c9ac01cdce7eab89aaa92e82bc6, k:68da4dc170c61eff4c0012192001944d78049cc1c05c7766cc1d68194f14b3b1, k:68da4dc170c61eff4c0012192001944d78049cc5c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd9401877e6eab89aaa92e82bc6, k:68da4dc170c61eff4c0012192001944d78049cd9405c3f66e8b89aaa92e82bc6, k:68da4dc170c61eff4c0012192001944d78049cd9405d7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd946b909a779ea63734b3de76d, k:68da4dc170c61eff4c0012192001944d78049cd9c0517766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd9c0547766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd9c0567766cc1d68192143b291 ... (+120 more)
+
+--- Cluster id=13 ---
+  score      : 4
+  n_segments : 14
+  duration   : 216.40s
+  cov_trace  : 0.016
+  mu(z)      : [-0.259]
+  |MACs|     : 6
+  |Keys|     : 356
+  MACs       : 52:5C:3A:99:8C:AB, D9:B1:51:3A:9C:30, DC:D6:44:C7:D7:A6, F6:FE:7E:BD:D0:B3, FF:E8:62:AC:0E:D2, NO_AdvA
+  Keys       : k:03838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866fd1, k:09f8d2abaace1eff4c00121910798ae7e15a3840489bdcdc858ce19d46e7d43f, k:09fcd2abaace1eff4c00121910758ae7e1522880489bdddc458ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d439, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37950af9, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4fdfe866ff1, k:1e838b3241520201061916aafe401d4634aceff87ab467bb02abf4ddfe866fd1, k:309c3a51b1d916ff4c0012192c22277a777851514e660a78787cdcd898238fc3, k:309c3a51b1d91eff4c0012192020277a774451914e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022237a774451914e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022247a474451914f466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022267a774451914e4662e830fced03de1185ef, k:309c3a51b1d91eff4c0012192022267a774451914e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c00121920222748774451914e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a2744f9b10f16fae830486c1fee1887c7, k:309c3a51b1d91eff4c0012192022277a724451914e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774411904e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774419964e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774450914f567a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451814e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451814e566a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451910f466a7878fd8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451914e46027878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451914e462b7878fc8d52d8f38fc3, k:309c3a51b1d91eff4c0012192022277a774451914e46627878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451914e466a4078fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451914e466a7838fa8d1ad8630def, k:309c3a51b1d91eff4c0012192022277a774451914e466a78783c8c52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451914e466a78787c8d12ee583567 ... (+326 more)
+
+--- Cluster id=23 ---
+  score      : 4
+  n_segments : 8
+  duration   : 212.79s
+  cov_trace  : 0.009
+  mu(z)      : [+0.588]
+  |MACs|     : 6
+  |Keys|     : 162
+  MACs       : 42:69:81:1B:81:A1, 7A:74:59:67:94:F4, 7F:CC:BF:4B:DA:DE, C2:97:A0:09:6A:11, CB:F7:96:33:13:13, D0:6D:78:47:39:4F
+  Keys       : k:116a09a097c20201060d16edfe0200436b2906fbbb88520303edfe, k:116a09a097c20201060d16edfe0200945769f129d7ba100303edfe, k:13133396f7cb1eff4c001219009e4753e8b82d221b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219201e46d3e8b825201b39bfa9042ddb051a565baa, k:13133396f7cb1eff4c001219207e47d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209b47d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e45d3e8b82d201b39b7b9042de3471a565baa, k:13133396f7cb1eff4c001219209e45d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e4793e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47c4e83845201b29beb9042ddb051a565bba, k:13133396f7cb1eff4c001219209e47d3c8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b01bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b29bdb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b38bfb90429db051a465baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b393cb90421d3250b56dbaa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b0ba042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bf39042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bf99062dc3240f62dbdb, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042cdb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a065baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a465f9a, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565b6a, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565b7a, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565bba, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a5c5baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a5e5baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051e565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb071a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb90439eb051a565baa ... (+132 more)
+
+--- Cluster id=21 ---
+  score      : 4
+  n_segments : 7
+  duration   : 211.86s
+  cov_trace  : 0.003
+  mu(z)      : [+0.253]
+  |MACs|     : 5
+  |Keys|     : 153
+  MACs       : 44:27:8B:7A:64:72, 52:5C:3A:99:8C:AB, 57:A4:BC:C5:0D:C9, C5:68:6B:99:6A:C5, E5:80:FD:45:9B:E9
+  Keys       : k:72647a8b27440201061916aafe31264087ae74b084bde77042b47ed0b4f98c9d, k:72647a8b27440201061916aafe410f41f2ac4a941c13e0589d04e8e8fd79fc26, k:72647a8b27440201061916aafe418f43722c4a945c1300489d04a0ec6d61fc26, k:72647a8b27440201061916aafe418f43e3ac4ab05c9320489904a0ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c0a945c1300489d041de56d61fc26, k:72647a8b27440201061916aafe418f43f22c46945c1300489d04a2ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300389d04a0ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a06c6e61fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ac6d615c50, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec51618cbd, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec6d51fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec6d61eca6, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec6dc13450, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec75618c9c, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec7f61fca6, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0eccd60fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0eced60fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04aeec6d61fc26, k:72647a8b27440201061916aafe418f43f22c4a945c130a489d04a0ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c4a959c1da2700a34fef07461ecb4, k:72647a8b27440201061916aafe418f43f22e169404bde3584ab47ed0b4798c9d, k:72647a8b27440201061916aafe418f59f22c4a945c1300489d04a0ec6d61fc26, k:72647a8b27440201061916aafe418f7df22c4a945c1300489d04a0ec6d61fc26, k:72647a8b27440201061916aafe418fa3f22c4a945c1300489d04a0ec6d61fc26, k:72647a8b27440201061916aafe428f43f22c4a945c1300489d04a0ec6d61fc26, k:72647a8b27440201071916aafec18f43f22c4a945c4bcf099d04a0ec6d61fc26, k:ab8c993a5c520201061916aafe414d02b2b3caa05a70babc1ebbe9e553b24672, k:ab8c993a5c520201061916aafe41d5019819caa05a70babc1e9be9e553b646d2, k:ab8c993a5c520201061916aafe41d501981bcaa05a70b9bc1e9be9e55bb646d2 ... (+123 more)
+
+--- Cluster id=12 ---
+  score      : 4
+  n_segments : 8
+  duration   : 210.78s
+  cov_trace  : 0.017
+  mu(z)      : [+0.465]
+  |MACs|     : 5
+  |Keys|     : 179
+  MACs       : 56:7F:DB:9B:89:B3, 7A:B4:F4:F8:AA:DD, 7F:CC:BF:4B:DA:DE, F0:E3:99:3D:ED:D2, F6:72:62:ED:92:3D
+  Keys       : k:3d92ed6272f61eff4c001219004ba9eb99d225da2e5847fd39b452946a7f7b6c, k:3d92ed6272f61eff4c001219200bfd692710f0313438c4c104412d905972d512, k:3d92ed6272f61eff4c001219204b99ec99d225da2e5841fd39b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9e999d225da2e5841fd39b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99c225da2e5841fd39b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d02dda2e5841fd39b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d125923d1841bd39ae47bcba774b2c, k:3d92ed6272f61eff4c001219204ba9eb99d205d72e5843bd39b642946a7f6b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225c02e5841fd39b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225c62e5841fd39b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da1e5841fd39b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e184ffd19ee436cb7766b38, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e48412d10ae036cbf776b7c, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e58413d2ab052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841bc3990526cbf766b38, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841bc39b0427c7a7f7b7d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841d529b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841dd39b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841f039b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd19b052946a777b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd38b052946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39a852946a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39a8529cae777b6c, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39b052146b7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39b052346a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39b05294427f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39b052944a7f7b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39b052946a1f136d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39b052946a7f1b6d, k:3d92ed6272f61eff4c001219204ba9eb99d225da2e5841fd39b052946a7f736d ... (+149 more)
+
+--- Cluster id=14 ---
+  score      : 4
+  n_segments : 9
+  duration   : 201.40s
+  cov_trace  : 0.006
+  mu(z)      : [+0.549]
+  |MACs|     : 5
+  |Keys|     : 220
+  MACs       : 7A:B4:F4:F8:AA:DD, 7F:CC:BF:4B:DA:DE, CB:F7:96:33:13:13, D0:6D:78:47:39:4F, F6:72:62:ED:92:3D
+  Keys       : k:13133396f7cb1eff4c001219201e44d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209c45d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e2795e8b82d201b39b3b9042ddb051a565baa, k:13133396f7cb1eff4c001219209e44f38a744722a738bc898c2ddb251b425baa, k:13133396f7cb1eff4c001219209e475318b82d689b39bfb9042ddb051a5e5baa, k:13133396f7cb1eff4c001219209e47738a642d20a72838888e20c3240f62dfdb, k:13133396f7cb1eff4c001219209e47d32c882d201b39bfbb042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8382a201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8382d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8a82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b81520972838888e20d3250f62db9b, k:13133396f7cb1eff4c001219209e47d3e8b82d201139bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b31bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b38bf89062ddb051a465baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b3b9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b5b9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfa9042ddb051a425baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042dc3041a42dfdb, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042dca051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb011a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb050e625b9a, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb0510565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb0518565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a165baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a465baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a561baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a563b89, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a5651a8, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a5657aa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565aaa ... (+190 more)
+
+--- Cluster id=16 ---
+  score      : 4
+  n_segments : 7
+  duration   : 201.12s
+  cov_trace  : 0.004
+  mu(z)      : [-0.744]
+  |MACs|     : 4
+  |Keys|     : 182
+  MACs       : 5C:8E:8B:92:DE:F8, 74:4A:24:AF:44:A3, C6:70:C1:4D:DA:68, D5:30:D6:9E:D7:F2
+  Keys       : k:68da4dc170c61aff4c0012192001944d78049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c001219200114c178049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001924d78049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d680498c5c05c7766cc1d8e7e2443b291, k:68da4dc170c61eff4c0012192001944d70ba1fd9401afce6ea38b8ab90e82bd0, k:68da4dc170c61eff4c0012192001944d780498c9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049c49c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049c59c15c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cc1c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd7c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c2767cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c3767cc1d68092143b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c5766ccbc6819114bb291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7726cd1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7746cc3d7aa9b04a32c0, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7764cc1d2c1b6143b211, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766c81d6819214bb291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc196889104b2ad0, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192142b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d681921438a91, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d681921439291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b191, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b231, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192143b295, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192144b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192145b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68192147b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d68392143b291, k:68da4dc170c61eff4c0012192001944d78049cd9c05c7766cc1d69192143b291 ... (+152 more)
+
+--- Cluster id=19 ---
+  score      : 4
+  n_segments : 14
+  duration   : 195.37s
+  cov_trace  : 0.024
+  mu(z)      : [+0.919]
+  |MACs|     : 5
+  |Keys|     : 326
+  MACs       : 4A:01:B9:78:EA:1D, 7C:24:AF:57:9B:5D, CB:F7:96:33:13:13, D0:6D:78:47:39:4F, F0:E3:99:3D:ED:D2
+  Keys       : k:13133396f7cb1eff4c001219201e45d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e45d3e8982d201b39bfb9042dcb051a56532a, k:13133396f7cb1eff4c001219209e47d3c8b86d6a9728be888620d3050a625bba, k:13133396f7cb1eff4c001219209e47d3e0b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e83828201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b80d201b79bf998e21c3240f62dbdb, k:13133396f7cb1eff4c001219209e47d3e8b82d201b09b3b9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b1bb19b042ceb07301e5b4a, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b7b9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39b7b9042deb071a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb8042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9040ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a325baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a561ba9, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a5653aa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a56dbaa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb051a765baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb053a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb053a56dbdb, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb071a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddb251b565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9042ddf051e62dbdb, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb90435db051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b82d201b39bfb9046ddb051a565baa, k:13133396f7cb1eff4c001219209e47d3e8b8ed201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219209e47dbe8b82d201b39bf79102edb051a565baa, k:13133396f7cb1eff4c001219209ec7dde8b82d201b39bfb9042ddb051a565baa, k:13133396f7cb1eff4c001219249e47d3e8b82d201b39bfb9042ddb051a565baa, k:1dea78b9014a0201021916aafe41ab094eddf308e19d8af6af0be26f37950af9 ... (+296 more)
+
+--- Cluster id=22 ---
+  score      : 4
+  n_segments : 7
+  duration   : 174.58s
+  cov_trace  : 0.023
+  mu(z)      : [-0.385]
+  |MACs|     : 5
+  |Keys|     : 182
+  MACs       : 57:A4:BC:C5:0D:C9, 74:E3:6C:AF:C8:28, C6:70:C1:4D:DA:68, DC:D6:44:C7:D7:A6, F6:FE:7E:BD:D0:B3
+  Keys       : k:28c8af6ce374020104030252fd17165afd1320f302f156750f64dfc3aea30000, k:28c8af6ce374020104030258fd17165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025af517165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd07165afd1322f202f262750f64dfc3aea70000, k:28c8af6ce37402010403025afd07165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd09165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f301f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f3029256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302b256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256400764dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750764df43aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64d5c3b6a31200, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70001, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70010, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70014, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aea70400, k:28c8af6ce37402010403025afd17165afd1322f302f256750f64dfc3aeab2200, k:28c8af6ce37402010403025afd17165afd1322f302f266750b04d943d5ae1000, k:28c8af6ce37402010403025afd17165afd1322f302f266750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f34c750f04c147d59af20e, k:28c8af6ce37402010403025afd17165afd1322f362f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1f22f302f256750f64dfc3aea70000, k:28c8af6ce37402010403825afd17165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403aa2cfd17165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403ba2cfd17165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402030403025afd17165afd1322f302f256750f64dfc3aea70000, k:68da4dc170c613ff4c0012192001944d78049cd9c05c7766cc1d68192143b291, k:68da4dc170c61eff4c001219200114ed78a49fd9c05c7fe6ec1c181921ebb391, k:68da4dc170c61eff4c0012192001944778049cd9c05c7766cc1d68192143b291 ... (+152 more)
+
+--- Cluster id=29 ---
+  score      : 4
+  n_segments : 6
+  duration   : 174.46s
+  cov_trace  : 0.011
+  mu(z)      : [-1.747]
+  |MACs|     : 2
+  |Keys|     : 159
+  MACs       : CE:AA:AB:D2:FC:09, D2:99:4B:25:3A:8F
+  Keys       : k:09fcd2abaace16ff4c00121994ba8a67e39a3c42c81bdddc85ccf19c46e7dc31, k:09fcd2abaace1bff4c00121910798ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121900798ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121900798ae7e15a3842489bdcdc858ce19de6e7d439, k:09fcd2abaace1eff4c0012190c798aeec05a1c40489bdddc858ce19d47e3d439, k:09fcd2abaace1eff4c00121910418ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910710aee8e954dda8e79893a4e70de68a1ba1813, k:09fcd2abaace1eff4c00121910790ae5e95a784048975ddc8584e15d8647d439, k:09fcd2abaace1eff4c00121910790ae6e11b3cc0489bd9dc8584e19d46e7d439, k:09fcd2abaace1eff4c00121910790ae7e1546b40ea9bc93c8648e09c66f6d419, k:09fcd2abaace1eff4c0012191079222ee19a4dda8e79893a4c70de68a1fa1812, k:09fcd2abaace1eff4c00121910798aa7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ad7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae5e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7215a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae731403840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae731727797ed08a3c92b8e41925294fe87, k:09fcd2abaace1eff4c00121910798ae7615a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7815a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7a1563840489bdddc838da19d4ae7d43d, k:09fcd2abaace1eff4c00121910798ae7b15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e11a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e1443b40489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e1463840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e14a3840489bddc82b8e419252941e87, k:09fcd2abaace1eff4c00121910798ae7e14a3840489bdddc858c819d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e14a7797ed08a3c92b8e419252b8fe87, k:09fcd2abaace1eff4c00121910798ae7e15a3800489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840449bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840481ed4dc858ce19d46e7d439 ... (+129 more)
+
+--- Cluster id=17 ---
+  score      : 4
+  n_segments : 6
+  duration   : 168.46s
+  cov_trace  : 0.003
+  mu(z)      : [-0.501]
+  |MACs|     : 5
+  |Keys|     : 134
+  MACs       : 52:41:32:8B:83:1E, 75:B8:72:33:E8:54, D9:B1:51:3A:9C:30, DC:D6:44:C7:D7:A6, F6:FE:7E:BD:D0:B3
+  Keys       : k:1e838b3241520201061916aafe40154634aceff87ab467bf02abf4ddfe866fd1, k:1e838b3241520201061916aafe4015c7b4a8ef1872b467d70aabf4f6f9866fb1, k:1e838b3241520201061916aafe401d4604aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4624aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d46346ce6f67a74568f8dabd4587e0a6766, k:1e838b3241520201061916aafe401d4634a4eff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634ac6ff87af467bf8daad4487d0a47e6, k:1e838b3241520201061916aafe401d4634aceff87ab42713cac744823c4cd03d, k:1e838b3241520201061916aafe401d4634aceff87ab447b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab466b700abd45dfe866fd0, k:1e838b3241520201061916aafe401d4634aceff87ab4676b5a993d1dc6c77caf, k:1e838b3241520201061916aafe401d4634aceff87ab467770cabf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b502abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b700abd4487f0a4560, k:1e838b3241520201061916aafe401d4634aceff87ab467b7026bf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702aaf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddf9876fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe861fbf, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe864fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866bd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866f91, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866fd7, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866fdf, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4f9f8876bd1, k:1e838b3241520201061916aafe401d4634aceff87ab467f702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d46a4eceffa7af467bf02abf4ddfe866fd1, k:1e838b3241520201061916aafe401d46b4adeff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4734aceff87ab463b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4734aceff97ab427b702abf4ddfe866fd1 ... (+104 more)
+
+--- Cluster id=1 ---
+  score      : 4
+  n_segments : 7
+  duration   : 167.71s
+  cov_trace  : 0.031
+  mu(z)      : [-2.294]
+  |MACs|     : 2
+  |Keys|     : 168
+  MACs       : CE:AA:AB:D2:FC:09, E9:5A:FB:9E:46:7C
+  Keys       : k:09fcd2abaace1eff4c00121908798ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910518ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910698ae7f05a3840489bdddcc78ce1bd46e7d439, k:09fcd2abaace1eff4c00121910790ae7e11a3840489bdddc858ce19d46e7546a, k:09fcd2abaace1eff4c00121910798ae6e15a3840489bdddc858ce19d8266cc3d, k:09fcd2abaace1eff4c00121910798ae7e14a3840489bdddc858ce19d46e7543f, k:09fcd2abaace1eff4c00121910798ae7e15a3840409bdddcc58ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489b0ddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce16549e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce16c46a71411, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46979887, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d43a, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d4b9, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d4ee7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc85b4e19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddd858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a38404efbdb1cce70de68a1ba1812, k:09fcd2abaace1eff4c00121910798ae7e15a3860489bdddc858ce19d4667d439, k:09fcd2abaace1eff4c00121910798ae7e15a3874c55e741012759e77895c4c6e, k:09fcd2abaace1eff4c00121910798ae7e15ab140489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15e3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798af4ed5a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910799ee7e14a3240489bdddc848c81bf4fddd429, k:09fcd2abaace1eff4c0012191079cae4e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910f9dff4e15a3840489bdddc858ce19d46e4d439, k:09fcd2abaace1eff4c00121914798ae7e95a3840489bdddc8588e19d46e7d439, k:09fcd2abaace1eff4c00121914b98ae78e954dda8e79893a4e70de68a1ba1012, k:7c469efb5ae90aff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa8, k:7c469efb5ae91aff4c00121910e959a560e261071f94a77a2a1fb2c78a4c7aa8 ... (+138 more)
+
+--- Cluster id=15 ---
+  score      : 4
+  n_segments : 5
+  duration   : 144.91s
+  cov_trace  : 0.002
+  mu(z)      : [+0.284]
+  |MACs|     : 5
+  |Keys|     : 130
+  MACs       : 42:69:81:1B:81:A1, 44:27:8B:7A:64:72, 52:5C:3A:99:8C:AB, 52:92:A9:3D:A7:4C, C5:68:6B:99:6A:C5
+  Keys       : k:4ca73da9925202010403025af517165afd1323f30206b4f00e442b9d2ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e4407992ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b192ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b19ada60000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b492da70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b592da70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b892ca71002, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b992ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b994caf0004, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b99aca61002, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b9d2ca70001, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b9d6ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e462b992ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e542b992ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00ec40b982ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00ed42b892ca71000, k:4ca73da9925202010403025afd17165afd1323f30206b4f08e442b992ca70000, k:4ca73da9925202010403025afd17165afd1323f70206b4f00e442b992ca70000, k:4ca73da9925202010403025afd17165afd17e3832bb7bdac0b14bb4a949a7202, k:4ca73da9925202010403025afd17165afd5f23f30206b4f00e442b992ca70000, k:4ca73da9925202010403325afd17165afd1323f30206b4f00e442b992ca70000, k:4ca73da9925202013903025afd17165afd1323f30206b4f00e442b992ca70000, k:4ca73da9925202218503025afd17165afd1323f30206b4f00e442b992ca70000, k:72647a8b27440201061916aafe410f6d372d4ab084bde3500ab4e0f0b4f98c9d, k:72647a8b27440201061916aafe418343f22c4a945c1300489d04a0ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c4a945c0600489d04a0ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300488d04e0e86df98c86, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d0488ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec6d60fc26, k:72647a8b27440201061916aafe418f43f22c4a945c1300489d04a0ec6d61fc26 ... (+100 more)
+
+--- Cluster id=27 ---
+  score      : 4
+  n_segments : 9
+  duration   : 141.62s
+  cov_trace  : 0.003
+  mu(z)      : [+0.169]
+  |MACs|     : 5
+  |Keys|     : 218
+  MACs       : 4A:01:B9:78:EA:1D, 52:5C:3A:99:8C:AB, 52:92:A9:3D:A7:4C, 57:A4:BC:C5:0D:C9, C5:68:6B:99:6A:C5
+  Keys       : k:1dea78b9014a0201061916aafe4112e254e94ebbbe01e1a26581c55add3bd806, k:1dea78b9014a0201061916aafe4112e254e94ebbbe2109ec6581c55add3bd806, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21b3a3a5364d8bec589885, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21e1826481c55add3bd806, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21e1a26581c45add3bd806, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21e1a26581c55a5d3bd88d, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21e1a26581c55add2fd806, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21e1a26581c55add3bd806, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21e1a26581d55add3bd806, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21e1a28580c55add3bd806, k:1dea78b9014a0201061916aafe4112e254e94ebbbe21e7a3e5114c8becd8dc85, k:1dea78b9014a0201061916aafe4112ead4e9dea7f5249705be764c8becd49e8d, k:1dea78b9014a0201061916aafe4112fa54e94ebbbe21e1a26581c55add3bd806, k:1dea78b9014a0201061916aafe412ae254e94ebbbe21e1a26581c55add3bd806, k:1dea78b9014a0201061916aafe41ab094eddf308a19d8ad62e0be26f6eb10af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af03e29937950bf9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37950aff, k:1dea78b9014a0201061916aafe41e2664dcf8ea3821fb68dd12b6391491e0117, k:1dea78b9014a0201061916aafe4712e254e94ebbbe21e1a26581c55add3bd806, k:1dea78b9014a0201061916aafe8112e254e94ebbbe21e1a26581c55add3bd806, k:1dea78b9014a0201061916aafec112e254e94e4fb419caa5e5cd4a9b88cb38eb, k:4ca73da9925202010403025af517165afd1323f30206a7f00e442b1d2da7e01d, k:4ca73da9925202010403025afd17165afd1323b30206b4f00e442b992ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4d40e442b8924a70002, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b192ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b992c071008, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b992c9d0000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b992ca70000, k:4ca73da9925202010403025afd17165afd1323f30206b4f00e442b992ca70080 ... (+188 more)
+
+--- Cluster id=28 ---
+  score      : 4
+  n_segments : 6
+  duration   : 141.20s
+  cov_trace  : 0.030
+  mu(z)      : [-0.422]
+  |MACs|     : 5
+  |Keys|     : 157
+  MACs       : 52:41:32:8B:83:1E, 57:A4:BC:C5:0D:C9, C6:70:C1:4D:DA:68, D9:B1:51:3A:9C:30, DC:D6:44:C7:D7:A6
+  Keys       : k:1e838b3241520201061916aafe401d068c8f423911e24d13cac744823c4cd03d, k:1e838b3241520201061916aafe401d463429fcf87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634acaff97ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff821b427f71eaaf4f7f8972fb1, k:1e838b3241520201061916aafe401d4634aceff87ab427b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467af02abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b70233f4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abd449fc024566, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddf6866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe066f51, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866f51, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfe966fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702abf4ddfea66fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702bdf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702e3f4497f8267e6, k:1e838b3241520201061916aafe401d4634aceff87ab467b782aaf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467c71c3ab4f7f99f3abf, k:1e838b3241520201061916aafe401d4634aceff87ab467f702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab476b702a3f45dfe866fd1, k:1e838b3241520201061916aafe401d4634aceff8bab067b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634acfbf87ab467b702abf4ddfe866fd1, k:1e838b32415202012e1816aafe401d4634aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520249061916aafe401d4634aceff87ab467b702abf4ddfe866fd1, k:309c3a51b1d91eff4c0012192022247a774451914e466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a734451914f466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451910e446a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451914c466a7878fc8d52d8238fc3, k:309c3a51b1d91eff4c0012192022277a774451914e466a78786c8f12ee58356f, k:309c3a51b1d91eff4c0012192022277a774451914e466a78787c8f52d823b7c3 ... (+127 more)
+
+--- Cluster id=18 ---
+  score      : 4
+  n_segments : 14
+  duration   : 140.31s
+  cov_trace  : 0.020
+  mu(z)      : [-1.257]
+  |MACs|     : 6
+  |Keys|     : 338
+  MACs       : 51:ED:42:98:48:C1, 69:8B:6F:B2:2D:F6, CE:AA:AB:D2:FC:09, D2:99:4B:25:3A:8F, D5:30:D6:9E:D7:F2, F4:0A:68:DD:7E:C0
+  Keys       : k:09fcd2abaace16ff4c00121910798ae7e15a3840489bdddc95bce19d46e7d439, k:09fcd2abaace1eff4c00121910518ee7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c001219105d8ae77f5ab840481f5cdc0575ac1d4b64c43b, k:09fcd2abaace1eff4c00121910798ae7805938da8e79893a4e70de68a1ba1812, k:09fcd2abaace1eff4c00121910798ae7a17938d88e79893a4e70de68a1ba1812, k:09fcd2abaace1eff4c00121910798ae7e0dd38c0789bddbc859ce09d06e75439, k:09fcd2abaace1eff4c00121910798ae7e14138484a9bdddc85e8e19d46a7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840089bddfcc588e19d46e7d419, k:09fcd2abaace1eff4c00121910798ae7e15a3840481bdcdc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bddcc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bddd4858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bddd6c570e2a826bad839, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce14d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d42c7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d4607d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d4647d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46abd439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7346e, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7543f, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7646e, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e77438, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7c839, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7cc39, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d429, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d43c, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d465, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d539, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d46e7d639, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce19d4be7d439 ... (+308 more)
+
+--- Cluster id=33 ---
+  score      : 4
+  n_segments : 14
+  duration   : 129.64s
+  cov_trace  : 0.013
+  mu(z)      : [-0.493]
+  |MACs|     : 7
+  |Keys|     : 334
+  MACs       : 52:41:32:8B:83:1E, 57:A4:BC:C5:0D:C9, 75:B8:72:33:E8:54, C6:70:C1:4D:DA:68, D9:B1:51:3A:9C:30, DC:D6:44:C7:D7:A6, FF:E8:62:AC:0E:D2
+  Keys       : k:1e838b3241520201061916aafe221d4634aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe400d4234eea6f217fc768f81a3f4d87e8267f0, k:1e838b3241520201061916aafe400d4634acaff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe40114634aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe40154634aceff87ab467b7422af4ddfe866fd1, k:1e838b3241520201061916aafe401d4624aceff87abc67b702e3f4ddfe826dd1, k:1e838b3241520201061916aafe401d4630aceff87ab463b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4630aceff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d46342cfcf87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634a9eff87ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634ac0f1d7ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634ac5f057ab421b70aaaf4fdf8962fff, k:1e838b3241520201061916aafe401d4634acef38a0b067b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634acefe67ab467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff821834d13cac704823ced92bc, k:1e838b3241520201061916aafe401d4634aceff871b467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87a1400b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87a8467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87a9467b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab067b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab367b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab427b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab457b702abf459fe866fd6, k:1e838b3241520201061916aafe401d4634aceff87ab463c71c3ab4f7f99f2abf, k:1e838b3241520201061916aafe401d4634aceff87ab465b702abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b502abf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b70233f4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b7023bf4ddfe866fd1, k:1e838b3241520201061916aafe401d4634aceff87ab467b702a394dd7e0a47f0, k:1e838b3241520201061916aafe401d4634aceff87ab467b702ab74d6fa866fd1 ... (+304 more)
+
+--- Cluster id=4 ---
+  score      : 4
+  n_segments : 10
+  duration   : 121.62s
+  cov_trace  : 0.000
+  mu(z)      : [-0.151]
+  |MACs|     : 7
+  |Keys|     : 216
+  MACs       : 43:CF:E8:02:99:A5, 4A:01:B9:78:EA:1D, 52:5C:3A:99:8C:AB, 74:E3:6C:AF:C8:28, C2:97:CC:47:79:BF, D9:B1:51:3A:9C:30, FF:E8:62:AC:0E:D2
+  Keys       : k:1dea78b9014a0201021916aafe413b4c86eda801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413a4c86edac01c46a175a6981ed322a5fdc41, k:1dea78b9014a0201061916aafe413a4d86cc85fa484aee5ab8e6ec3397661ca6, k:1dea78b9014a0201061916aafe413b4c86eda8014049175a2874ed33ae7f9c66, k:1dea78b9014a0201061916aafe413b4c86eda801444a175a6960ed32ae5e1c40, k:1dea78b9014a0201061916aafe413b4c86eda801c45aae7969015c3f96e61ca6, k:1dea78b9014a0201061916aafe413b4c86eda801c47a075ab836dc33b7e69ce1, k:1dea78b9014a0201061916aafe413b4c86eda801c47a135a2821dd32b7d79c21, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5ddc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5f54d6, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5f5c40, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a5fdcc1, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e5322a7fdd41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e532365fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175a6981e532422cdd41, k:1dea78b9014a0201061916aafe413b4c86eda801c47a175ab880c53f97e71ca6, k:1dea78b9014a0201061916aafe413b4c86eda801c47a971d6b81e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda801c47d175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86eda809c46a1e5ab8f6ed3a97771ca5, k:1dea78b9014a0201061916aafe413b4c86eda829c47a175a6981e5322a5f9c41, k:1dea78b9014a0201061916aafe413b4c86eda841c57a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86edb801c47a175a6981e5322a5fdc41, k:1dea78b9014a0201061916aafe413b4c86edb801c4fae01de96e8632503cdd99, k:1dea78b9014a0201061916aafe417b4ce6eda83a4448bc78b885ed3f2f5f1cc6, k:1dea78b9014a0221171916aafe413b4c86eda801c47a175a6981e5322a5fdc41, k:28c8af6ce37402010403025afd15165afd1322f302f256750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f3028276750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302ea56750f64dfc3aea70000, k:28c8af6ce37402010403025afd17165afd1322f302f256670f64dfc3aea70000 ... (+186 more)
+
+--- Cluster id=10 ---
+  score      : 4
+  n_segments : 6
+  duration   : 115.43s
+  cov_trace  : 0.006
+  mu(z)      : [-1.347]
+  |MACs|     : 3
+  |Keys|     : 149
+  MACs       : 69:8B:6F:B2:2D:F6, CE:AA:AB:D2:FC:09, F4:0A:68:DD:7E:C0
+  Keys       : k:09fcd2abaace16ff4c00121910798ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910198ae7e55a3840489bdddc258de39d42e7d439, k:09fcd2abaace1eff4c00121910548ae7e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae4e15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae5e11d285a489bcddc85cce19da7ead439, k:09fcd2abaace1eff4c00121910798ae70e5a48da8e79893a4e70de68a1ba1812, k:09fcd2abaace1eff4c00121910798ae7115a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7615a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7c15a3840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7c85b38408abbddfc4580e19d27f7d439, k:09fcd2abaace1eff4c00121910798ae7e11a7840489b5ddc858c215d46e79439, k:09fcd2abaace1eff4c00121910798ae7e1593840489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a1c40489bdddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a28da0e9b8d3a4e70de68a1ba1012, k:09fcd2abaace1eff4c00121910798ae7e15a3840481bd5dc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840481ddddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840483bdcdc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489adddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489b4ddc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489b75dc858ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489b7750928de17589f4447a, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdd1c928de19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdd9c858ce19c46e71413, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bddd4858ce19d46e7d429, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc848ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc850ce19d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc8577ee9d46e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858c819f47e7d439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858cb19d26ab1439, k:09fcd2abaace1eff4c00121910798ae7e15a3840489bdddc858ce09d46e7d439 ... (+119 more)
+
+--- Cluster id=35 ---
+  score      : 4
+  n_segments : 3
+  duration   : 101.63s
+  cov_trace  : 0.108
+  mu(z)      : [-1.194]
+  |MACs|     : 3
+  |Keys|     : 58
+  MACs       : C2:97:A0:09:6A:11, EA:32:7A:C5:8D:BF, F4:0A:68:DD:7E:C0
+  Keys       : k:116a09a097c20201060d16edfe0200945769f129d7ba100303edfe, k:116a09a097c20201060d16edfe0200945769f129d7ba100303edfe0a1fe256, k:bf8dc57a32ea1eff4c00121960cf9d315738afb48a3e39166d9b035cb5b50577, k:bf8dc57a32ea1eff4c00121960cf9d395418adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5822239966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823619966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb582363996679b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9a035475792e77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0314b6f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0344b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50577, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f5cd77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f5ed77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b035cb5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966efb0754b5b50575, k:bf8dc57a32ea1eff4c00121960cf9d395438adb582363996c29a0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb582363b1e6f9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823679166f9b038495f50d37, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823679966d9b4b54b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb58236fb176dfb075cb5b70535, k:bf8dc57a32ea1eff4c00121960cf9d395438adb582b63d966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5963639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d3b5438adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960ef9d395434adb5a23639966d9b0354b5f50d77, k:c07edd680af41eff4c001219204c98dd8a5f4dd49ed05a26deffb92b35ebaffe, k:c07edd680af41eff4c001219204ca273191f45f067dc5ac6e3cfa19198eced61, k:c07edd680af41eff4c001219204cac71191757f267dcdac6e1cfa13b98ece561, k:c07edd680af41eff4c001219204cac73191747f073dadab7e54de01ede7ce561, k:c07edd680af41eff4c001219204cac73191f43b067dc5ad6ed4fa291982ce563 ... (+28 more)
+
+--- Cluster id=30 ---
+  score      : 4
+  n_segments : 3
+  duration   : 91.08s
+  cov_trace  : 0.002
+  mu(z)      : [+1.673]
+  |MACs|     : 1
+  |Keys|     : 64
+  MACs       : 7C:24:AF:57:9B:5D
+  Keys       : k:5d9b57af247c0201021916aafe41f08e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f02e33adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e70adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e73adbd77f935b1f53240cf61bd342910, k:5d9b57af247c0201061916aafe41f08e772dbd67f935b1f53240cf9658376a82, k:5d9b57af247c0201061916aafe41f08e776d8f67f92e3fae1516496faed2e687, k:5d9b57af247c0201061916aafe41f08e77a9bd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77a9bd77f915b1f53240cf9258c73501, k:5d9b57af247c0201061916aafe41f08e77abbc77f911b9f53a60cf32d9376102, k:5d9b57af247c0201061916aafe41f08e77ad9d67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd07b303b1437ce4c361b5f43511, k:5d9b57af247c0201061916aafe41f08e77adbd07fb35b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd27f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd33e135b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd63f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd65f935b3f53240cf125837c802, k:5d9b57af247c0201061916aafe41f08e77adbd677935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f905b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f905b1f53240cf965837e802, k:5d9b57af247c0201061916aafe41f08e77adbd67f915b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f934b1b51240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f93531f13240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f93531f23240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1b53240cf2e5e37e886, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1e03240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f33240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f530004927ae52ea86, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f532404f915853ca8f, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240c39658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240c79658376802 ... (+34 more)
+
+--- Cluster id=32 ---
+  score      : 4
+  n_segments : 3
+  duration   : 64.15s
+  cov_trace  : 0.000
+  mu(z)      : [+2.411]
+  |MACs|     : 1
+  |Keys|     : 74
+  MACs       : 44:27:8B:7A:64:72
+  Keys       : k:72647a8b27440201021916aafe41df6b31570fd78f5a4ac1013e053607f1b4e5, k:72647a8b27440201060916aafe41de6b31570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe415f7b31570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41cf6b31570dd78d5a4ac1013e0d3687f1b4e5, k:72647a8b27440201061916aafe41d56b31570dd78d5a4a41083e05368e71b4e5, k:72647a8b27440201061916aafe41dd6b31570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41de6b31571dd78d5a4ae1013e053687f1b4e5, k:72647a8b27440201061916aafe41df6331570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41df6b1157ddd1ad9a4210012d0dbfc1f1b0fc, k:72647a8b27440201061916aafe41df6b31130bd76d99423408292c3fc5b1287c, k:72647a8b27440201061916aafe41df6b31530dd7ad5a4ac1013e0936c7b120e4, k:72647a8b27440201061916aafe41df6b31570d558e5a4af10c2e0d3687b1a8e5, k:72647a8b27440201061916aafe41df6b31570dd49d6a4ac1013e05368761a6d4, k:72647a8b27440201061916aafe41df6b31570dd70d5a4ac0013e05bd87f1b0e5, k:72647a8b27440201061916aafe41df6b31570dd7895a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d584ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4a81023e053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1003e053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac10110053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1011a053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac10138053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e0136c7b1b465, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e051686f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e05208af1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053487f1b0e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053617f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e05368711b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e05368761b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053687f194e4, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053687f1b0fd ... (+44 more)
+
+--- Cluster id=34 ---
+  score      : 4
+  n_segments : 3
+  duration   : 60.34s
+  cov_trace  : 0.000
+  mu(z)      : [-0.642]
+  |MACs|     : 3
+  |Keys|     : 82
+  MACs       : 60:A3:1C:E9:99:F4, 73:F8:F0:FA:28:49, DD:32:8F:12:9C:BD
+  Keys       : k:4928faf0f87302010403022afd17165afd1323f302eced73e9921b2522a70000, k:4928faf0f87302010403023afd17165afd1323f302eced73e9921b2522a70000, k:4928faf0f87302010403025add17165afd1323f302eced73e9921b2522a70000, k:4928faf0f87302010403025afd07165afd1323f302eced73e9921b2522a70010, k:4928faf0f87302010403025afd17165afd1323f302b8fd73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302ccec73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302ec6d7fe9921b2522a70200, k:4928faf0f87302010403025afd17165afd1323f302ece97379921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced43e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced4be9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced7369b21b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9861b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b0922a70000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b1522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b252287c401, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b25229b0000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a7001a, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a7801c, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2546a70000, k:4928faf0f87302010403025afd17165afd1323f302eee973e9921b25a2a70000, k:4928faf0f87302010403025afd17165afd1323f30aeced73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f322eeed73699f1b2532a30000, k:4928faf0f87302010403025afd17165afd1323fb02eced73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1325f32acee96569b2132522a30000, k:4928faf0f87302010403425afd17165afd1323f302eced73e9921b2522a70000, k:4928faf0f87302018403025afd17165afd1323f302eced73a9911b2522a70000, k:4928faf0f87302150403025afd17165afd1323f302eced73e9921b2522a70000, k:bd9c128f32dd1eff4c00121900d2d03d920a95fae680e3c91213d0f98aff4ced, k:bd9c128f32dd1eff4c00121900d2d03d920a95fae680e3c91213d0f98aff6ccf ... (+52 more)
+
+--- Cluster id=26 ---
+  score      : 4
+  n_segments : 2
+  duration   : 54.42s
+  cov_trace  : 0.132
+  mu(z)      : [+2.705]
+  |MACs|     : 2
+  |Keys|     : 56
+  MACs       : 44:27:8B:7A:64:72, 7D:C9:C0:BD:85:B3
+  Keys       : k:72647a8b27440201061916aafe415f6b31578dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe418f6a31570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41cf6b21130fd7ad5a4a80013e0d3787f1b0e5, k:72647a8b27440201061916aafe41d56b31570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570d534edd5b2b1a1257200a7184d6, k:72647a8b27440201061916aafe41df6b31570dd78d5a4a41003e053687e1b4f5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053607f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e05368771b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053687f18cd6, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e053687f1b4e7, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1013e453287f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78d5a4ac1093c05bfc5f1b0ed, k:72647a8b27440201061916aafe41df6b31570dd78d5a5ec3013e053687f1b4e5, k:72647a8b27440201061916aafe41df6b31570dd78dda42c101290dbdc5b1287c, k:72647a8b27440201061916aafe41df6b31570ddb8d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41df6b31d70dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201061916aafe41df6b39570dd78d5a4ac10136053687f19cf5, k:72647a8b27440201061916aafe41f76b3153d7d70d584af4083e0dbd87f1a064, k:72647a8b27440201061916aafec1df6b31570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440201261816aafe41df6b31570dd78d5a4ac1013e053687f1b4e5, k:72647a8b27440221061916aafe41df6b31530fd7ad5a42b00c3c05bfc1b1287d, k:72647a8b27440221071916aafe41df6b31570dd78d5a4ac1013e053687f1b4e5, k:b385bdc0c97d0201061916aafe41947c2fb1aed73e58f2bc8b06caec4e5937f1, k:b385bdc0c97d0201061916aafe41947ca911fed92e5c62d08b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae113edb2e5c62d08b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11be92295cd23c49b56350ade569d6, k:b385bdc0c97d0201061916aafe41947cae11be9b7d5cd23c49b56350ade569d6, k:b385bdc0c97d0201061916aafe41947cae11eed82e1c629809369bf47ef569b1, k:b385bdc0c97d0201061916aafe41947cae11fe592a5c62d08b069aecde5936b1 ... (+26 more)
+
+--- Cluster id=36 ---
+  score      : 4
+  n_segments : 2
+  duration   : 53.65s
+  cov_trace  : 0.004
+  mu(z)      : [-2.515]
+  |MACs|     : 1
+  |Keys|     : 60
+  MACs       : E9:5A:FB:9E:46:7C
+  Keys       : k:7c469efb5ae90eff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa8, k:7c469efb5ae913ff4c00121910e959a560e261071f94a77a2a1fb2c78a647aa8, k:7c469efb5ae91aff4c00121910e9598560e261071f94a77a2a1fb2c78a647aa8, k:7c469efb5ae91eff4c001219106959a560e261071f94a77a2a1fb2c78a647aaa, k:7c469efb5ae91eff4c00121910c959a560e261071f94a77a2a1fb2c78a647aa8, k:7c469efb5ae91eff4c00121910e9598570e261050f9ca77a3a1fb2c78ae47ea8, k:7c469efb5ae91eff4c00121910e9598760e261071fbca77a3a9bb2c78ae47ea8, k:7c469efb5ae91eff4c00121910e959a528e261071f94a77a2a1fb2c78a647aa8, k:7c469efb5ae91eff4c00121910e959a53af661071f94a77a2a1fb2c78a647aa8, k:7c469efb5ae91eff4c00121910e959a5406a61071f96a77a2a1fb2c78a645aa8, k:7c469efb5ae91eff4c00121910e959a5606ae1031f36a67b3b1bb2c58ae67aa8, k:7c469efb5ae91eff4c00121910e959a560aa61071f94a77a2a1fb2c78a647aa8, k:7c469efb5ae91eff4c00121910e959a560e261051f94a77a2a1fb2c78a64fa23, k:7c469efb5ae91eff4c00121910e959a560e261065f94837a2a1fb2c78a44108d, k:7c469efb5ae91eff4c00121910e959a560e261071594b7ebb9b9f74547fbcf9a, k:7c469efb5ae91eff4c00121910e959a560e261071a94a77a2a1fb2c78a647aa8, k:7c469efb5ae91eff4c00121910e959a560e261071b94a77a2a1fb2c78a647aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a7792a1fb2c78a647aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a0a1ab2c78a647aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a291fb2458b645aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a19b2c74a64ce88, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1eb2c78a647aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2478264de9a, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c72a647aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c74773da5a, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c782647aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c789647aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a247aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a641aa8, k:7c469efb5ae91eff4c00121910e959a560e261071f94a77a2a1fb2c78a647a88 ... (+30 more)
+
+--- Cluster id=31 ---
+  score      : 4
+  n_segments : 2
+  duration   : 53.35s
+  cov_trace  : 0.004
+  mu(z)      : [+0.739]
+  |MACs|     : 2
+  |Keys|     : 54
+  MACs       : 4A:01:B9:78:EA:1D, F0:E3:99:3D:ED:D2
+  Keys       : k:1dea78b9014a0201061916aafe418e094eddf308e19d8af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab0944ddf308e19d8af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094ed9f308e19d8af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094edbf208e19d8af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf300e19d8af6af0be26f37b50af9, k:1dea78b9014a0201061916aafe41ab094eddf308a19d8af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e11ddbf4af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e1998af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af03e16f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0b626f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be06f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37950ac9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f3795daf9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37990af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f37bd02f9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af0be26f68990af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af5b916f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e19d8af6af8bc86f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf308e1d98af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab094eddf30dc19d8af4af0be24f37954af9, k:1dea78b9014a0201061916aafe41ab094eddf3c4a79d8af6af0be26f37950af9, k:1dea78b9014a0201061916aafe41ab095edd237ef9dcaabebb03e27fbd950af1, k:1dea78b9014a0201061916aafe41eb094ed4f308e19c8af6ab0be26f37950af9, k:1dea78b9014a0201061916aafe81ab094eddf308e19d8af6af0be26f37950af9, k:1dea78b9014a0201121916aafe41ab094fddf308e19d8af6af0be26f37950af9, k:1dea78b9014a02011e1916aafe41ab094eddf308e19d8af6af0be26f37950af9, k:1dea78b9014a0261071916aafe41ab094eddf308e19d8af6af0be26f37950af9, k:d2ed3d99e3f01eff4c00121960138d5561c4d155a3aaa33ef3ee36e4bf50827a, k:d2ed3d99e3f01eff4c00121960138d55e1c42155a3aaa33ef3ee36e4bf50827a ... (+24 more)
+
+--- Cluster id=39 ---
+  score      : 4
+  n_segments : 3
+  duration   : 51.96s
+  cov_trace  : 0.119
+  mu(z)      : [-1.301]
+  |MACs|     : 2
+  |Keys|     : 81
+  MACs       : EA:32:7A:C5:8D:BF, F4:0A:68:DD:7E:C0
+  Keys       : k:bf8dc57a32ea1eff4c00121960aff0485400f9974215bd85c25a5ae46e7dfef3, k:bf8dc57a32ea1eff4c00121960c79d01d42487a06b2ffb1fba7b2f8cd83374b5, k:bf8dc57a32ea1eff4c00121960cf9c395438adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d21542887a06b2ffb1fba7b2f8cd83374b5, k:bf8dc57a32ea1eff4c00121960cf9d315438adb40a760adbd10b3960eed048d4, k:bf8dc57a32ea1eff4c00121960cf9d315438adb5823631966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d3954388da4ab3e79966dbb0754b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639166d9b0354b5f50577, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639166f9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639876d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb582363996659b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d0b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0254b5f90d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b035435f80f77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5350df7, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50d75, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50d7f, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50db7, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50f77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f92e77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0357b5f50d37, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9f0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966dbb0154b5b35575, k:bf8dc57a32ea1eff4c00121960cf9d395438adb58a3639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb58a37399e6dbb0354b5b50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438add5803739966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d39543cadb5823639166d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d39543cadb5823639966d9f0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d3954a4adb56b2efb1ebefb2f8c98b565b5 ... (+51 more)
+
+--- Cluster id=11 ---
+  score      : 4
+  n_segments : 2
+  duration   : 50.70s
+  cov_trace  : 0.006
+  mu(z)      : [+3.036]
+  |MACs|     : 1
+  |Keys|     : 48
+  MACs       : 7D:C9:C0:BD:85:B3
+  Keys       : k:b385bdc0c97d0201061916aafe418473aeb0ae963d9ad63c49b46350ade569d6, k:b385bdc0c97d0201061916aafe41847c29b0ae963f9ad63c49356350adf169b6, k:b385bdc0c97d0201061916aafe41947c29b0ae963d9ad6dc49b4e370ade523d6, k:b385bdc0c97d0201061916aafe41947caa11fed92e5c62d08b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11dd412a5c22c88b04d9fdd839aef1, k:b385bdc0c97d0201061916aafe41947cae11fe592e5cf2d48b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fe692e5c62d08b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed12a5c62d08b066295bd3033b1, k:b385bdc0c97d0201061916aafe41947cae11fed12e5c62d08b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62188b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62500e049aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62508f069a6c5e5936b0, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62900e059aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62908b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d00b059aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d00b6099ec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d06b059aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d089069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08986e370ade56bd2, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b0666ad5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b066a9d585936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b0683685e5923b2, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b0698ec5e5136b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b069aac5d5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b069aec5a5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b069aec5e5536b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b069aec5e592ab1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b069aec5e5936b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b069aec5e59a6b1, k:b385bdc0c97d0201061916aafe41947cae11fed92e5c62d08b069aec5e7921b2 ... (+18 more)
+
+--- Cluster id=37 ---
+  score      : 4
+  n_segments : 3
+  duration   : 49.26s
+  cov_trace  : 0.001
+  mu(z)      : [-0.638]
+  |MACs|     : 2
+  |Keys|     : 75
+  MACs       : 73:F8:F0:FA:28:49, 74:4A:24:AF:44:A3
+  Keys       : k:4928faf0f87302010403024ffd17165afd1323f302eced73e9921b2522a70000, k:4928faf0f87302010403025af117165afd13237302eced73e9921b2522b70000, k:4928faf0f87302010403025afd17165afd1303e302ece973e9921b2523a70000, k:4928faf0f87302010403025afd17165afd13230302eced73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd13237302eced73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323e302ec917d78bf833413a6b20e, k:4928faf0f87302010403025afd17165afd1323f3026cec73787f0325939a7000, k:4928faf0f87302010403025afd17165afd1323f3026ced73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302ec6d72e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302ecc973e992132522a70200, k:4928faf0f87302010403025afd17165afd1323f302eced33e9097fbc4b848b89, k:4928faf0f87302010403025afd17165afd1323f302eced43e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced53e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced53e9924b2522e50000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9821b2522a70030, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921325b2a30200, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b0722a70000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a70000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a7000a, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a70010, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a78001, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a7c000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522a90000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522e70000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522f7c000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b2522f7e41d, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b25429c0000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b25a2a60000, k:4928faf0f87302010403025afd17165afd1323f302eced73e9921b25d2a7900e, k:4928faf0f87302010403025afd17165afd1323f302eced73e992632522a70000 ... (+45 more)
+
+--- Cluster id=5 ---
+  score      : 4
+  n_segments : 3
+  duration   : 45.75s
+  cov_trace  : 0.008
+  mu(z)      : [-1.043]
+  |MACs|     : 3
+  |Keys|     : 93
+  MACs       : D5:30:D6:9E:D7:F2, EA:32:7A:C5:8D:BF, F4:0A:68:DD:7E:C0
+  Keys       : k:bf8dc57a32ea0eff4c00121960ef9d395438adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960c99d395438adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d391439adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5820439166d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb582363996519b0354b5f50577, k:bf8dc57a32ea1eff4c00121960cf9d395438adb582363996609b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b4f70d37, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b535ee73, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50977, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50c77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50db7, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354b5f50df7, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0354bcf50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0355b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0374b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966d9b0394b5370575, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639966dbb07d4d83374b5, k:bf8dc57a32ea1eff4c00121960cf9d395438adb582363996fd9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395438adb5823639d66d7b2f8c9d3374b5, k:bf8dc57a32ea1eff4c00121960cf9d395438f5b5823679966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d39543aadb5823639966d9b0354b5f50d77, k:bf8dc57a32ea1eff4c00121960cf9d395478adb5c23639966d9b0354b5f54d77, k:bf8dc57a32ea1eff4c00121960cf9d39d424afb5eb2ffb1fae3b2f8cd43374b5, k:bf8dc57a32ea1eff4c00121960cfdd785408ad9d823639956d9b537425f5cff7, k:bf8dc57a32ea1eff4c00121960ef9d39d43ca5a48b3e79166dfb0f54b5b70d37, k:bf8dc57a32ea1eff4c001219a0cf9d395438adb5823639966d9f0354b5f50d77, k:bf8dc57a32ea1eff4c001219d4ce9d395438adb5823639966d9b0354b5f50d77, k:c07edd680af41eff4c001219204c2c71191f45f067dc5ac6e3cfa19198eced61, k:c07edd680af41eff4c001219204cac5b191f45f067dc5ac6e3cfa19198eced61 ... (+63 more)
+
+--- Cluster id=38 ---
+  score      : 4
+  n_segments : 3
+  duration   : 41.85s
+  cov_trace  : 0.133
+  mu(z)      : [+2.164]
+  |MACs|     : 2
+  |Keys|     : 81
+  MACs       : 44:27:8B:7A:64:72, 7C:24:AF:57:9B:5D
+  Keys       : k:5d9b57af247c0201061916aafe41702e33a9d87fa101a9d27aecc31375fc3510, k:5d9b57af247c0201061916aafe41d08e77edbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41d4aa776d8f41d62cbfbe10064f6fee37e686, k:5d9b57af247c0201061916aafe41e08e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77acbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77ad9567f934b3f51240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67a303b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f930b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f93531f23240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f93591f03240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935a9f53240cf97d8d7f801, k:5d9b57af247c0201061916aafe41f08e77adbd67f935acf13240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1653240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1b53240cf9e58376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f51240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f532404b6f5a37c687, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658176002, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658372802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf965837680a, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658376882, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658376c02, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658b76902, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf965e376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53256cd9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53c40cf9658376802, k:5d9b57af247c0201061916aafe41f08e77edbf67f93e3fbe1006492fae52c68f, k:5d9b57af247c0201061916aafec1ea8e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafec5f28e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c021d061916aafe41f08e77adbd67f935b1f53240cf9658376802 ... (+51 more)
+
+--- Cluster id=40 ---
+  score      : 4
+  n_segments : 2
+  duration   : 35.17s
+  cov_trace  : 0.102
+  mu(z)      : [+0.443]
+  |MACs|     : 2
+  |Keys|     : 56
+  MACs       : 7A:74:59:67:94:F4, C5:68:6B:99:6A:C5
+  Keys       : k:c56a996b68c51eff4c0012191046e5ab7a90b2e4c1c02875739fccd4fc6bf0f4, k:c56a996b68c51eff4c00121910c6e58b7ab0a8e4c1c02b75739fccd4fc2be0f4, k:c56a996b68c51eff4c00121910c6e5ab2a90b2e4c1c02875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a50b2e4c1c02875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90a2e0c1c02875739fcc54fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b244c6c02855739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02845739fcce4fd2b70f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875719fccd4fc23f0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c028757397ccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4f42bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4fc27f0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4fc2af0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccd4fcabf4f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c02875739fccf5fd2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c0287573ffc8d4fcdccaf4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c028f5779fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c08875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c1c12875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c7c02875739fccd4fc2bf8f4, k:c56a996b68c51eff4c00121910c6e5ab7a90b2e4c9c12875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7ab0b2e4c1c02875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121910c6e5ab7ad0e8e441c42875b59dcc54fc99f0f4, k:c56a996b68c51eff4c00121910e680ab7a90b2e4c1c02875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121930c6e58b7a90b2e4c1c02875739fccd4fc2bf0f4, k:c56a996b68c51eff4c00121930c6e5eb7990b2e4d2c028757317ccd4fcad35f4, k:f4946759747a0201061916aafe404458b3294d68dff4bbfe6ec8e5b19b0604b0, k:f4946759747a0201061916aafe404478232b4d4e45d6baba6a48fcb24f420450, k:f4946759747a0201061916aafe40447833284768454ebaab3b52dcfe4fcaf056, k:f4946759747a0201061916aafe404478b3290d68dff4bbfec4fc962f339fed7d ... (+26 more)
+
+--- Cluster id=25 ---
+  score      : 4
+  n_segments : 2
+  duration   : 33.49s
+  cov_trace  : 0.026
+  mu(z)      : [+1.412]
+  |MACs|     : 2
+  |Keys|     : 55
+  MACs       : 44:27:8B:7A:64:72, 7C:24:AF:57:9B:5D
+  Keys       : k:5d9b57af247c0201041916aafe41f08e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41708e77a9bd67f905b1f53a40cf9658373519, k:5d9b57af247c0201061916aafe41a2587a5e21279bb356743bedebedc98a2ef9, k:5d9b57af247c0201061916aafe41a278fa5e21279bb356743bedebedc98a2ef9, k:5d9b57af247c0201061916aafe41a29808cde1ba630f62416fb68a9f9587b8ef, k:5d9b57af247c0201061916aafe41b08e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77ad9d67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd677935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67a633b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f915b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935a5f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1753440cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b175a08c91c0da4b151b, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240c29658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9058376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658376816, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658376818, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf965837e802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9658f73501, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53240cf9678376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f532a0c39658376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f935b1f53a40cf9258376802, k:5d9b57af247c0201061916aafe41f08e77adbd67f93d3fae1106496d6ed3e686, k:5d9b57af247c0201061916aafec1fa8e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c02012e1916aafe41f08e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0201321916aafe41f08e77adbd67f935b1f53240cf9658376802, k:5d9b57af247c0221061916aafec1949a776e8f41d62e3bae1516492daed2c686, k:72647a8b27440201061916aafe418f42f22c4a945c1b00481d24b8ec6d61fc26, k:72647a8b27440201061916aafe418f43f22c0a945c1300481d04a0ac6d61fc66 ... (+25 more)
+
+--- Cluster id=20 ---
+  score      : 4
+  n_segments : 2
+  duration   : 32.68s
+  cov_trace  : 0.001
+  mu(z)      : [-0.074]
+  |MACs|     : 2
+  |Keys|     : 45
+  MACs       : 43:CF:E8:02:99:A5, 52:5C:3A:99:8C:AB
+  Keys       : k:a59902e8cf430201061916aafe409643ed9910d919ddc91193b739c5beb7a3ad, k:a59902e8cf430201061916aafe409643ed9980d819d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed99904819d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed99907866cc5c8a7f0b2ec757eda066, k:a59902e8cf430201061916aafe409643ed9990d819d20311b3e739c5ecb7a2ac, k:a59902e8cf430201061916aafe409643ed9990d819d24911e78177446902e3e2, k:a59902e8cf430201061916aafe409643ed9990d819d2c91113b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b139c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a99272ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bda2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa1ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa20d, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa2ae, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5abbfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c981b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d871d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9998d819d2c911b3b339c5a9bfa2bd, k:a59902e8cf430201061916aafe40d643ed9990d819d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe809643ed9990d819d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe909743ed9990d819d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafeb01e40adf499da335d0311916fbbc4feb72398, k:ab8c993a5c520201060916aafe41f143c8b6b8761829d7a8ae0d6cb0eb9090a2, k:ab8c993a5c520201061916aafe41714dc8b6b8761829d7a8ae0d6cb0eb9090a2, k:ab8c993a5c520201061916aafe41d943c8b2b8761829d7a8ae0d6cb0eb9090a2, k:ab8c993a5c520201061916aafe41f14368b6b8761829d7a8ae0d6cb0eb9090a2, k:ab8c993a5c520201061916aafe41f14388beb8761a20d6a88a0068b0ef90b2a2, k:ab8c993a5c520201061916aafe41f143c8b698771829d7a8ae0d6cb0eb9090a2, k:ab8c993a5c520201061916aafe41f143c8b6b8761821d6a88a306cb0779190f6, k:ab8c993a5c520201061916aafe41f143c8b6b8761829d3a8ae0d6cb0eb9090a2 ... (+15 more)
+
+--- Cluster id=6 ---
+  score      : 3
+  n_segments : 2
+  duration   : 23.82s
+  cov_trace  : 0.012
+  mu(z)      : [-0.282]
+  |MACs|     : 2
+  |Keys|     : 52
+  MACs       : 43:CF:E8:02:99:A5, DC:D6:44:C7:D7:A6
+  Keys       : k:a59902e8cf430201061916aafe409603eed918da39d10b1cb7b7b9c4a9bfa3ad, k:a59902e8cf430201061916aafe409643ed9950dd19d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9988d819d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990781ad2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990c019d2c911b3b339c5a9bfa2bd, k:a59902e8cf430201061916aafe409643ed9990d807d2895cb173b9c5bdb6a2bd, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b309c6a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b3394557fda06d, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c509bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa2a4, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfa2fd, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9bfe2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c5a9eca0ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c911b3b339c7a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2c981b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d819d2d91133b329c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed9990d81bd2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643ed99a0d919d2c911b3b339c5a9bfa2ad, k:a59902e8cf430201061916aafe409643edd918101a52035cd56fb2c4d69623d8, k:a59902e8cf430201061916aafe4096bd88f4101610d20b1491bfbbc5fcb7a2bd, k:a59902e8cf430201321916aafe409643ed9990d819d2c911b3b339c5a9bfa2ad, k:a6d7c744d6dc1eff4c00121900a027cb8b9d14f2e83bb96ec1b7c104a56339a8, k:a6d7c744d6dc1eff4c00121910a083adeb4a8c10841fad749b03de454e451768, k:a6d7c744d6dc1eff4c00121910a085adeb4a8c10841fad749b03de454e451768, k:a6d7c744d6dc1eff4c00121910a087adeb428c10841fad749b03de454e451768, k:a6d7c744d6dc1eff4c00121910a087adeb4a1412843fa9748187df056545f52a, k:a6d7c744d6dc1eff4c00121910a087adeb4a1432843bb16ec1b7c104a56bf9ba, k:a6d7c744d6dc1eff4c00121910a087adeb4a8910841fad749b03de454e451768, k:a6d7c744d6dc1eff4c00121910a087adeb4a8c10841f93649b03de454e451768 ... (+22 more)
+[✓] wrote: all_devices_static_rail/aircatch_tracklets.jsonl (40 items)
+[✓] wrote: all_devices_static_rail/aircatch_flagged.jsonl (39 items)
+[✓] saved boxplot: all_devices_static_rail/aircatch_clusters_cfo_boxplot.pdf and all_devices_static_rail/aircatch_clusters_cfo_boxplot.png
+[!] Not enough features for PCA; skipping PCA plot.
+[✓] saved MAC-count bar: all_devices_static_rail/aircatch_clusters_mac_counts.pdf and all_devices_static_rail/aircatch_clusters_mac_counts.png
+
+================================================================================
+Clusters total: 40 | Flagged: 39 | Segments: 245
+================================================================================
+- id=  3 score=4 nSeg=5    dur=255.2s |K|=121 |M|=3   tr=0.00
+- id=  7 score=4 nSeg=7    dur=246.0s |K|=198 |M|=6   tr=0.01
+- id=  2 score=4 nSeg=10   dur=241.5s |K|=235 |M|=8   tr=0.02
+- id=  9 score=4 nSeg=9    dur=222.6s |K|=215 |M|=5   tr=0.03
+- id= 24 score=4 nSeg=10   dur=220.9s |K|=166 |M|=6   tr=0.01
+- id=  8 score=4 nSeg=7    dur=219.4s |K|=150 |M|=3   tr=0.00
+- id= 13 score=4 nSeg=14   dur=216.4s |K|=356 |M|=6   tr=0.02
+- id= 23 score=4 nSeg=8    dur=212.8s |K|=162 |M|=6   tr=0.01
+- id= 21 score=4 nSeg=7    dur=211.9s |K|=153 |M|=5   tr=0.00
+- id= 12 score=4 nSeg=8    dur=210.8s |K|=179 |M|=5   tr=0.02
+- id= 14 score=4 nSeg=9    dur=201.4s |K|=220 |M|=5   tr=0.01
+- id= 16 score=4 nSeg=7    dur=201.1s |K|=182 |M|=4   tr=0.00
+- id= 19 score=4 nSeg=14   dur=195.4s |K|=326 |M|=5   tr=0.02
+- id= 22 score=4 nSeg=7    dur=174.6s |K|=182 |M|=5   tr=0.02
+- id= 29 score=4 nSeg=6    dur=174.5s |K|=159 |M|=2   tr=0.01
+- id= 17 score=4 nSeg=6    dur=168.5s |K|=134 |M|=5   tr=0.00
+- id=  1 score=4 nSeg=7    dur=167.7s |K|=168 |M|=2   tr=0.03
+- id= 15 score=4 nSeg=5    dur=144.9s |K|=130 |M|=5   tr=0.00
+- id= 27 score=4 nSeg=9    dur=141.6s |K|=218 |M|=5   tr=0.00
+- id= 28 score=4 nSeg=6    dur=141.2s |K|=157 |M|=5   tr=0.03

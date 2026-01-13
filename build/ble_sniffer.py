@@ -1305,9 +1305,8 @@ def _process_one_window_task(task):
                 phase_i  = int(pkt_for_print.get("phase", 0))
 
                 if aa_pos_i >= 0 and fs_in > 0:
-                    aa_start_up = int(s_up + phase_i + aa_pos_i * sps)   # upsampled-domain sample index
-                    aa_start_orig = int(round(aa_start_up / scale))      # original-domain sample index
-                    timestamp_s = float(aa_start_orig) / float(fs_in)    # seconds from capture start
+                    aa_start_up_global = int(s_up + phase_i + aa_pos_i * sps)
+                    timestamp_s = aa_start_up_global / fs_out
                 else:
                     timestamp_s = float("nan")
 
