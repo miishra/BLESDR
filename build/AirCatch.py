@@ -102,7 +102,7 @@ USE_ZSPACE = True
 
 # Initial gamma (used until AUTO_GAMMA learns a better one).
 # In z-space, squared Mahalanobis typically sits around O(d) for matches.
-GATE_GAMMA_Z_INIT = 7 #18 #8
+GATE_GAMMA_Z_INIT = 18 #18 #8
 
 # Scatter stability threshold differs by space
 ETA_TRACE_MAX_Z = 8.0
@@ -122,7 +122,7 @@ COV_SHRINK_TO_I = 0.15         # shrink covariance towards identity (0..1)
 INV_EPS = 1e-3                 # stronger than 1e-6 to avoid huge inverses
 
 # Optional: freeze global scaler after N segment updates to prevent z-drift (recommended for z-space)
-GLOBAL_NORM_FREEZE_AFTER = 10  # set None to never freeze
+GLOBAL_NORM_FREEZE_AFTER = None  # set None to never freeze
 
 # OPTION B: clusters must remain persistent -> disable pruning
 PRUNE_INACTIVE_AFTER = None      # MUST be None for persistent clusters
@@ -1419,6 +1419,7 @@ def run_batch(input_path: str, out_root: str):
         scenario_out = os.path.join(out_root, "per_scenario")
         res = run_aircatch_on_csv(csv, scenario_out)
         results.append(res)
+        break # TEMP: run only on one CSV for now
 
     df_res = pd.DataFrame(results)
     df_res.to_csv(os.path.join(out_root, "summary_metrics.csv"), index=False)
