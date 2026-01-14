@@ -57,8 +57,17 @@ OUT_PCA3D_PNG = os.path.join(OUTPUT_DIR, "aircatch_clusters_pca3d.png")
 OUT_MACBAR_PDF = os.path.join(OUTPUT_DIR, "aircatch_clusters_mac_counts.pdf")
 OUT_MACBAR_PNG = os.path.join(OUTPUT_DIR, "aircatch_clusters_mac_counts.png")
 
+# --- NEW: MAC-level plots (before clustering) ---
+OUT_MAC_BOX_PDF  = os.path.join(OUTPUT_DIR, "aircatch_macs_cfo_boxplot.pdf")
+OUT_MAC_BOX_PNG  = os.path.join(OUTPUT_DIR, "aircatch_macs_cfo_boxplot.png")
+OUT_MAC_PCA3D_PDF = os.path.join(OUTPUT_DIR, "aircatch_macs_pca3d.pdf")
+OUT_MAC_PCA3D_PNG = os.path.join(OUTPUT_DIR, "aircatch_macs_pca3d.png")
+
+# Keep plots readable when there are tons of MACs
+MAX_MACS_FOR_PLOTS = 30   # top-N MACs by packet count
+
 # --- AirCatch params (Algorithm) ---
-SEGMENT_SIZE_P = 160              # p
+SEGMENT_SIZE_P = 1 #160              # p
 ASSOC_GAP_DT = 2.0               # kept for compatibility, NOT USED in option B
 T_MIN = 30.0                    # T_min (seconds)
 N_MIN = 1                        # N_min (segments)
@@ -73,7 +82,7 @@ USE_ZSPACE = True
 
 # Initial gamma (used until AUTO_GAMMA learns a better one).
 # In z-space, squared Mahalanobis typically sits around O(d) for matches.
-GATE_GAMMA_Z_INIT = 8
+GATE_GAMMA_Z_INIT = 7 #18 #8
 
 # Scatter stability threshold differs by space
 ETA_TRACE_MAX_Z = 8.0
@@ -86,6 +95,12 @@ REQUIRE_LOSTMODE_PREFIX = True
 GLOBAL_NORM_UPDATE_EVERY = 1
 GLOBAL_NORM_MIN_STD = 1e-3
 
+# --- NEW: covariance regularization (z-space) ---
+COV_MIN_N = 20                # until n>=20, don't trust empirical covariance
+Z_COV_DIAG_FLOOR = 0.25        # variance floor per dim in z-space (std floor = 0.5)
+COV_SHRINK_TO_I = 0.15         # shrink covariance towards identity (0..1)
+INV_EPS = 1e-3                 # stronger than 1e-6 to avoid huge inverses
+
 # Optional: freeze global scaler after N segment updates to prevent z-drift (recommended for z-space)
 GLOBAL_NORM_FREEZE_AFTER = 10  # set None to never freeze
 
@@ -94,12 +109,12 @@ PRUNE_INACTIVE_AFTER = None      # MUST be None for persistent clusters
 
 # --------------------------- NEW: warmup + auto-gamma ---------------------------
 
-WARMUP_SEGS = 10                 # warm up scaler for first N segments (z-space)
+WARMUP_SEGS = 200 #10                 # warm up scaler for first N segments (z-space)
 
 # Raw-mode diag covariance prior floor (Hz^2)
 RAW_DIAG_FLOOR_HZ = 200.0        # min std per feature ~200 Hz
 
-MIN_CLUSTER_SIZE_FOR_MATCH = 2  # min segments in cluster to consider for matching
+MIN_CLUSTER_SIZE_FOR_MATCH = 1 #20  # min segments in cluster to consider for matching
 
 # CFO feature columns likely present
 OPTIONAL_CFO_COLS = [
@@ -245,6 +260,239 @@ def extract_public_key(payload_hex: str, mac: str) -> Optional[str]:
     core = s[:64] if len(s) >= 64 else s
     return f"k:{core}"
 
+def _resolve_plot_cfo_cols_df(df: pd.DataFrame) -> List[str]:
+    """
+    Choose up to 5 CFO columns for plotting from the *raw packet-level df*.
+    Prefer PLOT_CFO_PREFERRED if present (case-insensitive), else fall back to any CFO Hz cols.
+    """
+    # Build a case-insensitive lookup
+    lower_map = {str(c).lower(): str(c) for c in df.columns}
+
+    chosen = []
+    for pref in PLOT_CFO_PREFERRED:
+        hit = lower_map.get(pref.lower(), "")
+        if hit and hit not in chosen:
+            chosen.append(hit)
+        if len(chosen) >= 5:
+            break
+
+    if chosen:
+        return chosen
+
+    # fallback: anything that looks like CFO in Hz
+    for c in df.columns:
+        lc = str(c).lower()
+        if ("cfo" in lc) and ("hz" in lc):
+            chosen.append(str(c))
+        if len(chosen) >= 5:
+            break
+
+    return chosen
+
+
+def plot_mac_cfo_boxplot(df_raw: pd.DataFrame,
+                         time_col: str,
+                         mac_col: str,
+                         payload_col: Optional[str],
+                         out_pdf: str,
+                         out_png: str) -> None:
+    """
+    Packet-level CFO boxplots grouped by MAC.
+    Uses up to 5 CFO columns.
+    """
+    if df_raw is None or df_raw.empty:
+        print("[!] Empty dataframe; skipping MAC CFO boxplot.")
+        return
+
+    dfp = df_raw.copy()
+
+    # Optional: apply the same tag filter as the clustering pipeline (so plots match what you cluster)
+    if REQUIRE_LOSTMODE_PREFIX and payload_col:
+        dfp = dfp[dfp[payload_col].apply(lambda x: isinstance(x, str) and has_lostmode_prefix(x))]
+
+    # MAC cleanup
+    dfp[mac_col] = dfp[mac_col].astype(str)
+    dfp = dfp[dfp[mac_col].str.len() > 0]
+
+    # Pick CFO columns
+    plot_cfo_cols = _resolve_plot_cfo_cols_df(dfp)
+    plot_cfo_cols = [c for c in plot_cfo_cols if c in dfp.columns]
+    if not plot_cfo_cols:
+        print("[!] No CFO columns available for MAC boxplot; skipping.")
+        return
+
+    # Keep top-N MACs by packet count for readability
+    mac_counts = dfp[mac_col].value_counts()
+    macs = mac_counts.head(int(MAX_MACS_FOR_PLOTS)).index.tolist()
+    dfp = dfp[dfp[mac_col].isin(macs)].copy()
+
+    # Convert CFO columns numeric
+    for c in plot_cfo_cols:
+        dfp[c] = pd.to_numeric(dfp[c], errors="coerce")
+    dfp = dfp.replace([np.inf, -np.inf], np.nan).dropna(subset=plot_cfo_cols)
+
+    if dfp.empty:
+        print("[!] No finite CFO rows after filtering; skipping MAC boxplot.")
+        return
+
+    # Build plot: multi-feature offset boxplots per MAC
+    macs_sorted = sorted(macs)
+    n_feat = len(plot_cfo_cols)
+
+    fig_w = max(10.0, min(26.0, 0.55 * len(macs_sorted) + 6.0))
+    fig_h = 6.0
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+
+    base_positions = np.arange(len(macs_sorted), dtype=float)
+    offsets = np.linspace(-0.25, 0.25, n_feat) if n_feat > 1 else np.array([0.0])
+
+    prop_cycle = plt.rcParams["axes.prop_cycle"].by_key().get("color", [])
+    if not prop_cycle:
+        prop_cycle = ["C0", "C1", "C2", "C3", "C4", "C5"]
+
+    handles, labels = [], []
+
+    for fi, col in enumerate(plot_cfo_cols):
+        data, positions = [], []
+        for i, mac in enumerate(macs_sorted):
+            vals = dfp.loc[dfp[mac_col] == mac, col].dropna().values
+            if vals.size == 0:
+                continue
+            data.append(vals)
+            positions.append(base_positions[i] + offsets[fi])
+
+        if not data:
+            continue
+
+        bp = ax.boxplot(
+            data,
+            positions=positions,
+            widths=0.12 if n_feat > 1 else 0.35,
+            patch_artist=True,
+            showfliers=False,
+            medianprops=dict(linewidth=1.2),
+            boxprops=dict(linewidth=1.0),
+            whiskerprops=dict(linewidth=1.0),
+            capprops=dict(linewidth=1.0),
+        )
+        color = prop_cycle[fi % len(prop_cycle)]
+        for patch in bp["boxes"]:
+            patch.set_facecolor(color)
+            patch.set_alpha(0.45)
+            patch.set_edgecolor(color)
+
+        handles.append(bp["boxes"][0])
+        labels.append(col)
+
+    ax.set_title(f"CFO distributions grouped by MAC (top {len(macs_sorted)} MACs by packets)")
+    ax.set_ylabel("CFO (Hz)")
+    ax.set_xlabel("MAC (AdvA)")
+    ax.set_xticks(base_positions)
+    ax.set_xticklabels(macs_sorted, rotation=90, fontsize=8)
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.6, alpha=0.6)
+    if handles:
+        ax.legend(handles, labels, title="CFO feature", loc="upper right", frameon=True)
+
+    fig.tight_layout()
+    fig.savefig(out_pdf, bbox_inches="tight")
+    fig.savefig(out_png, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print(f"[✓] saved MAC CFO boxplot: {out_pdf} and {out_png}")
+
+
+def plot_macs_pca3d(df_raw: pd.DataFrame,
+                    mac_col: str,
+                    payload_col: Optional[str],
+                    out_pdf: str,
+                    out_png: str) -> None:
+    """
+    3-D PCA scatter of packet-level CFO features, colored by MAC.
+    """
+    if df_raw is None or df_raw.empty:
+        print("[!] Empty dataframe; skipping MAC PCA3D.")
+        return
+
+    dfp = df_raw.copy()
+
+    # Optional: match clustering filter
+    if REQUIRE_LOSTMODE_PREFIX and payload_col:
+        dfp = dfp[dfp[payload_col].apply(lambda x: isinstance(x, str) and has_lostmode_prefix(x))]
+
+    dfp[mac_col] = dfp[mac_col].astype(str)
+    dfp = dfp[dfp[mac_col].str.len() > 0]
+
+    # Pick CFO features
+    feat_cols = _resolve_plot_cfo_cols_df(dfp)
+    feat_cols = [c for c in feat_cols if c in dfp.columns]
+    if len(feat_cols) < 2:
+        print("[!] Not enough CFO features for PCA; skipping MAC PCA3D.")
+        return
+
+    # Top-N MACs by packet count for readability
+    mac_counts = dfp[mac_col].value_counts()
+    macs = mac_counts.head(int(MAX_MACS_FOR_PLOTS)).index.tolist()
+    dfp = dfp[dfp[mac_col].isin(macs)].copy()
+
+    # Numeric + finite
+    for c in feat_cols:
+        dfp[c] = pd.to_numeric(dfp[c], errors="coerce")
+    dfp = dfp.replace([np.inf, -np.inf], np.nan).dropna(subset=feat_cols)
+
+    if len(dfp) < 10:
+        print("[!] Too few packets after filtering for PCA; skipping MAC PCA3D.")
+        return
+
+    X = dfp[feat_cols].values.astype(float)
+
+    # Standardize for PCA
+    mu = np.mean(X, axis=0)
+    sig = np.std(X, axis=0, ddof=1)
+    sig = np.maximum(sig, GLOBAL_NORM_MIN_STD)
+    Xz = (X - mu) / sig
+
+    pca = PCA(n_components=3, random_state=0)
+    Xp = pca.fit_transform(Xz)
+
+    # MAC labels
+    macs_y = dfp[mac_col].values.astype(str)
+
+    # Legend only for top few MACs by packet count
+    top_macs = set(mac_counts.head(12).index.tolist())
+
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111, projection="3d")
+
+    cmap = plt.cm.get_cmap("tab20")
+    unique_macs = sorted(set(macs_y.tolist()))
+
+    for i, mac in enumerate(unique_macs):
+        mask = (macs_y == mac)
+        pts = Xp[mask]
+        if pts.shape[0] == 0:
+            continue
+        color = cmap(i % 20)
+        ax.scatter(
+            pts[:, 0], pts[:, 1], pts[:, 2],
+            s=10, alpha=0.7,
+            color=color,
+            label=mac if mac in top_macs else None
+        )
+
+    evr = pca.explained_variance_ratio_
+    ax.set_title(f"MAC-colored 3-D PCA of CFO (EVR: {evr[0]:.2f}, {evr[1]:.2f}, {evr[2]:.2f})")
+    ax.set_xlabel("PC1")
+    ax.set_ylabel("PC2")
+    ax.set_zlabel("PC3")
+
+    if len(top_macs) > 0:
+        ax.legend(title="Top MACs", loc="upper left", bbox_to_anchor=(1.02, 1.0), borderaxespad=0.0)
+
+    fig.tight_layout()
+    fig.savefig(out_pdf, bbox_inches="tight")
+    fig.savefig(out_png, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print(f"[✓] saved MAC PCA 3D: {out_pdf} and {out_png}")
+
 def estimate_cfo_features(row: pd.Series, cfo_cols: List[str]) -> np.ndarray:
     vals = []
     for c in cfo_cols:
@@ -298,7 +546,7 @@ class OnlineGlobalScaler:
 
 # --------------------------- Cluster (Tracklet) ---------------------------
 
-def _inv_psd(mat: np.ndarray, eps: float = EPS) -> np.ndarray:
+def _inv_psd(mat: np.ndarray, eps: float = INV_EPS) -> np.ndarray:
     m = np.asarray(mat, dtype=float)
     m = 0.5 * (m + m.T)
     m = m + eps * np.eye(m.shape[0], dtype=float)
@@ -332,14 +580,34 @@ class Tracklet:
             self.M2 = np.zeros((self.d, self.d), dtype=float)
 
     def cov(self) -> np.ndarray:
+        # raw-mode prior for brand new clusters
         if self.n < 2:
             if (not USE_ZSPACE) and (self.prior_diag is not None):
                 diag = np.asarray(self.prior_diag, dtype=float)
                 diag = np.maximum(diag, (RAW_DIAG_FLOOR_HZ**2) * np.ones_like(diag))
                 return np.diag(diag)
             return np.eye(self.d, dtype=float)
+
+        # In z-space, small-n empirical cov becomes near-singular -> exploding Mahalanobis.
+        # For stability, until we have enough samples, behave like identity (or lightly regularized).
+        if USE_ZSPACE and self.n < int(COV_MIN_N):
+            return np.eye(self.d, dtype=float)
+
         C = self.M2 / max(1, (self.n - 1))
-        return 0.5 * (C + C.T)
+        C = 0.5 * (C + C.T)
+
+        if USE_ZSPACE:
+            # Floor per-dimension variance in z-space
+            diag = np.diag(C).copy()
+            diag = np.maximum(diag, float(Z_COV_DIAG_FLOOR))
+            C[np.diag_indices_from(C)] = diag
+
+            # Shrink towards identity for extra stability
+            alpha = float(COV_SHRINK_TO_I)
+            if alpha > 0:
+                C = (1.0 - alpha) * C + alpha * np.eye(self.d, dtype=float)
+
+        return C
 
     def trace(self) -> float:
         return float(np.trace(self.cov()))
@@ -925,6 +1193,7 @@ def plot_clusters_pca3d(seg_df: pd.DataFrame, cfo_cols: List[str], out_pdf: str,
     fig.tight_layout()
     fig.savefig(out_pdf, bbox_inches="tight")
     fig.savefig(out_png, dpi=300, bbox_inches="tight")
+    plt.show()
     plt.close(fig)
     print(f"[✓] saved PCA 3D: {out_pdf} and {out_png}")
 
@@ -1066,6 +1335,17 @@ def main() -> None:
 
     df = pd.read_csv(FNAME)
 
+        # --- NEW: keep only CRC-OK packets if crc_ok column exists ---
+    if _col_lookup_case_insensitive(df, "crc_ok"):
+        crc_col = _col_lookup_case_insensitive(df, "crc_ok")
+        df[crc_col] = pd.to_numeric(df[crc_col], errors="coerce").fillna(0).astype(int)
+        before = len(df)
+        df = df[df[crc_col] == 1].copy()
+        after = len(df)
+        print(f"[i] CRC filter: kept {after}/{before} rows where {crc_col}=1")
+    else:
+        print("[i] CRC filter: column 'crc_ok' not found; keeping all rows")
+
     time_col = resolve_time_column(df)
     df[time_col] = pd.to_numeric(df[time_col], errors="coerce")
     df = df[np.isfinite(df[time_col])].copy()
@@ -1081,6 +1361,24 @@ def main() -> None:
     print(f"[i] USE_ZSPACE : {USE_ZSPACE}")
     print(f"[i] WARMUP_SEGS: {WARMUP_SEGS if USE_ZSPACE else '(n/a)'}")
     print(f"[i] THETA      : {THETA}  (T_MIN={T_MIN}, N_MIN={N_MIN}, K_MIN={K_MIN})")
+
+        # --- NEW: MAC-level plots (packet-level, before clustering) ---
+    plot_mac_cfo_boxplot(
+        df_raw=df,
+        time_col=time_col,
+        mac_col=mac_col,
+        payload_col=payload_col if payload_col else None,
+        out_pdf=OUT_MAC_BOX_PDF,
+        out_png=OUT_MAC_BOX_PNG
+    )
+
+    plot_macs_pca3d(
+        df_raw=df,
+        mac_col=mac_col,
+        payload_col=payload_col if payload_col else None,
+        out_pdf=OUT_MAC_PCA3D_PDF,
+        out_png=OUT_MAC_PCA3D_PNG
+    )
 
     if REQUIRE_LOSTMODE_PREFIX and not payload_col:
         print("ERROR: REQUIRE_LOSTMODE_PREFIX=True but no payload column found in CSV.")
