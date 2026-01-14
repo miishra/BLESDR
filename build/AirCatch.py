@@ -37,12 +37,32 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
+import argparse
+import glob
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 # --------------------------- config ---------------------------
 
-FNAME = "cfo_samples_rail.csv"
+# FNAME = "cfo_samples_rail.csv"
+
+def parse_args():
+    p = argparse.ArgumentParser(
+        description="AirCatch batch evaluation over CSVs"
+    )
+    p.add_argument(
+        "--input",
+        required=True,
+        help="Input CSV file OR directory containing CSVs"
+    )
+    p.add_argument(
+        "--out",
+        default="aircatch_batch_results",
+        help="Output directory for all results"
+    )
+    return p.parse_args()
+
 OUTPUT_DIR = "all_devices_static_rail"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -1324,75 +1344,29 @@ def write_jsonl(path: str, items: List[Tracklet]) -> None:
             f.write(json.dumps(tau.to_jsonable()) + "\n")
     print(f"[✓] wrote: {path} ({len(items)} items)")
 
-def main() -> None:
-    print("=" * 80)
-    print("AirCatch — Streaming BLE tracker detection via online CFO clustering (Option B)")
-    print("=" * 80)
+def run_aircatch_on_csv(csv_path: str, out_dir: str) -> Dict[str, Any]:
+    """
+    Runs AirCatch on ONE CSV and returns summary metrics.
+    """
+    df = pd.read_csv(csv_path)
 
-    if not os.path.exists(FNAME):
-        print(f"ERROR: Missing input file: {FNAME}")
-        sys.exit(1)
-
-    df = pd.read_csv(FNAME)
-
-        # --- NEW: keep only CRC-OK packets if crc_ok column exists ---
+    # CRC filter (unchanged logic)
     if _col_lookup_case_insensitive(df, "crc_ok"):
         crc_col = _col_lookup_case_insensitive(df, "crc_ok")
         df[crc_col] = pd.to_numeric(df[crc_col], errors="coerce").fillna(0).astype(int)
-        before = len(df)
         df = df[df[crc_col] == 1].copy()
-        after = len(df)
-        print(f"[i] CRC filter: kept {after}/{before} rows where {crc_col}=1")
-    else:
-        print("[i] CRC filter: column 'crc_ok' not found; keeping all rows")
 
     time_col = resolve_time_column(df)
-    df[time_col] = pd.to_numeric(df[time_col], errors="coerce")
-    df = df[np.isfinite(df[time_col])].copy()
-
     mac_col = resolve_mac_column(df)
     payload_col = resolve_payload_column(df)
     cfo_cols = resolve_cfo_feature_columns(df)
 
-    print(f"[i] time_col   : {time_col}")
-    print(f"[i] mac_col    : {mac_col}")
-    print(f"[i] payload_col: {payload_col if payload_col else '(none)'}")
-    print(f"[i] CFO cols   : {cfo_cols}")
-    print(f"[i] USE_ZSPACE : {USE_ZSPACE}")
-    print(f"[i] WARMUP_SEGS: {WARMUP_SEGS if USE_ZSPACE else '(n/a)'}")
-    print(f"[i] THETA      : {THETA}  (T_MIN={T_MIN}, N_MIN={N_MIN}, K_MIN={K_MIN})")
-
-        # --- NEW: MAC-level plots (packet-level, before clustering) ---
-    plot_mac_cfo_boxplot(
-        df_raw=df,
-        time_col=time_col,
-        mac_col=mac_col,
-        payload_col=payload_col if payload_col else None,
-        out_pdf=OUT_MAC_BOX_PDF,
-        out_png=OUT_MAC_BOX_PNG
-    )
-
-    plot_macs_pca3d(
-        df_raw=df,
-        mac_col=mac_col,
-        payload_col=payload_col if payload_col else None,
-        out_pdf=OUT_MAC_PCA3D_PDF,
-        out_png=OUT_MAC_PCA3D_PNG
-    )
-
-    if REQUIRE_LOSTMODE_PREFIX and not payload_col:
-        print("ERROR: REQUIRE_LOSTMODE_PREFIX=True but no payload column found in CSV.")
-        print("       Either add a payload column or set REQUIRE_LOSTMODE_PREFIX=False.")
-        sys.exit(1)
-
-    gamma_init = GATE_GAMMA_Z_INIT if USE_ZSPACE else GATE_GAMMA_RAW_INIT
-
     params = AirCatchParams(
         p=SEGMENT_SIZE_P,
-        dt=ASSOC_GAP_DT,     # not used in Option B
-        gamma=gamma_init,
+        dt=ASSOC_GAP_DT,
+        gamma=GATE_GAMMA_Z_INIT if USE_ZSPACE else GATE_GAMMA_RAW_INIT,
         theta=THETA,
-        eps=EPS
+        eps=EPS,
     )
 
     clusters, flagged, seg_df = aircatch_stream(
@@ -1404,34 +1378,224 @@ def main() -> None:
         params=params
     )
 
-    print_cluster_stats(clusters, max_macs=30, max_keys=30)
-    compute_clustering_accuracy(seg_df)
+    # ---- metrics ----
+    n_clusters = len(clusters)
+    n_flagged = len(flagged)
+    n_segments = len(seg_df)
 
-    # Save outputs
-    write_jsonl(OUT_TRACKLETS_JSONL, clusters)
-    write_jsonl(OUT_FLAGGED_JSONL, flagged)
+    # MAC-purity accuracy
+    total = len(seg_df)
+    correct = 0
+    for _, g in seg_df.groupby("cluster_id"):
+        correct += g["mac"].value_counts().max()
+    purity = correct / total if total > 0 else np.nan
 
-    # Plots
-    plot_cluster_cfo_boxplot(seg_df, cfo_cols, OUT_BOX_PDF, OUT_BOX_PNG)
-    plot_clusters_pca3d(seg_df, cfo_cols, OUT_PCA3D_PDF, OUT_PCA3D_PNG)
-    plot_cluster_mac_counts(clusters, OUT_MACBAR_PDF, OUT_MACBAR_PNG)
+    # Save per-scenario outputs
+    os.makedirs(out_dir, exist_ok=True)
+    base = os.path.splitext(os.path.basename(csv_path))[0]
 
-    # Summary
-    print("\n" + "=" * 80)
-    print(f"Clusters total: {len(clusters)} | Flagged: {len(flagged)} | Segments: {len(seg_df) if seg_df is not None else 0}")
+    write_jsonl(os.path.join(out_dir, f"{base}_clusters.jsonl"), clusters)
+    write_jsonl(os.path.join(out_dir, f"{base}_flagged.jsonl"), flagged)
+    seg_df.to_csv(os.path.join(out_dir, f"{base}_segments.csv"), index=False)
+
+    return {
+        "scenario": base,
+        "csv": csv_path,
+        "n_clusters": n_clusters,
+        "n_flagged": n_flagged,
+        "n_segments": n_segments,
+        "purity": purity,
+    }
+
+def run_batch(input_path: str, out_root: str):
+    if os.path.isdir(input_path):
+        csvs = sorted(glob.glob(os.path.join(input_path, "*.csv")))
+    else:
+        csvs = [input_path]
+
+    results = []
+    for csv in csvs:
+        print(f"\n=== Running AirCatch on {csv} ===")
+        scenario_out = os.path.join(out_root, "per_scenario")
+        res = run_aircatch_on_csv(csv, scenario_out)
+        results.append(res)
+
+    df_res = pd.DataFrame(results)
+    df_res.to_csv(os.path.join(out_root, "summary_metrics.csv"), index=False)
+    print(f"[✓] Saved summary_metrics.csv")
+
+    plot_batch_results(df_res, out_root)
+
+def plot_batch_results(df: pd.DataFrame, out_root: str):
+    os.makedirs(out_root, exist_ok=True)
+
+    # Parse mal_X_ben_Y
+    def parse_counts(s):
+        parts = s.split("_")
+        return int(parts[1]), int(parts[3])
+
+    df[["malicious", "benign"]] = df["scenario"].apply(
+        lambda s: pd.Series(parse_counts(s))
+    )
+
+    # ---- Purity vs malicious devices ----
+    plt.figure(figsize=(6,4))
+    for b in sorted(df["benign"].unique()):
+        g = df[df["benign"] == b]
+        plt.plot(g["malicious"], g["purity"],
+                 marker="o", label=f"benign={b}")
+
+    plt.xlabel("# malicious devices")
+    plt.ylabel("Clustering purity")
+    plt.title("AirCatch clustering accuracy vs attackers")
+    plt.grid(True, linestyle="--", alpha=0.4)
+    plt.legend(ncol=2, fontsize=8)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_root, "purity_vs_malicious.pdf"))
+    plt.close()
+
+    # ---- Flagged clusters ----
+    plt.figure(figsize=(6,4))
+    for b in sorted(df["benign"].unique()):
+        g = df[df["benign"] == b]
+        plt.plot(g["malicious"], g["n_flagged"],
+                 marker="o", label=f"benign={b}")
+
+    plt.xlabel("# malicious devices")
+    plt.ylabel("# flagged clusters")
+    plt.title("Detected tracking clusters vs attackers")
+    plt.grid(True, linestyle="--", alpha=0.4)
+    plt.legend(ncol=2, fontsize=8)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_root, "flagged_vs_malicious.pdf"))
+    plt.close()
+
+    print("[✓] Saved batch evaluation plots (PDF)")
+
+# def main() -> None:
+#     print("=" * 80)
+#     print("AirCatch — Streaming BLE tracker detection via online CFO clustering (Option B)")
+#     print("=" * 80)
+
+#     if not os.path.exists(FNAME):
+#         print(f"ERROR: Missing input file: {FNAME}")
+#         sys.exit(1)
+
+#     df = pd.read_csv(FNAME)
+
+#         # --- NEW: keep only CRC-OK packets if crc_ok column exists ---
+#     if _col_lookup_case_insensitive(df, "crc_ok"):
+#         crc_col = _col_lookup_case_insensitive(df, "crc_ok")
+#         df[crc_col] = pd.to_numeric(df[crc_col], errors="coerce").fillna(0).astype(int)
+#         before = len(df)
+#         df = df[df[crc_col] == 1].copy()
+#         after = len(df)
+#         print(f"[i] CRC filter: kept {after}/{before} rows where {crc_col}=1")
+#     else:
+#         print("[i] CRC filter: column 'crc_ok' not found; keeping all rows")
+
+#     time_col = resolve_time_column(df)
+#     df[time_col] = pd.to_numeric(df[time_col], errors="coerce")
+#     df = df[np.isfinite(df[time_col])].copy()
+
+#     mac_col = resolve_mac_column(df)
+#     payload_col = resolve_payload_column(df)
+#     cfo_cols = resolve_cfo_feature_columns(df)
+
+#     print(f"[i] time_col   : {time_col}")
+#     print(f"[i] mac_col    : {mac_col}")
+#     print(f"[i] payload_col: {payload_col if payload_col else '(none)'}")
+#     print(f"[i] CFO cols   : {cfo_cols}")
+#     print(f"[i] USE_ZSPACE : {USE_ZSPACE}")
+#     print(f"[i] WARMUP_SEGS: {WARMUP_SEGS if USE_ZSPACE else '(n/a)'}")
+#     print(f"[i] THETA      : {THETA}  (T_MIN={T_MIN}, N_MIN={N_MIN}, K_MIN={K_MIN})")
+
+#         # --- NEW: MAC-level plots (packet-level, before clustering) ---
+#     plot_mac_cfo_boxplot(
+#         df_raw=df,
+#         time_col=time_col,
+#         mac_col=mac_col,
+#         payload_col=payload_col if payload_col else None,
+#         out_pdf=OUT_MAC_BOX_PDF,
+#         out_png=OUT_MAC_BOX_PNG
+#     )
+
+#     plot_macs_pca3d(
+#         df_raw=df,
+#         mac_col=mac_col,
+#         payload_col=payload_col if payload_col else None,
+#         out_pdf=OUT_MAC_PCA3D_PDF,
+#         out_png=OUT_MAC_PCA3D_PNG
+#     )
+
+#     if REQUIRE_LOSTMODE_PREFIX and not payload_col:
+#         print("ERROR: REQUIRE_LOSTMODE_PREFIX=True but no payload column found in CSV.")
+#         print("       Either add a payload column or set REQUIRE_LOSTMODE_PREFIX=False.")
+#         sys.exit(1)
+
+#     gamma_init = GATE_GAMMA_Z_INIT if USE_ZSPACE else GATE_GAMMA_RAW_INIT
+
+#     params = AirCatchParams(
+#         p=SEGMENT_SIZE_P,
+#         dt=ASSOC_GAP_DT,     # not used in Option B
+#         gamma=gamma_init,
+#         theta=THETA,
+#         eps=EPS
+#     )
+
+#     clusters, flagged, seg_df = aircatch_stream(
+#         df=df,
+#         time_col=time_col,
+#         mac_col=mac_col,
+#         payload_col=payload_col,
+#         cfo_cols=cfo_cols,
+#         params=params
+#     )
+
+#     print_cluster_stats(clusters, max_macs=30, max_keys=30)
+#     compute_clustering_accuracy(seg_df)
+
+#     # Save outputs
+#     write_jsonl(OUT_TRACKLETS_JSONL, clusters)
+#     write_jsonl(OUT_FLAGGED_JSONL, flagged)
+
+#     # Plots
+#     plot_cluster_cfo_boxplot(seg_df, cfo_cols, OUT_BOX_PDF, OUT_BOX_PNG)
+#     plot_clusters_pca3d(seg_df, cfo_cols, OUT_PCA3D_PDF, OUT_PCA3D_PNG)
+#     plot_cluster_mac_counts(clusters, OUT_MACBAR_PDF, OUT_MACBAR_PNG)
+
+#     # Summary
+#     print("\n" + "=" * 80)
+#     print(f"Clusters total: {len(clusters)} | Flagged: {len(flagged)} | Segments: {len(seg_df) if seg_df is not None else 0}")
+#     print("=" * 80)
+
+#     if flagged:
+#         flagged_sorted = sorted(flagged, key=lambda t: (-t.score(), -(t.t_max - t.t_min), -t.n, t.id))
+#         for tau in flagged_sorted[:20]:
+#             info = tau.to_jsonable()
+#             print(
+#                 f"- id={info['id']:>3} score={info['score']} "
+#                 f"nSeg={info['n_segments']:<4} dur={info['duration']:.1f}s "
+#                 f"|K|={len(info['keys']):<3} |M|={len(info['macs']):<3} tr={info['cov_trace']:.2f}"
+#             )
+#     else:
+#         print("No clusters flagged. (With THETA=4 and T_MIN=300, this is normal unless clusters persist ≥ 300s.)")
+
+def main():
+    args = parse_args()
+
+    print("=" * 80)
+    print("AirCatch — Batch Evaluation Mode")
     print("=" * 80)
 
-    if flagged:
-        flagged_sorted = sorted(flagged, key=lambda t: (-t.score(), -(t.t_max - t.t_min), -t.n, t.id))
-        for tau in flagged_sorted[:20]:
-            info = tau.to_jsonable()
-            print(
-                f"- id={info['id']:>3} score={info['score']} "
-                f"nSeg={info['n_segments']:<4} dur={info['duration']:.1f}s "
-                f"|K|={len(info['keys']):<3} |M|={len(info['macs']):<3} tr={info['cov_trace']:.2f}"
-            )
-    else:
-        print("No clusters flagged. (With THETA=4 and T_MIN=300, this is normal unless clusters persist ≥ 300s.)")
+    run_batch(
+        input_path=args.input,
+        out_root=args.out
+    )
+
+    print("\nDONE.")
 
 if __name__ == "__main__":
     main()

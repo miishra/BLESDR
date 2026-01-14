@@ -1,3 +1,9 @@
+/home/tribe/mabhishe/myspace/anaconda3/lib/python3.9/site-packages/pandas/core/computation/expressions.py:21: UserWarning: Pandas requires version '2.8.4' or newer of 'numexpr' (version '2.8.1' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/home/tribe/mabhishe/myspace/anaconda3/lib/python3.9/site-packages/pandas/core/arrays/masked.py:60: UserWarning: Pandas requires version '1.3.6' or newer of 'bottleneck' (version '1.3.4' currently installed).
+  from pandas.core import (
+/data/abhi/BLESDR/build/AirCatch.py:465: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = plt.cm.get_cmap("tab20")
 ================================================================================
 AirCatch — Streaming BLE tracker detection via online CFO clustering (Option B)
 ================================================================================
@@ -203,6 +209,8 @@ cluster   5 | segments=120  dominant_mac=E9:5A:FB:9E:46:7C acc=100.0%
 cluster   6 | segments=278  dominant_mac=D0:6D:78:47:39:4F acc= 21.9%
 cluster   7 | segments=132  dominant_mac=F4:0A:68:DD:7E:C0 acc= 56.8%
 cluster   8 | segments=134  dominant_mac=DC:D6:44:C7:D7:A6 acc= 57.5%
+/data/abhi/BLESDR/build/AirCatch.py:1168: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = plt.cm.get_cmap("tab20")
 cluster   9 | segments=146  dominant_mac=C5:68:6B:99:6A:C5 acc= 33.6%
 cluster  10 | segments=160  dominant_mac=DC:D6:44:C7:D7:A6 acc= 42.5%
 cluster  11 | segments=94   dominant_mac=F6:FE:7E:BD:D0:B3 acc= 54.3%

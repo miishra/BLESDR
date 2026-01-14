@@ -40,6 +40,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import argparse
+import glob
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import (
@@ -56,11 +59,75 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 # --------------------------- config ---------------------------
 
-FNAME = "/home/mishra/Downloads/cfo_samples_rail.csv"
+FNAME = "cfo_samples_rail.csv"/
+
 OUTPUT_DIR = "all_devices_static_rail"
 
 # NOTE: resolved at runtime to "AdvA" or "adv_addr" (or case-insensitive match)
 MAC_COL = "AdvA"
+
+def run_aircatch_on_csv(csv_path: str, out_dir: str) -> Dict[str, Any]:
+    """
+    Runs AirCatch on ONE CSV and returns summary metrics.
+    """
+    df = pd.read_csv(csv_path)
+
+    # CRC filter (unchanged logic)
+    if _col_lookup_case_insensitive(df, "crc_ok"):
+        crc_col = _col_lookup_case_insensitive(df, "crc_ok")
+        df[crc_col] = pd.to_numeric(df[crc_col], errors="coerce").fillna(0).astype(int)
+        df = df[df[crc_col] == 1].copy()
+
+    time_col = resolve_time_column(df)
+    mac_col = resolve_mac_column(df)
+    payload_col = resolve_payload_column(df)
+    cfo_cols = resolve_cfo_feature_columns(df)
+
+    params = AirCatchParams(
+        p=SEGMENT_SIZE_P,
+        dt=ASSOC_GAP_DT,
+        gamma=GATE_GAMMA_Z_INIT if USE_ZSPACE else GATE_GAMMA_RAW_INIT,
+        theta=THETA,
+        eps=EPS,
+    )
+
+    clusters, flagged, seg_df = aircatch_stream(
+        df=df,
+        time_col=time_col,
+        mac_col=mac_col,
+        payload_col=payload_col,
+        cfo_cols=cfo_cols,
+        params=params
+    )
+
+    # ---- metrics ----
+    n_clusters = len(clusters)
+    n_flagged = len(flagged)
+    n_segments = len(seg_df)
+
+    # MAC-purity accuracy
+    total = len(seg_df)
+    correct = 0
+    for _, g in seg_df.groupby("cluster_id"):
+        correct += g["mac"].value_counts().max()
+    purity = correct / total if total > 0 else np.nan
+
+    # Save per-scenario outputs
+    os.makedirs(out_dir, exist_ok=True)
+    base = os.path.splitext(os.path.basename(csv_path))[0]
+
+    write_jsonl(os.path.join(out_dir, f"{base}_clusters.jsonl"), clusters)
+    write_jsonl(os.path.join(out_dir, f"{base}_flagged.jsonl"), flagged)
+    seg_df.to_csv(os.path.join(out_dir, f"{base}_segments.csv"), index=False)
+
+    return {
+        "scenario": base,
+        "csv": csv_path,
+        "n_clusters": n_clusters,
+        "n_flagged": n_flagged,
+        "n_segments": n_segments,
+        "purity": purity,
+    }
 
 TRAIN_FRACTION = 0.7          # temporal split within each MAC
 MIN_PKTS_PER_MAC = 200        # minimum usable packets per MAC (after dropping NaNs) to keep class
@@ -69,6 +136,14 @@ MIN_PKTS_PER_MAC = 200        # minimum usable packets per MAC (after dropping N
 WINDOW_PKTS = 100             # packets per sample-window
 WINDOW_STEP = 10              # step between windows (==WINDOW_PKTS -> non-overlapping)
 MIN_WINDOWS_PER_MAC = 2       # require at least this many train windows AND test windows per MAC
+
+# --------------------------- test CSV generation ---------------------------
+
+GEN_OUT_DIR = "generated_test_csvs"
+MAX_MALICIOUS = 5
+MAX_BENIGN = 11
+MALICIOUS_PREFIX = "MAL_"
+BENIGN_PREFIX = "BEN_"
 
 # mean repetition to bias RF toward mean (via feature subsampling)
 MEAN_REPEATS = 4
@@ -102,6 +177,53 @@ EXTRA_STATS = (
 HEATMAP_MAX_ROWS = 200  # keep plots readable
 
 # --------------------------- helpers ---------------------------
+
+def _fresh_mac(idx: int) -> str:
+    # Deterministic, locally-administered MACs
+    return f"02:00:00:{(idx >> 16) & 0xff:02x}:{(idx >> 8) & 0xff:02x}:{idx & 0xff:02x}"
+
+def generate_test_csvs(df: pd.DataFrame, mac_col: str):
+    os.makedirs(GEN_OUT_DIR, exist_ok=True)
+
+    all_macs = df[mac_col].dropna().astype(str).unique().tolist()
+    if len(all_macs) < MAX_BENIGN + MAX_MALICIOUS:
+        raise ValueError("Not enough devices in input CSV to generate all scenarios")
+
+    print("\nGenerating test CSVs for malicious / benign scenarios...")
+
+    for n_mal in range(1, MAX_MALICIOUS + 1):
+        for n_ben in range(1, MAX_BENIGN + 1):
+
+            selected_mal = all_macs[:n_mal]
+            selected_ben = all_macs[n_mal:n_mal + n_ben]
+
+            rows = []
+            mac_counter = 0
+
+            # ---- benign devices: unchanged ----
+            for mac in selected_ben:
+                rows.append(df[df[mac_col] == mac])
+
+            # ---- malicious devices: p = 1 MAC churn ----
+            for mac in selected_mal:
+                df_m = df[df[mac_col] == mac].copy()
+
+                new_macs = []
+                for _ in range(len(df_m)):
+                    new_macs.append(_fresh_mac(mac_counter))
+                    mac_counter += 1
+
+                df_m[mac_col] = new_macs
+                rows.append(df_m)
+
+            out_df = pd.concat(rows, axis=0).reset_index(drop=True)
+
+            out_name = f"mal_{n_mal}_ben_{n_ben}.csv"
+            out_path = os.path.join(GEN_OUT_DIR, out_name)
+            out_df.to_csv(out_path, index=False)
+
+            print(f"[✓] Generated {out_path} "
+                  f"(malicious={n_mal}, benign={n_ben}, rows={len(out_df)})")
 
 def _col_lookup_case_insensitive(df: pd.DataFrame, name: str) -> str:
     target = name.lower()
@@ -911,6 +1033,8 @@ def main():
 
     MAC_COL = resolve_mac_column(df)
     print(f"\nDetected MAC column: {MAC_COL}")
+
+    generate_test_csvs(df, MAC_COL)
 
     use_mean, use_std = get_feature_choice()
     selected_cols = choose_cfo_columns(df)
