@@ -1,0 +1,2 @@
+cluster,n_segments,total_unique_macs,chunks_spanned,unique_macs_per_chunk,duration_minutes,cov_trace
+0,44,44,2,22.0,30.0,496385359.1773701
