@@ -63,6 +63,8 @@ def parse_args():
 
 # --------------------------- config ---------------------------
 
+BASIC_CLUSTERING = True  # if True, only apply basic AirCatch rules (T_min, N_min, K_min, trace max) for scoring; if False, also apply new heterogeneity reward in scoring
+
 # Keep plots readable when there are tons of MACs
 MAX_MACS_FOR_PLOTS = 30   # top-N MACs by packet count
 
@@ -77,17 +79,17 @@ EPS = 1e-6                       # ε
 
 # --------------------------- feature space choice ---------------------------
 
-USE_ZSPACE = True
+USE_ZSPACE = False
 
 # In z-space, squared Mahalanobis typically sits around O(d) for matches.
-GATE_GAMMA_Z_INIT = 30
+GATE_GAMMA_Z_INIT = 12
 
 # Raw-space init (defined to avoid NameError even if unused)
-GATE_GAMMA_RAW_INIT = 5.0e6
+GATE_GAMMA_RAW_INIT = 50
 
 # Scatter stability threshold differs by space
 ETA_TRACE_MAX_Z = 8.0
-ETA_TRACE_MAX_RAW = 5.0e9
+ETA_TRACE_MAX_RAW = 50
 
 # Require tag ecosystem filter?
 REQUIRE_LOSTMODE_PREFIX = True
@@ -112,7 +114,7 @@ PRUNE_INACTIVE_AFTER = None
 WARMUP_SEGS = 50
 
 # Raw-mode diag covariance prior floor (Hz^2)
-RAW_DIAG_FLOOR_HZ = 200.0
+RAW_DIAG_FLOOR_HZ = 7000
 
 MIN_CLUSTER_SIZE_FOR_MATCH = 0
 
@@ -121,7 +123,7 @@ MIN_CLUSTER_SIZE_FOR_MATCH = 0
 TOPK_CANDIDATES = 10
 
 # homogeneity estimation (trust only after enough segments)
-N_HOMO_MIN = 10
+N_HOMO_MIN = 5
 P_HOMO = 0.90     # purity >= 0.90 => homogeneous
 P_HET = 0.55      # purity <= 0.55 and macs>=3 => heterogeneous-like
 
@@ -161,6 +163,38 @@ OPTIONAL_CFO_COLS = [
 
 # Prefer these 5 for plotting if present
 PLOT_CFO_PREFERRED = ["CFO_Hz", "CFO_00_Hz", "CFO_11_Hz", "CFO_10_Hz", "CFO_01_Hz"]
+
+# --------------------------- NEW: feature weighting for distance ---------------------------
+
+# Give MUCH higher weight to overall CFO than transition CFOs.
+# Effect: distance is dominated by CFO_Hz; transitions only influence when overall is close.
+OVERALL_CFO_WEIGHT = 600000000
+TRANSITION_CFO_WEIGHT = 0.5
+
+def build_feature_weights(cfo_cols: List[str]) -> np.ndarray:
+    """
+    Return per-feature multiplicative weights aligned with `cfo_cols`.
+    We apply these weights directly in the clustering space (z-space or raw),
+    meaning Mahalanobis distance and covariance are computed in the weighted space.
+    """
+    w = np.ones(len(cfo_cols), dtype=float)
+    for i, c in enumerate(cfo_cols):
+        lc = str(c).lower()
+
+        # Overall CFO (primary)
+        if lc in ("cfo_hz", "cfo_quick_hz"):
+            w[i] = OVERALL_CFO_WEIGHT
+            continue
+
+        # Transition CFOs (noisy)
+        if lc in ("cfo_00_hz", "cfo_11_hz", "cfo_10_hz", "cfo_01_hz"):
+            w[i] = TRANSITION_CFO_WEIGHT
+            continue
+
+        # Any other CFO-like feature: keep default (1.0) unless you want to downweight it too.
+        w[i] = 1.0
+
+    return w
 
 # --------------------------- utils: column resolution ---------------------------
 
@@ -599,6 +633,177 @@ def _gamma_for_candidate(tau: Tracklet, mac: str, gamma_base: float) -> float:
         return float(GAMMA_HET_NEW_MULT) * gb
     return float(GAMMA_UNC_NEW_MULT) * gb
 
+def detect_adversary_macs_from_payload(df_raw: pd.DataFrame,
+                                      mac_col: str,
+                                      payload_col: str,
+                                      pattern_hex: str = "4c001219ff") -> Set[str]:
+    """
+    Return a set of MACs (strings) that appear in rows whose payload contains `pattern_hex`
+    (case-insensitive, hex-normalized).
+
+    pattern_hex default corresponds to user rule: "4c001219FF" (we normalize to lowercase).
+    """
+    adv_pat = "".join(ch for ch in pattern_hex.lower() if ch in "0123456789abcdef")
+    if df_raw is None or df_raw.empty:
+        return set()
+    if mac_col not in df_raw.columns or payload_col not in df_raw.columns:
+        return set()
+
+    def _payload_has_pat(x: object) -> bool:
+        if not isinstance(x, str):
+            return False
+        s = x.strip().lower()
+        if s.startswith("0x"):
+            s = s[2:]
+        s = "".join(ch for ch in s if ch in "0123456789abcdef")
+        return adv_pat in s
+
+    tmp = df_raw[[mac_col, payload_col]].copy()
+    tmp[mac_col] = tmp[mac_col].astype(str)
+    tmp = tmp[tmp[mac_col].str.len() > 0]
+    if tmp.empty:
+        return set()
+
+    mask = tmp[payload_col].apply(_payload_has_pat)
+    adv_macs = set(tmp.loc[mask, mac_col].astype(str).tolist())
+    return set(m for m in adv_macs if isinstance(m, str) and m != "")
+
+def plot_cluster_purity_barplot_with_adv(df_raw: pd.DataFrame,
+                                         seg_df: pd.DataFrame,
+                                         mac_col_raw: str,
+                                         payload_col_raw: str,
+                                         out_pdf: str,
+                                         flagged_clusters: Optional[List[Tracklet]] = None,
+                                         flagged_ids: Optional[Set[int]] = None,
+                                         adv_pattern_hex: str = "4c001219ff",
+                                         top_n: Optional[int] = None,
+                                         adv_label_bucket: str = "Adversary MACs") -> None:
+    """
+    Bar plot: purity of each cluster (segment-weighted), annotate bar tops with:
+      - B=<unique benign MACs>, A=<unique adversary MACs>
+    Flagged clusters are marked by HATCHED bars (strong hatch for PDF visibility).
+    """
+    if seg_df is None or seg_df.empty:
+        return
+    if not {"cluster_id", "mac"}.issubset(set(seg_df.columns)):
+        return
+
+    # Resolve flagged cluster IDs
+    fset: Set[int] = set()
+    if flagged_ids is not None:
+        fset |= set(int(x) for x in flagged_ids)
+    if flagged_clusters is not None:
+        fset |= set(int(t.id) for t in flagged_clusters)
+
+    # Detect adversary MACs from RAW packet DF (payload substring rule)
+    adv_macs = detect_adversary_macs_from_payload(
+        df_raw=df_raw,
+        mac_col=mac_col_raw,
+        payload_col=payload_col_raw,
+        pattern_hex=adv_pattern_hex
+    )
+
+    dfp = seg_df[["cluster_id", "mac"]].copy()
+    dfp["cluster_id"] = pd.to_numeric(dfp["cluster_id"], errors="coerce")
+    dfp = dfp.dropna(subset=["cluster_id"])
+    dfp["cluster_id"] = dfp["cluster_id"].astype(int)
+    dfp["mac"] = dfp["mac"].astype(str)
+    dfp = dfp[dfp["mac"].str.len() > 0].copy()
+    if dfp.empty:
+        return
+
+    rows = []
+    for cid, g in dfp.groupby("cluster_id"):
+        macs_seg = g["mac"].values.astype(str)
+
+        vc = pd.Series(macs_seg).value_counts()
+        total = int(vc.sum())
+        purity = float(vc.max()) / float(total) if total > 0 else 0.0
+
+        uniq = set(macs_seg.tolist())
+        n_adv = 0
+        n_benign = 0
+        for m in uniq:
+            if m == adv_label_bucket:
+                n_adv += 1
+            elif m in adv_macs:
+                n_adv += 1
+            else:
+                n_benign += 1
+
+        rows.append({
+            "cluster_id": int(cid),
+            "purity": float(purity),
+            "n_benign_macs": int(n_benign),
+            "n_adv_macs": int(n_adv),
+            "n_segments": int(len(macs_seg)),
+            "n_unique_macs": int(len(uniq)),
+            "is_flagged": int(int(cid) in fset),
+        })
+
+    if not rows:
+        return
+
+    dfx = pd.DataFrame(rows).sort_values(
+        ["purity", "n_adv_macs", "n_unique_macs", "n_segments"],
+        ascending=[False, False, False, False]
+    )
+
+    if top_n is not None and int(top_n) > 0:
+        dfx = dfx.head(int(top_n)).copy()
+
+    # ---- plotting (PDF hatch visibility tweaks) ----
+    import matplotlib as mpl
+    mpl.rcParams["hatch.linewidth"] = 1.4  # thicker hatch strokes for PDF
+
+    fig_w = max(10.0, min(26.0, 0.55 * len(dfx) + 6.0))
+    fig, ax = plt.subplots(figsize=(fig_w, 5.5))
+
+    x = np.arange(len(dfx), dtype=float)
+
+    # Give ALL bars an edge so hatches render reliably on flagged ones
+    bars = ax.bar(
+        x,
+        dfx["purity"].values,
+        linewidth=0.6,
+        edgecolor="0.25"  # subtle edge for unflagged
+    )
+
+    # Hatch flagged bars (dense + black edge)
+    for bar, isf in zip(bars, dfx["is_flagged"].values):
+        if int(isf) == 1:
+            bar.set_hatch("//////")     # denser hatch
+            bar.set_edgecolor("black")  # hatch uses edge properties -> make it black
+            bar.set_linewidth(1.2)
+
+    ax.set_title("Cluster purity with benign/adversary MAC counts (hatched = flagged)")
+    ax.set_xlabel("Cluster ID")
+    ax.set_ylabel("Purity (dominant MAC fraction)")
+    ax.set_ylim(0.0, 1.08)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels([str(int(cid)) for cid in dfx["cluster_id"].values], rotation=90, fontsize=8)
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.6, alpha=0.6)
+
+    # Annotate counts on top: B=..., A=...
+    y0, y1 = ax.get_ylim()
+    dy = 0.02 * (y1 - y0 + 1e-9)
+    for i, (p, nb, na) in enumerate(zip(dfx["purity"].values, dfx["n_benign_macs"].values, dfx["n_adv_macs"].values)):
+        ax.text(i, float(p) + dy, f"B={int(nb)}, A={int(na)}",
+                ha="center", va="bottom", fontsize=7, rotation=90)
+
+    # Optional: quick legend cue (simple proxy patch)
+    from matplotlib.patches import Patch
+    ax.legend(
+        handles=[Patch(facecolor="white", edgecolor="black", hatch="//////", label="Flagged cluster")],
+        loc="upper right",
+        frameon=True
+    )
+
+    fig.tight_layout()
+    fig.savefig(out_pdf, bbox_inches="tight")
+    plt.close(fig)
+
 def aircatch_stream(df: pd.DataFrame,
                     time_col: str,
                     mac_col: str,
@@ -616,6 +821,9 @@ def aircatch_stream(df: pd.DataFrame,
 
     d = len(cfo_cols)
     scaler = OnlineGlobalScaler(d=d, eps=params.eps)
+
+    # NEW: feature weights (applied in clustering space)
+    feat_w = build_feature_weights(cfo_cols)
 
     buffers: Dict[str, List[Tuple[float, np.ndarray, Optional[str]]]] = {}
     clusters: List[Tracklet] = []
@@ -693,6 +901,10 @@ def aircatch_stream(df: pd.DataFrame,
             raw_diag_var = raw_diag_scaler.var()
             x = f_bar.copy()
 
+        # NEW: apply feature weights in clustering space (dominates distance with CFO_Hz)
+        x = x * feat_w
+
+
         # ---- candidate distances (ALL clusters) ----
         C = _candidates()
 
@@ -752,7 +964,8 @@ def aircatch_stream(df: pd.DataFrame,
             tau = Tracklet(id=next_id, d=d)
             next_id += 1
             if not USE_ZSPACE:
-                tau.prior_diag = raw_diag_var.copy()
+                # NEW: x is scaled by feat_w, so covariance prior must be scaled by feat_w^2
+                tau.prior_diag = (raw_diag_var.copy() * (feat_w ** 2))
             clusters.append(tau)
             spawned = True
             n_spawn += 1
@@ -837,6 +1050,343 @@ def aircatch_stream(df: pd.DataFrame,
     flagged = [tau for tau in clusters if tau.id in flagged_ids]
     seg_df = pd.DataFrame(seg_records)
 
+    return clusters, flagged, seg_df
+
+def aircatch_chunked(df: pd.DataFrame,
+                     time_col: str,
+                     mac_col: str,
+                     payload_col: str,
+                     cfo_cols: List[str],
+                     params: AirCatchParams,
+                     chunk_minutes: float = 15.0,
+                     basic_clustering: bool = True,
+                     # --- adversary-flagging heuristics (tune if needed) ---
+                     adv_min_duration_min: float = 45.0,
+                     adv_min_unique_macs: int = 12,
+                     adv_min_macs_per_chunk: float = 2.5,
+                     # Optional: if True, still apply REQUIRE_LOSTMODE_PREFIX filter in chunking
+                     enforce_lostmode_filter: Optional[bool] = None
+                     ) -> Tuple[List[Tracklet], List[Tracklet], pd.DataFrame]:
+    """
+    Chunked AirCatch (persistent clusters), clustering on MAC-chunk means.
+
+    What it does:
+      1) Sort rows by time.
+      2) Split into fixed time chunks (chunk_minutes).
+      3) Within each chunk:
+           - (optional) filter payloads using has_lostmode_prefix
+           - group by MAC (AdvA) and compute mean CFO features for that MAC in that chunk
+           - treat each (MAC, chunk) as a "segment" with feature vector = chunk-mean CFO
+           - assign/spawn into PERSISTENT clusters using Mahalanobis distance in the chosen space
+             (z-space or raw), with feature weighting (CFO_Hz dominates).
+      4) After all chunks, compute "adversary-like" flags based on:
+           - long duration
+           - many unique MACs
+           - high MACs-per-chunk-spanned
+
+    basic_clustering=True:
+      - ignores quarantine, homogeneity/heterogeneity, dominant-MAC lock, dynamic gamma multipliers
+      - uses a single fixed gate gamma (params.gamma) for all candidates
+      - does not penalize new MACs for entering clusters (better for MAC-rotating adversary)
+
+    Returns:
+      clusters : all clusters after processing all chunks
+      flagged  : clusters flagged as adversary-like (heuristic)
+      seg_df   : per (MAC, chunk) records
+    """
+    if df is None or df.empty:
+        return [], [], pd.DataFrame()
+
+    # Decide whether to enforce the lostmode filter inside this function.
+    # Default behavior follows your global REQUIRE_LOSTMODE_PREFIX.
+    if enforce_lostmode_filter is None:
+        enforce_lostmode_filter = bool(REQUIRE_LOSTMODE_PREFIX)
+
+    # ----------------------------
+    # 1) sanitize + sort by time
+    # ----------------------------
+    tvals = pd.to_numeric(df[time_col], errors="coerce")
+    df = df.assign(_t=tvals).replace([np.inf, -np.inf], np.nan).dropna(subset=["_t"])
+    if df.empty:
+        return [], [], pd.DataFrame()
+    df = df.sort_values("_t").reset_index(drop=True)
+
+    # Dimension of CFO feature vector
+    d = len(cfo_cols)
+
+    # Z-space scaler and raw-space diag estimator
+    scaler = OnlineGlobalScaler(d=d, eps=params.eps)
+    raw_diag_var = np.ones(d, dtype=float)
+    raw_diag_scaler = OnlineGlobalScaler(d=d, eps=params.eps)
+
+    # Feature weights in clustering space (overall CFO dominates distance)
+    feat_w = build_feature_weights(cfo_cols)
+
+    # Persistent clustering state
+    clusters: List[Tracklet] = []
+    next_id = 1
+
+    # For segment records
+    seg_records: List[Dict[str, Any]] = []
+
+    # Tag/cache for MAC->tag_type (optional)
+    mac_to_tag: Dict[str, str] = {}
+
+    gamma_live = float(params.gamma)
+
+    # ----------------------------
+    # 2) define chunk boundaries
+    # ----------------------------
+    chunk_s = float(chunk_minutes) * 60.0
+    t_min = float(df["_t"].min())
+    t_max = float(df["_t"].max())
+    if (not np.isfinite(t_min)) or (not np.isfinite(t_max)) or chunk_s <= 0:
+        return [], [], pd.DataFrame()
+
+    n_chunks = int(math.floor((t_max - t_min) / chunk_s)) + 1
+
+    # helper: choose candidates (all persistent clusters)
+    def _candidates() -> List[Tracklet]:
+        return clusters
+
+    seg_count = 0  # counts MAC-chunk segments processed (used for warmup & scaler update)
+
+    # ----------------------------
+    # 3) process each time chunk
+    # ----------------------------
+    for ck in range(n_chunks):
+        t0 = t_min + ck * chunk_s
+        t1 = t0 + chunk_s
+
+        dfc = df[(df["_t"] >= t0) & (df["_t"] < t1)]
+        if dfc.empty:
+            continue
+
+        # Optional: payload filtering (Find My / lostmode prefix)
+        if enforce_lostmode_filter:
+            if not payload_col:
+                raise RuntimeError("Lostmode filter requested but payload_col is empty/None.")
+            dfc = dfc[dfc[payload_col].apply(lambda x: isinstance(x, str) and has_lostmode_prefix(x))]
+            if dfc.empty:
+                continue
+
+        # Keep only needed cols
+        cols_keep = [mac_col] + cfo_cols + ([payload_col] if payload_col else [])
+        tmp = dfc[cols_keep].copy()
+
+        # Clean MACs
+        tmp[mac_col] = tmp[mac_col].astype(str)
+        tmp = tmp[tmp[mac_col].str.len() > 0]
+        if tmp.empty:
+            continue
+
+        # Numeric CFO
+        for c in cfo_cols:
+            tmp[c] = pd.to_numeric(tmp[c], errors="coerce")
+        tmp = tmp.replace([np.inf, -np.inf], np.nan)
+
+        # Group by MAC within chunk -> one segment per MAC in this chunk
+        for mac, gmac in tmp.groupby(mac_col, sort=False):
+            # chunk-mean features for this MAC
+            f_bar = gmac[cfo_cols].mean(skipna=True).values.astype(float)
+            if not np.all(np.isfinite(f_bar)):
+                continue
+
+            # representative payload for (optional) tag + key extraction
+            p_k = None
+            if payload_col and payload_col in gmac.columns:
+                for vv in gmac[payload_col].values:
+                    if isinstance(vv, str) and len(vv) > 0:
+                        p_k = vv
+                        break
+
+            # tag caching (optional)
+            if isinstance(p_k, str) and mac not in mac_to_tag:
+                mac_to_tag[mac] = extract_tag_type(p_k)
+
+            # placeholder "keys"
+            K_k = extract_public_key(p_k, mac) if isinstance(p_k, str) else None
+            K_s: Set[str] = set([K_k]) if isinstance(K_k, str) and K_k != "" else set()
+
+            # ----------------------------
+            # 3a) build feature vector x
+            # ----------------------------
+            if USE_ZSPACE:
+                # Warmup global scaler on chunk-means (not per packet)
+                if scaler.n < int(WARMUP_SEGS):
+                    scaler.update(f_bar)
+                    seg_count += 1
+                    continue
+                x = scaler.transform(f_bar)
+            else:
+                raw_diag_scaler.update(f_bar)
+                raw_diag_var = raw_diag_scaler.var()
+                x = f_bar.copy()
+
+            # Apply feature weights in clustering space
+            x = x * feat_w
+
+            # ----------------------------
+            # 3b) compute distances to candidates
+            # ----------------------------
+            dist_list: List[Tuple[float, int, Tracklet]] = []
+            for tau in _candidates():
+                # In "basic" mode: do NOT block new MACs from entering clusters.
+                # In non-basic mode: keep your original protections.
+                if not basic_clustering:
+                    # 1) quarantined: never accept new MACs
+                    if tau.is_quarantined and (mac not in tau.macs):
+                        continue
+
+                    # 2) EARLY GUARD (pre-lock)
+                    if DOM_GUARD_BLOCK_NEW_MAC and (mac not in tau.macs):
+                        dom = tau.dominant_mac()
+                        if dom is not None:
+                            if (tau.dominant_count() >= int(DOM_GUARD_MIN_DOMCOUNT)) and (tau.purity() >= float(DOM_GUARD_PURITY)):
+                                continue
+
+                    # 3) DOM LOCK
+                    if tau.dom_lock_active():
+                        dom = tau.dominant_mac()
+                        if dom is not None and mac != dom:
+                            continue
+
+                    # optional min-size rule
+                    if tau.n < MIN_CLUSTER_SIZE_FOR_MATCH:
+                        if mac not in tau.macs:
+                            continue
+
+                # distance in current clustering space
+                dist = tau.mahalanobis(x, eps=params.eps)
+
+                # In basic mode, do NOT penalize a new MAC (we WANT MAC-rotation to co-cluster).
+                # In non-basic mode, keep your original behavior.
+                if (not basic_clustering) and (mac not in tau.macs):
+                    dist *= float(NEW_MAC_DIST_PENALTY)
+
+                dist_list.append((dist, tau.id, tau))
+
+            dist_list.sort(key=lambda z: z[0])
+
+            # ----------------------------
+            # 3c) pick best passing candidate (Top-K)
+            # ----------------------------
+            topk = dist_list[:max(0, int(params.topk))] if dist_list else []
+            chosen = None
+            chosen_d = float("inf")
+
+            for (dist, _, cand) in topk:
+                if basic_clustering:
+                    # single fixed gate
+                    g_cand = gamma_live
+                else:
+                    # dynamic gate policy (your original)
+                    g_cand = _gamma_for_candidate(cand, mac, gamma_live)
+
+                if g_cand < 0:
+                    continue
+                if dist <= g_cand:
+                    chosen = cand
+                    chosen_d = dist
+                    break
+
+            # ----------------------------
+            # 3d) spawn or match
+            # ----------------------------
+            spawned = False
+            if chosen is None:
+                tau = Tracklet(id=next_id, d=d)
+                next_id += 1
+
+                if not USE_ZSPACE:
+                    # x scaled by feat_w => diag prior scaled by feat_w^2
+                    tau.prior_diag = (raw_diag_var.copy() * (feat_w ** 2))
+
+                clusters.append(tau)
+                spawned = True
+                d_best = float(topk[0][0]) if topk else float("inf")
+            else:
+                tau = chosen
+                d_best = float(chosen_d)
+
+            # ----------------------------
+            # 3e) update persistent cluster state
+            # ----------------------------
+            tau.update_stats_welford(x)
+            tau.merge_segment(
+                t_s=float(t0),
+                t_e=float(t1),
+                mac=str(mac),
+                keys_in_seg=K_s,
+                tag_type=mac_to_tag.get(mac)
+            )
+
+            # In basic mode: explicitly ignore quarantine status (don’t let it influence future)
+            if basic_clustering:
+                tau.is_quarantined = False
+
+            # Record one row per (MAC, chunk)
+            rec = {
+                "cluster_id": int(tau.id),
+                "t_s": float(t0),
+                "t_e": float(t1),
+                "chunk_idx": int(ck),
+                "mac": str(mac),
+                "n_keys": int(len(K_s)),
+                "purity_cluster": float(tau.purity()),
+                "entropy_cluster": float(tau.entropy_norm()),
+                "is_quarantined": int(tau.is_quarantined),
+                "decision": "SPAWN" if spawned else "MATCH",
+                "d_best": float(d_best) if np.isfinite(d_best) else np.nan,
+                "n_rows_in_chunk_for_mac": int(len(gmac)),
+            }
+            for j, colname in enumerate(cfo_cols):
+                rec[f"seg_{colname}"] = float(f_bar[j])
+            seg_records.append(rec)
+
+            seg_count += 1
+
+            # Update global scaler with chunk-mean (keeps z-space stable)
+            if USE_ZSPACE and (seg_count % GLOBAL_NORM_UPDATE_EVERY == 0):
+                if (GLOBAL_NORM_FREEZE_AFTER is None) or (scaler.n < int(GLOBAL_NORM_FREEZE_AFTER)):
+                    scaler.update(f_bar)
+
+            # Pruning (still disabled by default)
+            if PRUNE_INACTIVE_AFTER is not None:
+                t_now = float(t0)
+                keep: List[Tracklet] = []
+                for tt in clusters:
+                    # keep flagged if you ever use flagged_ids during streaming; here we don't rely on it
+                    if (t_now - tt.t_max) <= float(PRUNE_INACTIVE_AFTER):
+                        keep.append(tt)
+                clusters = keep
+
+    # ----------------------------
+    # 4) Flag "adversary-like" clusters AFTER all chunks
+    # ----------------------------
+    # Your usecase: adversary cluster has:
+    #  - long duration
+    #  - many unique MACs
+    #  - many MACs per chunk spanned (benign MAC rotation ~1 per chunk)
+    adv_min_duration_s = float(adv_min_duration_min) * 60.0
+
+    flagged: List[Tracklet] = []
+    for tau in clusters:
+        dur = float(tau.t_max - tau.t_min) if (np.isfinite(tau.t_min) and np.isfinite(tau.t_max)) else 0.0
+        macs = len(tau.macs)
+
+        chunks_spanned = max(1.0, dur / (chunk_s + 1e-9))
+        macs_per_chunk = float(macs) / float(chunks_spanned)
+
+        is_adv = (
+            (dur >= adv_min_duration_s) and
+            (macs >= int(adv_min_unique_macs)) and
+            (macs_per_chunk >= float(adv_min_macs_per_chunk))
+        )
+        if is_adv:
+            flagged.append(tau)
+
+    seg_df = pd.DataFrame(seg_records)
     return clusters, flagged, seg_df
 
 # --------------------------- plotting helpers ---------------------------
@@ -1085,28 +1635,47 @@ def plot_macs_pca3d(df_raw: pd.DataFrame,
 
     fig.tight_layout()
     fig.savefig(out_pdf, bbox_inches="tight")
+    # plt.show()
     plt.close(fig)
 
 # --------------------------- cluster-level plots (PDF only) ---------------------------
 
-def plot_cluster_cfo_boxplot(seg_df: pd.DataFrame, cfo_cols: List[str], out_pdf: str) -> None:
-    if seg_df is None or seg_df.empty:
+def plot_mac_cfo_boxplot(df_raw: pd.DataFrame,
+                         time_col: str,
+                         mac_col: str,
+                         payload_col: Optional[str],
+                         out_pdf: str) -> None:
+    if df_raw is None or df_raw.empty:
         return
 
-    plot_cols = [c for c in _resolve_plot_cfo_cols(seg_df, cfo_cols) if c in seg_df.columns]
-    if not plot_cols:
+    dfp = df_raw.copy()
+    if REQUIRE_LOSTMODE_PREFIX and payload_col:
+        dfp = dfp[dfp[payload_col].apply(lambda x: isinstance(x, str) and has_lostmode_prefix(x))]
+
+    dfp[mac_col] = dfp[mac_col].astype(str)
+    dfp = dfp[dfp[mac_col].str.len() > 0]
+
+    plot_cfo_cols = [c for c in _resolve_plot_cfo_cols_df(dfp) if c in dfp.columns]
+    if not plot_cfo_cols:
         return
 
-    counts = seg_df["cluster_id"].value_counts().sort_index()
-    cluster_ids = [int(cid) for cid in counts.index.tolist()]
-    if len(cluster_ids) == 0:
+    mac_counts = dfp[mac_col].value_counts()
+    macs = mac_counts.head(int(MAX_MACS_FOR_PLOTS)).index.tolist()
+    dfp = dfp[dfp[mac_col].isin(macs)].copy()
+
+    for c in plot_cfo_cols:
+        dfp[c] = pd.to_numeric(dfp[c], errors="coerce")
+    dfp = dfp.replace([np.inf, -np.inf], np.nan).dropna(subset=plot_cfo_cols)
+    if dfp.empty:
         return
 
-    n_feat = len(plot_cols)
-    fig_w = max(10.0, min(24.0, 0.5 * len(cluster_ids) + 6.0))
+    macs_sorted = sorted(macs)
+    n_feat = len(plot_cfo_cols)
+
+    fig_w = max(10.0, min(26.0, 0.55 * len(macs_sorted) + 6.0))
     fig, ax = plt.subplots(figsize=(fig_w, 6.0))
 
-    base_positions = np.arange(len(cluster_ids), dtype=float)
+    base_positions = np.arange(len(macs_sorted), dtype=float)
     offsets = np.linspace(-0.25, 0.25, n_feat) if n_feat > 1 else np.array([0.0])
 
     prop_cycle = plt.rcParams["axes.prop_cycle"].by_key().get("color", [])
@@ -1115,10 +1684,10 @@ def plot_cluster_cfo_boxplot(seg_df: pd.DataFrame, cfo_cols: List[str], out_pdf:
 
     handles, labels = [], []
 
-    for fi, col in enumerate(plot_cols):
+    for fi, col in enumerate(plot_cfo_cols):
         data, positions = [], []
-        for i, cid in enumerate(cluster_ids):
-            vals = pd.to_numeric(seg_df.loc[seg_df["cluster_id"] == cid, col], errors="coerce").dropna().values
+        for i, mac in enumerate(macs_sorted):
+            vals = dfp.loc[dfp[mac_col] == mac, col].dropna().values
             if vals.size == 0:
                 continue
             data.append(vals)
@@ -1137,23 +1706,51 @@ def plot_cluster_cfo_boxplot(seg_df: pd.DataFrame, cfo_cols: List[str], out_pdf:
             whiskerprops=dict(linewidth=1.0),
             capprops=dict(linewidth=1.0),
         )
+
         color = prop_cycle[fi % len(prop_cycle)]
         for patch in bp["boxes"]:
             patch.set_facecolor(color)
             patch.set_alpha(0.45)
             patch.set_edgecolor(color)
 
-        handles.append(bp["boxes"][0])
-        labels.append(col.replace("seg_", ""))
+        # NEW: annotate each individual box (MAC × feature) with its sample count
+        y0, y1 = ax.get_ylim()
+        dy = 0.01 * (y1 - y0 + 1e-9)  # small vertical offset
+        for j, vals in enumerate(data):
+            n = int(len(vals))
+            if n <= 0:
+                continue
 
-    ax.set_title("Cluster-wise CFO feature distributions (segment means)")
+            # Each box has 2 whiskers; take the top whisker y as the anchor
+            w1 = bp["whiskers"][2 * j].get_ydata()
+            w2 = bp["whiskers"][2 * j + 1].get_ydata()
+            y_top = float(max(np.max(w1), np.max(w2)))
+
+            ax.text(
+                positions[j],
+                y_top + dy,
+                f"n={n}",
+                ha="center",
+                va="bottom",
+                fontsize=7,
+                rotation=90,
+            )
+
+        handles.append(bp["boxes"][0])
+        labels.append(col)
+
+    ax.set_title(f"CFO distributions grouped by MAC (top {len(macs_sorted)} MACs)")
     ax.set_ylabel("CFO (Hz)")
-    ax.set_xlabel("Cluster ID")
+    ax.set_xlabel("MAC (AdvA)")
     ax.set_xticks(base_positions)
-    ax.set_xticklabels([str(cid) for cid in cluster_ids], rotation=90)
+    ax.set_xticklabels(macs_sorted, rotation=90, fontsize=8)
     ax.grid(True, axis="y", linestyle="--", linewidth=0.6, alpha=0.6)
     if handles:
         ax.legend(handles, labels, title="CFO feature", loc="upper right", frameon=True)
+
+    # Optional: add a bit of headroom so n-labels don't clip
+    y0, y1 = ax.get_ylim()
+    ax.set_ylim(y0, y1 + 0.08 * (y1 - y0 + 1e-9))
 
     fig.tight_layout()
     fig.savefig(out_pdf, bbox_inches="tight")
@@ -1210,6 +1807,7 @@ def plot_clusters_pca3d(seg_df: pd.DataFrame, cfo_cols: List[str], out_pdf: str)
 
     fig.tight_layout()
     fig.savefig(out_pdf, bbox_inches="tight")
+    # plt.show()
     plt.close(fig)
 
 def plot_cluster_mac_counts(tracklets: List[Tracklet], out_pdf: str) -> None:
@@ -1299,14 +1897,14 @@ def run_aircatch_on_csv(csv_path: str, out_dir: str,
                         do_cluster_plots: bool = True) -> Dict[str, Any]:
     df = pd.read_csv(csv_path)
 
-    # CRC filter (keep your logic)
-    if _col_lookup_case_insensitive(df, "crc_ok"):
-        crc_col = _col_lookup_case_insensitive(df, "crc_ok")
-        df[crc_col] = pd.to_numeric(df[crc_col], errors="coerce").fillna(0).astype(int)
-        before = len(df)
-        df = df[df[crc_col] == 1].copy()
-        after = len(df)
-        print(f"[i] CRC filter: kept {after}/{before} rows where {crc_col}=1")
+    # # CRC filter (keep your logic)
+    # if _col_lookup_case_insensitive(df, "crc_ok"):
+    #     crc_col = _col_lookup_case_insensitive(df, "crc_ok")
+    #     df[crc_col] = pd.to_numeric(df[crc_col], errors="coerce").fillna(0).astype(int)
+    #     before = len(df)
+    #     df = df[df[crc_col] == 1].copy()
+    #     after = len(df)
+    #     print(f"[i] CRC filter: kept {after}/{before} rows where {crc_col}=1")
 
     time_col = resolve_time_column(df)
     mac_col = resolve_mac_column(df)
@@ -1325,6 +1923,9 @@ def run_aircatch_on_csv(csv_path: str, out_dir: str,
     out_box_pdf       = os.path.join(out_dir, f"{base}_clusters_cfo_boxplot.pdf")
     out_pca3d_pdf      = os.path.join(out_dir, f"{base}_clusters_pca3d.pdf")
     out_macbar_pdf     = os.path.join(out_dir, f"{base}_clusters_mac_counts.pdf")
+    out_mac_hist_pdf = os.path.join(out_dir, f"{base}_mac_histogram.pdf")
+
+    plot_mac_histogram_with_adversary(df, mac_col=mac_col, payload_col=payload_col, out_pdf=out_mac_hist_pdf, top_n=50)
 
     if do_mac_plots:
         try:
@@ -1342,13 +1943,37 @@ def run_aircatch_on_csv(csv_path: str, out_dir: str,
         topk=TOPK_CANDIDATES,
     )
 
-    clusters, flagged, seg_df = aircatch_stream(
+    # clusters, flagged, seg_df = aircatch_stream(
+    #     df=df,
+    #     time_col=time_col,
+    #     mac_col=mac_col,
+    #     payload_col=payload_col,
+    #     cfo_cols=cfo_cols,
+    #     params=params
+    # )
+
+    clusters, flagged, seg_df = aircatch_chunked(
         df=df,
         time_col=time_col,
         mac_col=mac_col,
         payload_col=payload_col,
+        basic_clustering=BASIC_CLUSTERING,
         cfo_cols=cfo_cols,
-        params=params
+        params=params,
+        chunk_minutes=15.0,   # e.g., 15-minute chunks
+    )
+
+    flagged_ids = {t.id for t in flagged}
+    out_purity_pdf = os.path.join(out_dir, f"{base}_cluster_purity_barplot.pdf")
+
+    plot_cluster_purity_barplot_with_adv(
+        df_raw=df,
+        seg_df=seg_df,
+        mac_col_raw=mac_col,
+        payload_col_raw=payload_col,
+        out_pdf=out_purity_pdf,
+        flagged_ids=flagged_ids,
+        adv_pattern_hex="4c001219ff"
     )
 
     # metrics
@@ -1496,6 +2121,107 @@ def plot_batch_results(df: pd.DataFrame, out_root: str):
         plt.close()
 
     print("[✓] Saved batch evaluation plots (PDF)")
+
+def plot_mac_histogram_with_adversary(df_raw: pd.DataFrame,
+                                      mac_col: str,
+                                      payload_col: Optional[str],
+                                      out_pdf: str,
+                                      top_n: int = 50) -> None:
+    """
+    Histogram (bar chart) of MACs seen in the dataset.
+
+    - If payload contains substring "4c001219ff" (case-insensitive, hex-normalized),
+      treat that row's MAC as belonging to a single "Adversary MACs" bucket.
+    - Everything else is counted per-MAC.
+    - Saves as PDF (like other plots).
+
+    Parameters
+    ----------
+    df_raw : pd.DataFrame
+        Input dataframe (packets/rows).
+    mac_col : str
+        Column name containing MAC/AdvA.
+    payload_col : Optional[str]
+        Column name containing payload hex string. If None/not found, adversary bucketing is skipped.
+    out_pdf : str
+        Output path for the PDF.
+    top_n : int
+        Show top-N bars (after bucketing). Remaining are summed into "Other".
+    """
+    if df_raw is None or df_raw.empty:
+        return
+
+    dfp = df_raw.copy()
+    if mac_col not in dfp.columns:
+        return
+
+    dfp[mac_col] = dfp[mac_col].astype(str)
+    dfp = dfp[dfp[mac_col].str.len() > 0].copy()
+    if dfp.empty:
+        return
+
+    adv_pat = "4c001219ff"
+
+    def _is_adv_payload(x: object) -> bool:
+        if not isinstance(x, str):
+            return False
+        s = x.strip().lower()
+        if s.startswith("0x"):
+            s = s[2:]
+        # keep only hex chars
+        s = "".join(ch for ch in s if ch in "0123456789abcdef")
+        return adv_pat in s
+
+    # Build label series: either "Adversary MACs" or the actual MAC
+    if payload_col and (payload_col in dfp.columns):
+        is_adv = dfp[payload_col].apply(_is_adv_payload)
+        labels = dfp[mac_col].where(~is_adv, other="Adversary MACs")
+    else:
+        labels = dfp[mac_col]
+
+    counts = labels.value_counts()
+
+    # Keep top_n, collapse rest into "Other" (but keep "Adversary MACs" if it exists)
+    kept = counts.head(int(top_n)).copy()
+
+    if "Adversary MACs" in counts.index and "Adversary MACs" not in kept.index:
+        # Ensure adversary is always shown (swap in by dropping last)
+        if len(kept) > 0:
+            kept = kept.iloc[:-1]
+        kept.loc["Adversary MACs"] = int(counts.loc["Adversary MACs"])
+        kept = kept.sort_values(ascending=False)
+
+    other_sum = int(counts.iloc[int(top_n):].sum()) if len(counts) > int(top_n) else 0
+    if other_sum > 0:
+        kept.loc["Other"] = other_sum
+
+    kept = kept.sort_values(ascending=False)
+
+    # Plot
+    fig_w = max(10.0, min(26.0, 0.40 * len(kept) + 6.0))
+    fig, ax = plt.subplots(figsize=(fig_w, 5.5))
+
+    x = np.arange(len(kept), dtype=float)
+    ax.bar(x, kept.values)
+
+    ax.set_title("Histogram of observed MACs (payload '4c001219FF' grouped as Adversary MACs)")
+    ax.set_xlabel("MAC label")
+    ax.set_ylabel("# packets (rows)")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(kept.index.tolist(), rotation=90, fontsize=8)
+
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.6, alpha=0.6)
+
+    # Annotate counts on top of bars (optional but useful)
+    y0, y1 = ax.get_ylim()
+    dy = 0.01 * (y1 - y0 + 1e-9)
+    for i, v in enumerate(kept.values):
+        ax.text(i, float(v) + dy, str(int(v)), ha="center", va="bottom", fontsize=7, rotation=90)
+
+    fig.tight_layout()
+    fig.savefig(out_pdf, bbox_inches="tight")
+    plt.close(fig)
 
 # --------------------------- main batch ---------------------------
 

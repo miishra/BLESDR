@@ -1,0 +1,2 @@
+scenario,csv,n_clusters,n_flagged,n_segments,purity,n_quarantined,n_heterogeneous
+ble_dump_jan15_1_Adv_out,ble_dump_jan15_1_Adv_out.csv,352,0,702,0.5014245014245015,0,0
