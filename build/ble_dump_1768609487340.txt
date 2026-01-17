@@ -1,0 +1,3434 @@
+---- BLE PACKET ----
+Timestamp: 19:20:22.361
+AA corr: 32 AA pos: 6094 PRE corr: 8
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: 8249 Hz | 00: 77123 | 11: -90647 | 10: 80254 | 01: -126002
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 7C:FA:BB:C2:31:09
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x74f93a  CRC calc: 0x74f93a
+payload (hex): 0931c2bbfa7c0201061916aafe4075e387a574f3c7a7bc6b8aae20b52f3e6052050ea3
+payload (bytes): b'\x091\xc2\xbb\xfa|\x02\x01\x06\x19\x16\xaa\xfe@u\xe3\x87\xa5t\xf3\xc7\xa7\xbck\x8a\xae \xb5/>`R\x05\x0e\xa3'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4908c43dd5f3e4080609868557f02aec7e1a52ecfe3e53dd6517504adf47c064aa070c5
+crc_rx_msb_hex (received CRC, BLESDR-domain): 74f93a
+hp_std_hex (hdr+payload in standard BLE byte values): 60230931c2bbfa7c0201061916aafe4075e387a574f3c7a7bc6b8aae20b52f3e6052050ea3
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.364
+AA corr: 32 AA pos: 7828 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: 13724 Hz | 00: 67519 | 11: -93653 | 10: 78429 | 01: -105972
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x81de82  CRC calc: 0x77e3d4
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eed0548f
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xd0T\x8f'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000770b2af1
+crc_rx_msb_hex (received CRC, BLESDR-domain): 81de82
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eed0548f
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.365
+AA corr: 32 AA pos: 3419 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -19009 Hz | 00: 95267 | 11: -113359 | 10: 100791 | 01: -128950
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x3e739a  CRC calc: 0xf896f0
+payload (hex): cb07a1bd4b720201061916aafe4019102ce1e964b6a7bda1b0356944e37d33b0e593b9
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19\x10,\xe1\xe9d\xb6\xa7\xbd\xa1\xb05iD\xe3}3\xb0\xe5\x93\xb9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f029808348797266de5bd850dac9622c7becc0da7c99d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 3e739a
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019102ce1e964b6a7bda1b0356944e37d33b0e593b9
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.367
+AA corr: 32 AA pos: 1325 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -15254 Hz | 00: 95161 | 11: -109355 | 10: 112813 | 01: -135953
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0xc06d60  CRC calc: 0xc06d60
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.370
+AA corr: 32 AA pos: 7011 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -11834 Hz | 00: 92422 | 11: -83517 | 10: 81859 | 01: -130058
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: F1:97:39:67:55:7B
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xc83a71  CRC calc: 0x934a56
+payload (hex): 7b55673997f11eff4c001219ffd3c6ddfa5b394e2c48185fba403732a16943d00b6e7f43d6
+payload (bytes): b'{Ug9\x97\xf1\x1e\xffL\x00\x12\x19\xff\xd3\xc6\xdd\xfa[9N,H\x18_\xba@72\xa1iC\xd0\x0bn\x7fC\xd6'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4deaae69ce98f78ff32004898ffcb63bb5fda9c72341218fa5d02ec4c8596c20bd076fec26b
+crc_rx_msb_hex (received CRC, BLESDR-domain): c83a71
+hp_std_hex (hdr+payload in standard BLE byte values): 42257b55673997f11eff4c001219ffd3c6ddfa5b394e2c48185fba403732a16943d00b6e7f43d6
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.526
+AA corr: 32 AA pos: 3446 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -8419 Hz | 00: 81558 | 11: -86431 | 10: 68408 | 01: -116092
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 69:4C:15:66:27:28
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x8fb3c1  CRC calc: 0x8fb3c1
+payload (hex): 282766154c690201061916aafe4063c113d8ca04bc26d04a3df713b792f0d9a5085471
+payload (bytes): b'(\x27f\x15Li\x02\x01\x06\x19\x16\xaa\xfe@c\xc1\x13\xd8\xca\x04\xbc&\xd0J=\xf7\x13\xb7\x92\xf0\xd9\xa5\x08Tq'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c414e466a832964080609868557f02c683c81b53203d640b52bcefc8ed490f9ba5102a8e
+crc_rx_msb_hex (received CRC, BLESDR-domain): 8fb3c1
+hp_std_hex (hdr+payload in standard BLE byte values): 6023282766154c690201061916aafe4063c113d8ca04bc26d04a3df713b792f0d9a5085471
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.526
+AA corr: 32 AA pos: 6757 PRE corr: 7
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -43167 Hz | 00: 78225 | 11: -113008 | 10: 52052 | 01: -100044
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5C:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xc174d1  CRC calc: 0xe4d480
+payload (hex): 4aa4305c146d020104030a48fd17165afd1361f702236d93e7193746b39ef20eebe11ce01b
+payload (bytes): b'J\xa40\x5c\x14m\x02\x01\x04\x03\x0aH\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x197F\xb3\x9e\xf2\x0e\xeb\xe1\x1c\xe0\x1b'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c3a28b6408020c05012bfe8685abfc886ef40c4b6c9e798ec62cd794f70d7873807d8
+crc_rx_msb_hex (received CRC, BLESDR-domain): c174d1
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305c146d020104030a48fd17165afd1361f702236d93e7193746b39ef20eebe11ce01b
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.527
+AA corr: 32 AA pos: 5782 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -23431 Hz | 00: 93079 | 11: -105785 | 10: 80759 | 01: -138489
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 55:E2:9C:C2:5F:15
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x126cf5  CRC calc: 0x0db53d
+payload (hex): 155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d54fe6cbadccb78128e
+payload (bytes): b'\x15_\xc2\x9c\xe2U\x02\x01\x06\x19\x16\xaa\xfe@\xb0\x84\xec\x96/q\xef0+\x12\x0f]T\xfel\xba\xdc\xcbx\x12\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4a8fa433947aa4080609868557f020d213769f48ef70cd448f0ba2a7f365d3bd31e4871
+crc_rx_msb_hex (received CRC, BLESDR-domain): 126cf5
+hp_std_hex (hdr+payload in standard BLE byte values): 6023155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d54fe6cbadccb78128e
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.527
+AA corr: 32 AA pos: 4866 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -11277 Hz | 00: 66823 | 11: -69230 | 10: 85397 | 01: -105996
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: E5:80:FD:45:9B:E9
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: TRUE  CRC rx: 0xa8245d  CRC calc: 0xa8245d
+payload (hex): e99b45fd80e50201060d16edfe020088a062ea299fa62e0303edfe
+payload (bytes): b'\xe9\x9bE\xfd\x80\xe5\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\x88\xa0b\xea)\x9f\xa6.\x03\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d897d9a2bf01a7408060b068b77f40001105465794f96574c0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): a8245d
+hp_std_hex (hdr+payload in standard BLE byte values): 601be99b45fd80e50201060d16edfe020088a062ea299fa62e0303edfe
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.528
+AA corr: 31 AA pos: 4147 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: -20045 Hz | 00: 62315 | 11: -92988 | 10: 86020 | 01: -133851
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: D5:10:C3:9C:05:D1
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x21554a  CRC calc: 0xa79957
+payload (hex): d1059cc310d51eff4c0012196061bac5b5a4617bf0fba3803f8516f4190c6fafcacaa1002e
+payload (bytes): b'\xd1\x05\x9c\xc3\x10\xd5\x1e\xffL\x00\x12\x19`a\xba\xc5\xb5\xa4a{\xf0\xfb\xa3\x80?\x85\x16\xf4\x19\x0co\xaf\xca\xca\xa1\x00.'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a48ba039c308ab78ff3200489806865da3ad2586de0fdfc501fca1682f9830f6f55353850074
+crc_rx_msb_hex (received CRC, BLESDR-domain): 21554a
+hp_std_hex (hdr+payload in standard BLE byte values): 4025d1059cc310d51eff4c0012196061bac5b5a4617bf0fba3803f8516f4190c6fafcacaa1002e
+
+---- BLE PACKET ----
+Timestamp: 19:20:22.827
+AA corr: 32 AA pos: 2990 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -8284 Hz | 00: 94594 | 11: -81777 | 10: 63753 | 01: -142347
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0xe2e8a1  CRC calc: 0xe2e8a1
+payload (hex): 352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+payload (bytes): b'5/\x195\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc1\x16~N\xe1\xc4\x89\x9a\x9cO~\xce\x99\xb4L\xa39\xe0\x03\xad\x03\x18'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033378ff3200489808f73d8c687e728723915939f27e73992d32c59c07c0b5c018
+crc_rx_msb_hex (received CRC, BLESDR-domain): e2e8a1
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+
+---- BLE PACKET ----
+Timestamp: 19:20:23.239
+AA corr: 32 AA pos: 3671 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -13862 Hz | 00: 70443 | 11: -108696 | 10: 88958 | 01: -109404
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9c67db  CRC calc: 0x98005e
+payload (hex): abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9edc1d8f5c17165ed8
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x9f\xbe\x9cEPes\xe1\xa4k\x9e\xdc\x1d\x8f\x5c\x17\x16^\xd8'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0210b3f97d39a20aa6ce8725d6793bb8f13ae8687a1b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9c67db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9edc1d8f5c17165ed8
+
+---- BLE PACKET ----
+Timestamp: 19:20:23.242
+AA corr: 32 AA pos: 4841 PRE corr: 8
+Channel: 37 Phase: 14 Polarity: -1
+Slip: 0
+CFO Total: -24066 Hz | 00: 78471 | 11: -100679 | 10: 81974 | 01: -149279
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x753337  CRC calc: 0x753337
+payload (hex): 4be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a700000047d817c1
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b\xe0)\x0e\xe1\xa8~\x14\xa7\x00\x00\x00G\xd8\x17\xc1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0405abfe8685abfc886ef40d807947087157e28e5000000e21be883
+crc_rx_msb_hex (received CRC, BLESDR-domain): 753337
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a700000047d817c1
+
+---- BLE PACKET ----
+Timestamp: 19:20:23.244
+AA corr: 32 AA pos: 6397 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: 16800 Hz | 00: 66270 | 11: -73735 | 10: 109079 | 01: -133581
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:20:23.246
+AA corr: 32 AA pos: 2065 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: 10710 Hz | 00: 62164 | 11: -90709 | 10: 73147 | 01: -113357
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:D8:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x31fcd3  CRC calc: 0x422f12
+payload (hex): 23d83e396a6602012e1916aafe416a66ca1c40d72a22a4ca5202631ca1eb2084084d58
+payload (bytes): b'#\xd8>9jf\x02\x01.\x19\x16\xaa\xfeAjf\xca\x1c@\xd7*"\xa4\xcaR\x02c\x1c\xa1\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c41b7c9c56664080749868557f825666533802eb544425534a40c63885d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323d83e396a6602012e1916aafe416a66ca1c40d72a22a4ca5202631ca1eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:20:23.921
+AA corr: 32 AA pos: 3320 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -22692 Hz | 00: 66887 | 11: -83185 | 10: 96455 | 01: -100421
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0xed086a  CRC calc: 0xed086a
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:20:23.921
+AA corr: 32 AA pos: 2131 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -11625 Hz | 00: 78351 | 11: -83745 | 10: 101839 | 01: -111359
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0xc06d60  CRC calc: 0xc06d60
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:20:23.922
+AA corr: 32 AA pos: 1460 PRE corr: 7
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: -12859 Hz | 00: 60704 | 11: -104208 | 10: 51040 | 01: -109051
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: D7:67:73:4F:B0:31
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x2b454d  CRC calc: 0x80fdb4
+payload (hex): 31b04f7367d71eff4c001219ff326105346fcdef0e26642f76503b241bc07c28aa19af52f6
+payload (bytes): b'1\xb0Osg\xd7\x1e\xffL\x00\x12\x19\xff2a\x054o\xcd\xef\x0e&d/vP;$\x1b\xc0|(\xaa\x19\xafR\xf6'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a48c0df2cee6eb78ff32004898ff4c86a02cf6b3f7706426f46e0adc24d8033e145598f54a6f
+crc_rx_msb_hex (received CRC, BLESDR-domain): 2b454d
+hp_std_hex (hdr+payload in standard BLE byte values): 422531b04f7367d71eff4c001219ff326105346fcdef0e26642f76503b241bc07c28aa19af52f6
+
+---- BLE PACKET ----
+Timestamp: 19:20:24.519
+AA corr: 32 AA pos: 1405 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -19597 Hz | 00: 77161 | 11: -74517 | 10: 59769 | 01: -93909
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 69:4C:15:66:27:28
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x8fb3c1  CRC calc: 0x8fb3c1
+payload (hex): 282766154c690201061916aafe4063c113d8ca04bc26d04a3df713b792f0d9a5085471
+payload (bytes): b'(\x27f\x15Li\x02\x01\x06\x19\x16\xaa\xfe@c\xc1\x13\xd8\xca\x04\xbc&\xd0J=\xf7\x13\xb7\x92\xf0\xd9\xa5\x08Tq'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c414e466a832964080609868557f02c683c81b53203d640b52bcefc8ed490f9ba5102a8e
+crc_rx_msb_hex (received CRC, BLESDR-domain): 8fb3c1
+hp_std_hex (hdr+payload in standard BLE byte values): 6023282766154c690201061916aafe4063c113d8ca04bc26d04a3df713b792f0d9a5085471
+
+---- BLE PACKET ----
+Timestamp: 19:20:24.519
+AA corr: 32 AA pos: 7389 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -24532 Hz | 00: 44749 | 11: -111823 | 10: 68415 | 01: -111484
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x6d1d63  CRC calc: 0x6d1d63
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\xa7\x00\x00\x00yh:\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e50000009e165cb8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d1d63
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+
+---- BLE PACKET ----
+Timestamp: 19:20:24.520
+AA corr: 32 AA pos: 5993 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -6326 Hz | 00: 64374 | 11: -114298 | 10: 78308 | 01: -113434
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 55:E2:9C:C2:5F:15
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x126cf5  CRC calc: 0x126cf5
+payload (hex): 155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d55fe6cbadccb78128e
+payload (bytes): b'\x15_\xc2\x9c\xe2U\x02\x01\x06\x19\x16\xaa\xfe@\xb0\x84\xec\x96/q\xef0+\x12\x0f]U\xfel\xba\xdc\xcbx\x12\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4a8fa433947aa4080609868557f020d213769f48ef70cd448f0baaa7f365d3bd31e4871
+crc_rx_msb_hex (received CRC, BLESDR-domain): 126cf5
+hp_std_hex (hdr+payload in standard BLE byte values): 6023155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d55fe6cbadccb78128e
+
+---- BLE PACKET ----
+Timestamp: 19:20:24.520
+AA corr: 32 AA pos: 5572 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -15232 Hz | 00: 86853 | 11: -70626 | 10: 68985 | 01: -92490
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: CD:80:FD:C5:D3:E9
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0xa8245d  CRC calc: 0x6325ba
+payload (hex): e9d3c5fd80cd0241260b16edfe2201a8a160eba9dfa72e0703edfe
+payload (bytes): b'\xe9\xd3\xc5\xfd\x80\xcd\x02A&\x0b\x16\xed\xfe"\x01\xa8\xa1`\xeb\xa9\xdf\xa7.\x07\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 0ed897cba3bf01b3408264d068b77f4480158506d795fbe574e0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): a8245d
+hp_std_hex (hdr+payload in standard BLE byte values): 701be9d3c5fd80cd0241260b16edfe2201a8a160eba9dfa72e0703edfe
+
+---- BLE PACKET ----
+Timestamp: 19:20:24.777
+AA corr: 32 AA pos: 7185 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -3567 Hz | 00: 81172 | 11: -94954 | 10: 64469 | 01: -85231
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:11:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xc8d369  CRC calc: 0xfaf805
+payload (hex): 352f1135c0cc1eff4c00121910efbc30163f4ee0c47b9a9c4f5ace19b44ca32b2a9729571a
+payload (bytes): b'5/\x115\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc0\x16?N\xe0\xc4{\x9a\x9cOZ\xce\x19\xb4L\xa3+*\x97)W\x1a'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf488ac033378ff3200489808f73d0c68fc720723de5939f25a73982d32c5d454e994ea58
+crc_rx_msb_hex (received CRC, BLESDR-domain): c8d369
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1135c0cc1eff4c00121910efbc30163f4ee0c47b9a9c4f5ace19b44ca32b2a9729571a
+
+---- BLE PACKET ----
+Timestamp: 19:20:24.777
+AA corr: 32 AA pos: 2697 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -15856 Hz | 00: 73264 | 11: -98818 | 10: 78671 | 01: -109846
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:20:25.318
+AA corr: 32 AA pos: 4831 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -33737 Hz | 00: 75893 | 11: -101293 | 10: 108519 | 01: -130817
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9147db  CRC calc: 0x9147db
+payload (hex): abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x9f\xbe\x9cEPes\xe1\xa4k\x9e}\x1d\xcfX1\xd6L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0210b3f97d39a20aa6ce8725d679beb8f31a8c6b329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+
+---- BLE PACKET ----
+Timestamp: 19:20:25.321
+AA corr: 32 AA pos: 7395 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: 4141 Hz | 00: 55530 | 11: -58694 | 10: 101888 | 01: -109333
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:20:25.322
+AA corr: 32 AA pos: 1571 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -29901 Hz | 00: 45739 | 11: -88857 | 10: 85763 | 01: -130345
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:A0:09:6A:11
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0x0f4d9a  CRC calc: 0xf13739
+payload (hex): 116a09a097c20201260d16edfe122154566e6a20d4c22e578fc0d1
+payload (bytes): b'\x11j\x09\xa0\x97\xc2\x02\x01&\x0d\x16\xed\xfe\x12!TVnj \xd4\xc2.W\x8f\xc0\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d888569005e943408064b068b77f48842a6a7656042b4374eaf1038b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 0f4d9a
+hp_std_hex (hdr+payload in standard BLE byte values): 601b116a09a097c20201260d16edfe122154566e6a20d4c22e578fc0d1
+
+---- BLE PACKET ----
+Timestamp: 19:20:25.583
+AA corr: 32 AA pos: 7479 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -24967 Hz | 00: 59181 | 11: -99315 | 10: 52799 | 01: -90202
+PDU: ADV_SCAN_IND (type=6)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 7C:FA:BB:C2:31:29
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0xeae920  CRC calc: 0xcdf278
+payload (hex): 2931c2bbfa7c0201061916aafe4075e31326609a8c87fd67c7eb30c54f1e51fb2a61b1
+payload (bytes): b')1\xc2\xbb\xfa|\x02\x01\x06\x19\x16\xaa\xfe@u\xe3\x13&`\x9a\x8c\x87\xfdg\xc7\xeb0\xc5O\x1eQ\xfb*a\xb1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 6ac4948c43dd5f3e4080609868557f02aec7c864065931e1bfe6e3d70ca3f2788adf54868d
+crc_rx_msb_hex (received CRC, BLESDR-domain): eae920
+hp_std_hex (hdr+payload in standard BLE byte values): 56232931c2bbfa7c0201061916aafe4075e31326609a8c87fd67c7eb30c54f1e51fb2a61b1
+
+---- BLE PACKET ----
+Timestamp: 19:20:26.115
+AA corr: 32 AA pos: 6486 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -34718 Hz | 00: 112151 | 11: -91044 | 10: 94824 | 01: -130674
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: DE:05:8B:1F:7A:07
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0xd0e36a  CRC calc: 0xd0e36a
+payload (hex): 077a1f8b05de1eff4c001219ff8361c5a36d08348fd9339801f8372eed76a7967ba77b03ff
+payload (bytes): b'\x07z\x1f\x8b\x05\xde\x1e\xffL\x00\x12\x19\xff\x83a\xc5\xa3m\x084\x8f\xd93\x98\x01\xf87.\xedv\xa7\x96{\xa7{\x03\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4e05ef8d1a07b78ff32004898ffc186a3c5b6102cf19bcc19801fec74b76ee569dee5dec0ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): d0e36a
+hp_std_hex (hdr+payload in standard BLE byte values): 4225077a1f8b05de1eff4c001219ff8361c5a36d08348fd9339801f8372eed76a7967ba77b03ff
+
+---- BLE PACKET ----
+Timestamp: 19:20:26.116
+AA corr: 32 AA pos: 3704 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -1600 Hz | 00: 58838 | 11: -80423 | 10: 67219 | 01: -76869
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 69:4C:15:66:27:28
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x8fb3c1  CRC calc: 0x8fb3c1
+payload (hex): 282766154c690201061916aafe4063c113d8ca04bc26d04a3df713b792f0d9a5085471
+payload (bytes): b'(\x27f\x15Li\x02\x01\x06\x19\x16\xaa\xfe@c\xc1\x13\xd8\xca\x04\xbc&\xd0J=\xf7\x13\xb7\x92\xf0\xd9\xa5\x08Tq'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c414e466a832964080609868557f02c683c81b53203d640b52bcefc8ed490f9ba5102a8e
+crc_rx_msb_hex (received CRC, BLESDR-domain): 8fb3c1
+hp_std_hex (hdr+payload in standard BLE byte values): 6023282766154c690201061916aafe4063c113d8ca04bc26d04a3df713b792f0d9a5085471
+
+---- BLE PACKET ----
+Timestamp: 19:20:26.117
+AA corr: 32 AA pos: 6829 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -18329 Hz | 00: 67479 | 11: -111967 | 10: 50530 | 01: -138211
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x6d1d63  CRC calc: 0x6d1d63
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\xa7\x00\x00\x00yh:\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e50000009e165cb8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d1d63
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+
+---- BLE PACKET ----
+Timestamp: 19:20:26.527
+AA corr: 32 AA pos: 5168 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -26506 Hz | 00: 77074 | 11: -59517 | 10: 92490 | 01: -141268
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: E5:80:FD:45:9B:E9
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: TRUE  CRC rx: 0xa8245d  CRC calc: 0xa8245d
+payload (hex): e99b45fd80e50201060d16edfe020088a062ea299fa62e0303edfe
+payload (bytes): b'\xe9\x9bE\xfd\x80\xe5\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\x88\xa0b\xea)\x9f\xa6.\x03\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d897d9a2bf01a7408060b068b77f40001105465794f96574c0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): a8245d
+hp_std_hex (hdr+payload in standard BLE byte values): 601be99b45fd80e50201060d16edfe020088a062ea299fa62e0303edfe
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.056
+AA corr: 32 AA pos: 7316 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -4411 Hz | 00: 76683 | 11: -87790 | 10: 67025 | 01: -90377
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:34
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xeae881  CRC calc: 0x90fc3c
+payload (hex): 342f1935c0cc1eff4c00121910efbc11563e4ee1c4899a9c477ec699b44ca339e013bd4798
+payload (bytes): b'4/\x195\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc\x11V>N\xe1\xc4\x89\x9a\x9cG~\xc6\x99\xb4L\xa39\xe0\x13\xbdG\x98'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 4ea42cf498ac033378ff3200489808f73d886a7c728723915939e27e63992d32c59c07c8bde219
+crc_rx_msb_hex (received CRC, BLESDR-domain): eae881
+hp_std_hex (hdr+payload in standard BLE byte values): 7225342f1935c0cc1eff4c00121910efbc11563e4ee1c4899a9c477ec699b44ca339e013bd4798
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.056
+AA corr: 32 AA pos: 1649 PRE corr: 7
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -8848 Hz | 00: 93035 | 11: -83864 | 10: 82228 | 01: -136187
+PDU: ADV_NONCONN_IND (type=2)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6F:52:57:23:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9e94e0  CRC calc: 0xbf4a5c
+payload (hex): 87802357526f0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80#WRo\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 46c4e101c4ea4af64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 622387802357526f0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.057
+AA corr: 32 AA pos: 1625 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -42212 Hz | 00: 77599 | 11: -89841 | 10: 61389 | 01: -119369
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x712131  CRC calc: 0x51d620
+payload (hex): 4be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a7000000d7d056c1
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b\xe0)\x0e\xe1\xa8~\x14\xa7\x00\x00\x00\xd7\xd0V\xc1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0405abfe8685abfc886ef40d807947087157e28e5000000eb0b6a83
+crc_rx_msb_hex (received CRC, BLESDR-domain): 712131
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a7000000d7d056c1
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.057
+AA corr: 31 AA pos: 6836 PRE corr: 7
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -29056 Hz | 00: 60181 | 11: -136013 | 10: 60161 | 01: -155316
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 65:55:1E:C3:95:B8
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xf0a0ef  CRC calc: 0xa97dcc
+payload (hex): b895c31e556502010403025afd17165afd1361f7024ec1a6f7ebd62688a700002064d59f8e
+payload (bytes): b'\xb8\x95\xc3\x1eUe\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02N\xc1\xa6\xf7\xeb\xd6&\x88\xa7\x00\x00 d\xd5\x9f\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a41da9c378aaa6408020c0405abfe8685abfc886ef40728365efd76b6411e500000426abf971
+crc_rx_msb_hex (received CRC, BLESDR-domain): f0a0ef
+hp_std_hex (hdr+payload in standard BLE byte values): 6025b895c31e556502010403025afd17165afd1361f7024ec1a6f7ebd62688a700002064d59f8e
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.057
+AA corr: 32 AA pos: 1008 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -28658 Hz | 00: 75692 | 11: -80176 | 10: 73611 | 01: -127731
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9147d9  CRC calc: 0xefe1ce
+payload (hex): abdf5bc6975a0201061916aafe4008cd9fbe9c65506573e1a46b9e7d1fce5831d64cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x9f\xbe\x9cePes\xe1\xa4k\x9e}\x1f\xceX1\xd6L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0210b3f97d39a60aa6ce8725d679bef8731a8c6b329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147d9
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4008cd9fbe9c65506573e1a46b9e7d1fce5831d64cd9
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.057
+AA corr: 32 AA pos: 1851 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: 11142 Hz | 00: 59275 | 11: -60631 | 10: 105952 | 01: -109634
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x1714ca  CRC calc: 0xa1acda
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48a68116c012b0546f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8ah\x11l\x01+\x05F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275116883680d4a062afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48a68116c012b0546f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.411
+AA corr: 32 AA pos: 2798 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -7090 Hz | 00: 66986 | 11: -73006 | 10: 89392 | 01: -107997
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x31fcd3  CRC calc: 0x31fcd3
+payload (hex): 23cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeAjf\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f825666533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.767
+AA corr: 32 AA pos: 2832 PRE corr: 7
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -2312 Hz | 00: 81318 | 11: -97284 | 10: 103205 | 01: -130098
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0xed086a  CRC calc: 0xed086a
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.770
+AA corr: 32 AA pos: 1128 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -58 Hz | 00: 92971 | 11: -111009 | 10: 128248 | 01: -141876
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 7C:FA:BB:C2:31:09
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x74f93a  CRC calc: 0x74f93a
+payload (hex): 0931c2bbfa7c0201061916aafe4075e387a574f3c7a7bc6b8aae20b52f3e6052050ea3
+payload (bytes): b'\x091\xc2\xbb\xfa|\x02\x01\x06\x19\x16\xaa\xfe@u\xe3\x87\xa5t\xf3\xc7\xa7\xbck\x8a\xae \xb5/>`R\x05\x0e\xa3'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4908c43dd5f3e4080609868557f02aec7e1a52ecfe3e53dd6517504adf47c064aa070c5
+crc_rx_msb_hex (received CRC, BLESDR-domain): 74f93a
+hp_std_hex (hdr+payload in standard BLE byte values): 60230931c2bbfa7c0201061916aafe4075e387a574f3c7a7bc6b8aae20b52f3e6052050ea3
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.773
+AA corr: 32 AA pos: 7953 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -19469 Hz | 00: 91986 | 11: -95595 | 10: 76972 | 01: -101752
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0xc06d40  CRC calc: 0x53065b
+payload (hex): cb07a1bd4b720201061916aafe40195a2ce1e964b6a7fdb1b037a944c278b3b1f5aba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19Z,\xe1\xe9d\xb6\xa7\xfd\xb1\xb07\xa9D\xc2x\xb3\xb1\xf5\xab\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02985a348797266de5bf8d0dec9522431ecd8dafd545
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d40
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe40195a2ce1e964b6a7fdb1b037a944c278b3b1f5aba2
+
+---- BLE PACKET ----
+Timestamp: 19:20:27.775
+AA corr: 32 AA pos: 4685 PRE corr: 7
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -21699 Hz | 00: 80862 | 11: -86173 | 10: 60860 | 01: -97989
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: E9:DA:1D:87:DA:EB
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x894bbc  CRC calc: 0x425f6d
+payload (hex): ebda871ddae91eff4c001219ffd63355bbf9e937335235a1f4bcc3bfe68d018aaea3d056f6
+payload (bytes): b'\xeb\xda\x87\x1d\xda\xe9\x1e\xffL\x00\x12\x19\xff\xd63U\xbb\xf9\xe973R5\xa1\xf4\xbc\xc3\xbf\xe6\x8d\x01\x8a\xae\xa3\xd0V\xf6'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4d75be1b85b9778ff32004898ff6bccaadd9f97eccc4aac852f3dc3fd67b1805175c50b6a6f
+crc_rx_msb_hex (received CRC, BLESDR-domain): 894bbc
+hp_std_hex (hdr+payload in standard BLE byte values): 4225ebda871ddae91eff4c001219ffd63355bbf9e937335235a1f4bcc3bfe68d018aaea3d056f6
+
+---- BLE PACKET ----
+Timestamp: 19:20:28.336
+AA corr: 32 AA pos: 5688 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -12237 Hz | 00: 76725 | 11: -89781 | 10: 61934 | 01: -80724
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 69:4C:15:66:27:28
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x8fb3c1  CRC calc: 0x8fb3c1
+payload (hex): 282766154c690201061916aafe4063c113d8ca04bc26d04a3df713b792f0d9a5085471
+payload (bytes): b'(\x27f\x15Li\x02\x01\x06\x19\x16\xaa\xfe@c\xc1\x13\xd8\xca\x04\xbc&\xd0J=\xf7\x13\xb7\x92\xf0\xd9\xa5\x08Tq'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c414e466a832964080609868557f02c683c81b53203d640b52bcefc8ed490f9ba5102a8e
+crc_rx_msb_hex (received CRC, BLESDR-domain): 8fb3c1
+hp_std_hex (hdr+payload in standard BLE byte values): 6023282766154c690201061916aafe4063c113d8ca04bc26d04a3df713b792f0d9a5085471
+
+---- BLE PACKET ----
+Timestamp: 19:20:28.337
+AA corr: 32 AA pos: 2171 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -26414 Hz | 00: 57952 | 11: -113702 | 10: 79250 | 01: -121447
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x6d1d63  CRC calc: 0x6d1d63
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\xa7\x00\x00\x00yh:\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e50000009e165cb8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d1d63
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+
+---- BLE PACKET ----
+Timestamp: 19:20:28.337
+AA corr: 32 AA pos: 1375 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -14167 Hz | 00: 50960 | 11: -79389 | 10: 82910 | 01: -78174
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: DC:99:17:9B:A7:44
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0x3f094a  CRC calc: 0x5187be
+payload (hex): 44a79b1799dc0201060303edfe0d16edfe0201c571bc43b2bc4b61
+payload (bytes): b'D\xa7\x9b\x17\x99\xdc\x02\x01\x06\x03\x03\xed\xfe\x0d\x16\xed\xfe\x02\x01\xc5q\xbcC\xb2\xbcKa'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d822e5d9e8993b408060c0c0b77fb068b77f4080a38e3dc24d3dd286
+crc_rx_msb_hex (received CRC, BLESDR-domain): 3f094a
+hp_std_hex (hdr+payload in standard BLE byte values): 601b44a79b1799dc0201060303edfe0d16edfe0201c571bc43b2bc4b61
+
+---- BLE PACKET ----
+Timestamp: 19:20:28.338
+AA corr: 31 AA pos: 5558 PRE corr: 7
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -13371 Hz | 00: 101832 | 11: -125039 | 10: 115028 | 01: -137244
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 55:E2:9C:C2:5F:15
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x126cf5  CRC calc: 0x126cf5
+payload (hex): 155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d55fe6cbadccb78128e
+payload (bytes): b'\x15_\xc2\x9c\xe2U\x02\x01\x06\x19\x16\xaa\xfe@\xb0\x84\xec\x96/q\xef0+\x12\x0f]U\xfel\xba\xdc\xcbx\x12\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4a8fa433947aa4080609868557f020d213769f48ef70cd448f0baaa7f365d3bd31e4871
+crc_rx_msb_hex (received CRC, BLESDR-domain): 126cf5
+hp_std_hex (hdr+payload in standard BLE byte values): 6023155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d55fe6cbadccb78128e
+
+---- BLE PACKET ----
+Timestamp: 19:20:28.645
+AA corr: 32 AA pos: 3081 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -12595 Hz | 00: 51274 | 11: -92196 | 10: 72601 | 01: -111754
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 75:10:C3:9C:05:D0
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x21554a  CRC calc: 0xa61d72
+payload (hex): d0059cc310750eff4c0012196060bac5b584616b70fba3807f8716e4110c6fafcacaa1102e
+payload (bytes): b'\xd0\x05\x9c\xc3\x10u\x0e\xffL\x00\x12\x19``\xba\xc5\xb5\x84akp\xfb\xa3\x80\x7f\x87\x16\xe4\x11\x0co\xaf\xca\xca\xa1\x10.'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 0aa40ba039c308ae70ff3200489806065da3ad2186d60edfc501fee168278830f6f55353850874
+crc_rx_msb_hex (received CRC, BLESDR-domain): 21554a
+hp_std_hex (hdr+payload in standard BLE byte values): 5025d0059cc310750eff4c0012196060bac5b584616b70fba3807f8716e4110c6fafcacaa1102e
+
+---- BLE PACKET ----
+Timestamp: 19:20:28.648
+AA corr: 32 AA pos: 3850 PRE corr: 8
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: 6178 Hz | 00: 87594 | 11: -95521 | 10: 53595 | 01: -104495
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xe2c821  CRC calc: 0x9f20f1
+payload (hex): 352f1935c0cc1eff4c00121910efbc31167e4ee1c489da944ffece99344ca339e013ad431a
+payload (bytes): b'5/\x195\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc1\x16~N\xe1\xc4\x89\xda\x94O\xfe\xce\x994L\xa39\xe0\x13\xadC\x1a'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033378ff3200489808f73d8c687e728723915b29f27f73992c32c59c07c8b5c258
+crc_rx_msb_hex (received CRC, BLESDR-domain): e2c821
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc1eff4c00121910efbc31167e4ee1c489da944ffece99344ca339e013ad431a
+
+---- BLE PACKET ----
+Timestamp: 19:20:29.043
+AA corr: 32 AA pos: 4827 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -39016 Hz | 00: 76822 | 11: -104073 | 10: 74126 | 01: -111053
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x753337  CRC calc: 0x277a80
+payload (hex): 4be65039a36e02010c03025afd17165afd1361f7021b60280ee1a87e14a700000847d817c1
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x0c\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b`(\x0e\xe1\xa8~\x14\xa7\x00\x00\x08G\xd8\x17\xc1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408030c0405abfe8685abfc886ef40d806147087157e28e5000010e21be883
+crc_rx_msb_hex (received CRC, BLESDR-domain): 753337
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010c03025afd17165afd1361f7021b60280ee1a87e14a700000847d817c1
+
+---- BLE PACKET ----
+Timestamp: 19:20:29.045
+AA corr: 32 AA pos: 4709 PRE corr: 7
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -10787 Hz | 00: 78966 | 11: -94175 | 10: 93070 | 01: -145292
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9147db  CRC calc: 0x9147db
+payload (hex): abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x9f\xbe\x9cEPes\xe1\xa4k\x9e}\x1d\xcfX1\xd6L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0210b3f97d39a20aa6ce8725d679beb8f31a8c6b329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+
+---- BLE PACKET ----
+Timestamp: 19:20:29.045
+AA corr: 32 AA pos: 2576 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: 10820 Hz | 00: 85503 | 11: -62994 | 10: 105775 | 01: -123198
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:20:29.778
+AA corr: 32 AA pos: 7419 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -14828 Hz | 00: 103314 | 11: -86604 | 10: 97210 | 01: -127344
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0xed086a  CRC calc: 0xed086a
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:20:29.778
+AA corr: 32 AA pos: 5861 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -12098 Hz | 00: 97660 | 11: -98631 | 10: 108635 | 01: -133207
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 7C:FA:BB:C2:31:09
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x74f93a  CRC calc: 0x74f93a
+payload (hex): 0931c2bbfa7c0201061916aafe4075e387a574f3c7a7bc6b8aae20b52f3e6052050ea3
+payload (bytes): b'\x091\xc2\xbb\xfa|\x02\x01\x06\x19\x16\xaa\xfe@u\xe3\x87\xa5t\xf3\xc7\xa7\xbck\x8a\xae \xb5/>`R\x05\x0e\xa3'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4908c43dd5f3e4080609868557f02aec7e1a52ecfe3e53dd6517504adf47c064aa070c5
+crc_rx_msb_hex (received CRC, BLESDR-domain): 74f93a
+hp_std_hex (hdr+payload in standard BLE byte values): 60230931c2bbfa7c0201061916aafe4075e387a574f3c7a7bc6b8aae20b52f3e6052050ea3
+
+---- BLE PACKET ----
+Timestamp: 19:20:29.779
+AA corr: 32 AA pos: 6100 PRE corr: 7
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -10955 Hz | 00: 110284 | 11: -113799 | 10: 112994 | 01: -135474
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0xc06d60  CRC calc: 0xc06d60
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:20:29.779
+AA corr: 32 AA pos: 2968 PRE corr: 8
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: -29818 Hz | 00: 64005 | 11: -79901 | 10: 71497 | 01: -133807
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: E1:DF:DB:CF:B1:A3
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0xc65973  CRC calc: 0xc65973
+payload (hex): a3b1cfdbdfe11eff4c001219ff16285f256d8117b906df88ca7ccf807c3d9889766b0e01ff
+payload (bytes): b'\xa3\xb1\xcf\xdb\xdf\xe1\x1e\xffL\x00\x12\x19\xff\x16(_%m\x81\x17\xb9\x06\xdf\x88\xca|\xcf\x80|=\x98\x89vk\x0e\x01\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4c58df3dbfb8778ff32004898ff6814faa4b681e89d60fb11533ef3013ebc19916ed67080ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): c65973
+hp_std_hex (hdr+payload in standard BLE byte values): 4225a3b1cfdbdfe11eff4c001219ff16285f256d8117b906df88ca7ccf807c3d9889766b0e01ff
+
+---- BLE PACKET ----
+Timestamp: 19:20:30.196
+AA corr: 31 AA pos: 1624 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -18653 Hz | 00: 62798 | 11: -113113 | 10: 67137 | 01: -139345
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x6d1d63  CRC calc: 0x6d1d63
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\xa7\x00\x00\x00yh:\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e50000009e165cb8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d1d63
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+
+---- BLE PACKET ----
+Timestamp: 19:20:30.199
+AA corr: 32 AA pos: 2607 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: 1959 Hz | 00: 75777 | 11: -84469 | 10: 99117 | 01: -113208
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 69:4C:15:66:27:28
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x8fb3c1  CRC calc: 0xe0cd82
+payload (hex): 282766154c690201061916aafe4043c113d8ca04bc26d04a3df713b792f0d9a5085471
+payload (bytes): b'(\x27f\x15Li\x02\x01\x06\x19\x16\xaa\xfe@C\xc1\x13\xd8\xca\x04\xbc&\xd0J=\xf7\x13\xb7\x92\xf0\xd9\xa5\x08Tq'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c414e466a832964080609868557f02c283c81b53203d640b52bcefc8ed490f9ba5102a8e
+crc_rx_msb_hex (received CRC, BLESDR-domain): 8fb3c1
+hp_std_hex (hdr+payload in standard BLE byte values): 6023282766154c690201061916aafe4043c113d8ca04bc26d04a3df713b792f0d9a5085471
+
+---- BLE PACKET ----
+Timestamp: 19:20:30.201
+AA corr: 32 AA pos: 7968 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -17412 Hz | 00: 63663 | 11: -68116 | 10: 26316 | 01: -101846
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: 5D:D9:17:9B:A7:45
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0x3f084a  CRC calc: 0x6e6855
+payload (hex): 45a79b17d95d0201060323e8fe0d16edfe0200c571bc43a29c5b61
+payload (bytes): b'E\xa7\x9b\x17\xd9]\x02\x01\x06\x03#\xe8\xfe\x0d\x16\xed\xfe\x02\x00\xc5q\xbcC\xa2\x9c[a'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d8a2e5d9e89bba408060c0c4177fb068b77f4000a38e3dc24539da86
+crc_rx_msb_hex (received CRC, BLESDR-domain): 3f084a
+hp_std_hex (hdr+payload in standard BLE byte values): 601b45a79b17d95d0201060323e8fe0d16edfe0200c571bc43a29c5b61
+
+---- BLE PACKET ----
+Timestamp: 19:20:30.204
+AA corr: 32 AA pos: 4006 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -36082 Hz | 00: 77603 | 11: -124309 | 10: 95171 | 01: -113243
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 55:E2:9C:C2:5F:15
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x126cf5  CRC calc: 0x126cf5
+payload (hex): 155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d55fe6cbadccb78128e
+payload (bytes): b'\x15_\xc2\x9c\xe2U\x02\x01\x06\x19\x16\xaa\xfe@\xb0\x84\xec\x96/q\xef0+\x12\x0f]U\xfel\xba\xdc\xcbx\x12\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4a8fa433947aa4080609868557f020d213769f48ef70cd448f0baaa7f365d3bd31e4871
+crc_rx_msb_hex (received CRC, BLESDR-domain): 126cf5
+hp_std_hex (hdr+payload in standard BLE byte values): 6023155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d55fe6cbadccb78128e
+
+---- BLE PACKET ----
+Timestamp: 19:20:30.921
+AA corr: 32 AA pos: 1578 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: -22185 Hz | 00: 84574 | 11: -76042 | 10: 71499 | 01: -97799
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x8e5f85  CRC calc: 0xaa36c0
+payload (hex): 352f1935c0cc1eff4c00121910efbc31167e4ee1cc899a9c4f7ece99b44ca339e053fd7398
+payload (bytes): b'5/\x195\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc1\x16~N\xe1\xcc\x89\x9a\x9cO~\xce\x99\xb4L\xa39\xe0S\xfds\x98'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033378ff3200489808f73d8c687e728733915939f27e73992d32c59c07cabfce19
+crc_rx_msb_hex (received CRC, BLESDR-domain): 8e5f85
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc1eff4c00121910efbc31167e4ee1cc899a9c4f7ece99b44ca339e053fd7398
+
+---- BLE PACKET ----
+Timestamp: 19:20:30.922
+AA corr: 32 AA pos: 1746 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -5539 Hz | 00: 92245 | 11: -97177 | 10: 68519 | 01: -104422
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9e94e0  CRC calc: 0x158bc9
+payload (hex): 87802757526b0201061916aafe40e6e0539fc3a50d7b451cb3adf555926a002bc616e3
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0S\x9f\xc3\xa5\x0d{E\x1c\xb3\xad\xf5U\x92j\x00+\xc6\x16\xe3'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707caf9c3a5b0dea238cdb5afaa495600d46368c7
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0539fc3a50d7b451cb3adf555926a002bc616e3
+
+---- BLE PACKET ----
+Timestamp: 19:20:30.923
+AA corr: 32 AA pos: 4045 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -29879 Hz | 00: 94512 | 11: -88275 | 10: 82883 | 01: -151724
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x753337  CRC calc: 0x753337
+payload (hex): 4be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a700000047d817c1
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b\xe0)\x0e\xe1\xa8~\x14\xa7\x00\x00\x00G\xd8\x17\xc1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0405abfe8685abfc886ef40d807947087157e28e5000000e21be883
+crc_rx_msb_hex (received CRC, BLESDR-domain): 753337
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a700000047d817c1
+
+---- BLE PACKET ----
+Timestamp: 19:20:31.282
+AA corr: 32 AA pos: 5576 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -33811 Hz | 00: 22139 | 11: -132041 | 10: 41872 | 01: -116960
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 65:55:1E:C3:95:BC
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xf0a1cd  CRC calc: 0xe24be6
+payload (hex): bc95c31e556502010403020af717165afd1361f7024ec1a6f7ebde24888740000864d5d7a6
+payload (bytes): b'\xbc\x95\xc3\x1eUe\x02\x01\x04\x03\x02\x0a\xf7\x17\x16Z\xfd\x13a\xf7\x02N\xc1\xa6\xf7\xeb\xde$\x88\x87@\x00\x08d\xd5\xd7\xa6'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43da9c378aaa6408020c04050efe8685abfc886ef40728365efd77b2411e102001026abeb65
+crc_rx_msb_hex (received CRC, BLESDR-domain): f0a1cd
+hp_std_hex (hdr+payload in standard BLE byte values): 6025bc95c31e556502010403020af717165afd1361f7024ec1a6f7ebde24888740000864d5d7a6
+
+---- BLE PACKET ----
+Timestamp: 19:20:31.282
+AA corr: 32 AA pos: 6856 PRE corr: 8
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: -27647 Hz | 00: 75946 | 11: -100833 | 10: 69084 | 01: -88064
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9347cb  CRC calc: 0x391c63
+payload (hex): abdf5bc6975a0201061916aafe40d8c997be9c4550e573e1b46bbcf51ccf5831d200d9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\xd8\xc9\x97\xbe\x9cEP\xe5s\xe1\xb4k\xbc\xf5\x1c\xcfX1\xd2\x00\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f021b93e97d39a20aa7ce872dd63daf38f31a8c4b009b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9347cb
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe40d8c997be9c4550e573e1b46bbcf51ccf5831d200d9
+
+---- BLE PACKET ----
+Timestamp: 19:20:31.283
+AA corr: 32 AA pos: 1567 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -6527 Hz | 00: 74393 | 11: -53329 | 10: 92397 | 01: -112258
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9081ce  CRC calc: 0x97e2cc
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c01bb4a4e095c87ad09
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01\xbbJN\x09\x5c\x87\xad\x09'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680dd5272903ae1b590
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9081ce
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c01bb4a4e095c87ad09
+
+---- BLE PACKET ----
+Timestamp: 19:20:31.284
+AA corr: 32 AA pos: 5405 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: 14836 Hz | 00: 46391 | 11: -81735 | 10: 69042 | 01: -115640
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 46:7A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x23fcd4  CRC calc: 0xa2b9fc
+payload (hex): 23cb3e397a460201061916aafe416a66ca0c40562232a5ca5202631ca9cf20844a0740
+payload (bytes): b'#\xcb>9zF\x02\x01\x06\x19\x16\xaa\xfeAjf\xca\x0c@V"2\xa5\xcaR\x02c\x1c\xa9\xcf \x84J\x07@'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c5e624080609868557f8256665330026a444ca5534a40c63895f3042152e002
+crc_rx_msb_hex (received CRC, BLESDR-domain): 23fcd4
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e397a460201061916aafe416a66ca0c40562232a5ca5202631ca9cf20844a0740
+
+---- BLE PACKET ----
+Timestamp: 19:20:31.284
+AA corr: 31 AA pos: 6611 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -26859 Hz | 00: 68745 | 11: -87973 | 10: 92612 | 01: -148660
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:A0:49:6A:11
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0xb58684  CRC calc: 0xc74c0f
+payload (hex): 116a49a097c20201060d16edfe0200d3566efa30d4cca60303edfe
+payload (bytes): b'\x11jI\xa0\x97\xc2\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\xd3Vn\xfa0\xd4\xcc\xa6\x03\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d888569205e943408060b068b77f4000cb6a765f0c2b3365c0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): b58684
+hp_std_hex (hdr+payload in standard BLE byte values): 601b116a49a097c20201060d16edfe0200d3566efa30d4cca60303edfe
+
+---- BLE PACKET ----
+Timestamp: 19:20:31.877
+AA corr: 32 AA pos: 4980 PRE corr: 7
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: -31509 Hz | 00: 103621 | 11: -94762 | 10: 88598 | 01: -111674
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0xed086a  CRC calc: 0xed086a
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:20:31.879
+AA corr: 32 AA pos: 6021 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -1931 Hz | 00: 86121 | 11: -109740 | 10: 97463 | 01: -118893
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 7C:FA:BB:C2:31:09
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x74f93a  CRC calc: 0x74f93a
+payload (hex): 0931c2bbfa7c0201061916aafe4075e387a574f3c7a7bc6b8aae20b52f3e6052050ea3
+payload (bytes): b'\x091\xc2\xbb\xfa|\x02\x01\x06\x19\x16\xaa\xfe@u\xe3\x87\xa5t\xf3\xc7\xa7\xbck\x8a\xae \xb5/>`R\x05\x0e\xa3'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4908c43dd5f3e4080609868557f02aec7e1a52ecfe3e53dd6517504adf47c064aa070c5
+crc_rx_msb_hex (received CRC, BLESDR-domain): 74f93a
+hp_std_hex (hdr+payload in standard BLE byte values): 60230931c2bbfa7c0201061916aafe4075e387a574f3c7a7bc6b8aae20b52f3e6052050ea3
+
+---- BLE PACKET ----
+Timestamp: 19:20:31.881
+AA corr: 32 AA pos: 7866 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -31277 Hz | 00: 68707 | 11: -109121 | 10: 77884 | 01: -94102
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 5D:A3:2D:2B:2E:C4
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xcd8dcd  CRC calc: 0x643018
+payload (hex): c42e2b2da35d0aff4c001219f7143b08f4ac6d7c3c468a647102d9230ffeccf32d942812f6
+payload (bytes): b'\xc4.+-\xa3]\x0a\xffL\x00\x12\x19\xf7\x14;\x08\xf4\xacm|<F\x8adq\x02\xd9#\x0f\xfe\xcc\xf3-\x94(\x12\xf6'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a42374d4b4c5ba50ff32004898ef28dc102f35b63e3c6251268e409bc4f07f33cfb42914486f
+crc_rx_msb_hex (received CRC, BLESDR-domain): cd8dcd
+hp_std_hex (hdr+payload in standard BLE byte values): 4225c42e2b2da35d0aff4c001219f7143b08f4ac6d7c3c468a647102d9230ffeccf32d942812f6
+
+---- BLE PACKET ----
+Timestamp: 19:22:10.338
+AA corr: 31 AA pos: 3895 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -35000 Hz | 00: 90651 | 11: -71260 | 10: 60343 | 01: -129670
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: DC:D9:17:9B:A7:45
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0x3f014a  CRC calc: 0x061ec6
+payload (hex): 45a79b17d9dc0201060303edfe0d16edfe0200c5712c43b39e4b65
+payload (bytes): b'E\xa7\x9b\x17\xd9\xdc\x02\x01\x06\x03\x03\xed\xfe\x0d\x16\xed\xfe\x02\x00\xc5q,C\xb3\x9eKe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d8a2e5d9e89b3b408060c0c0b77fb068b77f4000a38e34c2cd79d2a6
+crc_rx_msb_hex (received CRC, BLESDR-domain): 3f014a
+hp_std_hex (hdr+payload in standard BLE byte values): 601b45a79b17d9dc0201060303edfe0d16edfe0200c5712c43b39e4b65
+
+---- BLE PACKET ----
+Timestamp: 19:22:10.339
+AA corr: 31 AA pos: 6172 PRE corr: 7
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -15560 Hz | 00: 94516 | 11: -137783 | 10: 109202 | 01: -140427
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 55:E2:9C:C2:5F:15
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x126cf5  CRC calc: 0x126cf5
+payload (hex): 155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d55fe6cbadccb78128e
+payload (bytes): b'\x15_\xc2\x9c\xe2U\x02\x01\x06\x19\x16\xaa\xfe@\xb0\x84\xec\x96/q\xef0+\x12\x0f]U\xfel\xba\xdc\xcbx\x12\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4a8fa433947aa4080609868557f020d213769f48ef70cd448f0baaa7f365d3bd31e4871
+crc_rx_msb_hex (received CRC, BLESDR-domain): 126cf5
+hp_std_hex (hdr+payload in standard BLE byte values): 6023155fc29ce2550201061916aafe40b084ec962f71ef302b120f5d55fe6cbadccb78128e
+
+---- BLE PACKET ----
+Timestamp: 19:22:10.339
+AA corr: 32 AA pos: 6452 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -5503 Hz | 00: 71483 | 11: -62557 | 10: 64435 | 01: -97302
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: E5:80:FD:45:9B:E9
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: TRUE  CRC rx: 0xa8245d  CRC calc: 0xa8245d
+payload (hex): e99b45fd80e50201060d16edfe020088a062ea299fa62e0303edfe
+payload (bytes): b'\xe9\x9bE\xfd\x80\xe5\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\x88\xa0b\xea)\x9f\xa6.\x03\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d897d9a2bf01a7408060b068b77f40001105465794f96574c0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): a8245d
+hp_std_hex (hdr+payload in standard BLE byte values): 601be99b45fd80e50201060d16edfe020088a062ea299fa62e0303edfe
+
+---- BLE PACKET ----
+Timestamp: 19:22:10.340
+AA corr: 32 AA pos: 2773 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -4125 Hz | 00: 81094 | 11: -78162 | 10: 84152 | 01: -107852
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0xc06f60  CRC calc: 0xc061d6
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bbe2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd47
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06f60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bbe2
+
+---- BLE PACKET ----
+Timestamp: 19:22:10.542
+AA corr: 32 AA pos: 4295 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -7649 Hz | 00: 74699 | 11: -81451 | 10: 75490 | 01: -133457
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0xed086a  CRC calc: 0xed086a
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:22:10.905
+AA corr: 32 AA pos: 6254 PRE corr: 8
+Channel: 37 Phase: 14 Polarity: -1
+Slip: 0
+CFO Total: -19654 Hz | 00: 45280 | 11: -99826 | 10: 63779 | 01: -103285
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: F7:10:C3:9C:05:D1
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x29554a  CRC calc: 0xe82d77
+payload (hex): d1059cc310f71eff4c0012196061bbf4b584617b70fba3803f8516f4190c6fafcacaa1002e
+payload (bytes): b'\xd1\x05\x9c\xc3\x10\xf7\x1e\xffL\x00\x12\x19`a\xbb\xf4\xb5\x84a{p\xfb\xa3\x80?\x85\x16\xf4\x19\x0co\xaf\xca\xca\xa1\x00.'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a48ba039c308ef78ff320048980686dd2fad2186de0edfc501fca1682f9830f6f55353850074
+crc_rx_msb_hex (received CRC, BLESDR-domain): 29554a
+hp_std_hex (hdr+payload in standard BLE byte values): 4025d1059cc310f71eff4c0012196061bbf4b584617b70fba3803f8516f4190c6fafcacaa1002e
+
+---- BLE PACKET ----
+Timestamp: 19:22:10.908
+AA corr: 32 AA pos: 5104 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -42067 Hz | 00: 62103 | 11: -111376 | 10: 81198 | 01: -121745
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x6d1d63  CRC calc: 0x6d1d63
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\xa7\x00\x00\x00yh:\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e50000009e165cb8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d1d63
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+
+---- BLE PACKET ----
+Timestamp: 19:22:10.910
+AA corr: 32 AA pos: 5092 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -7918 Hz | 00: 80233 | 11: -84525 | 10: 64918 | 01: -105602
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:89:15:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xe8e0a1  CRC calc: 0xcbeb6a
+payload (hex): 352f191589cc1aff4c00121910efbc11167e4ee1c4899a9c4f5ac699b44ca339e083ad0318
+payload (bytes): b'5/\x19\x15\x89\xcc\x1a\xffL\x00\x12\x19\x10\xef\xbc\x11\x16~N\xe1\xc4\x89\x9a\x9cOZ\xc6\x99\xb4L\xa39\xe0\x83\xad\x03\x18'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498a8913358ff3200489808f73d88687e728723915939f25a63992d32c59c07c1b5c018
+crc_rx_msb_hex (received CRC, BLESDR-domain): e8e0a1
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f191589cc1aff4c00121910efbc11167e4ee1c4899a9c4f5ac699b44ca339e083ad0318
+
+---- BLE PACKET ----
+Timestamp: 19:22:11.305
+AA corr: 32 AA pos: 960 PRE corr: 8
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -8547 Hz | 00: 70501 | 11: -91650 | 10: 76926 | 01: -117213
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:11.305
+AA corr: 32 AA pos: 5622 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -19306 Hz | 00: 94044 | 11: -103676 | 10: 99553 | 01: -122341
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9147db  CRC calc: 0x9147db
+payload (hex): abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x9f\xbe\x9cEPes\xe1\xa4k\x9e}\x1d\xcfX1\xd6L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0210b3f97d39a20aa6ce8725d679beb8f31a8c6b329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+
+---- BLE PACKET ----
+Timestamp: 19:22:11.306
+AA corr: 32 AA pos: 7267 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: 11862 Hz | 00: 75064 | 11: -76728 | 10: 91756 | 01: -115871
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:22:11.739
+AA corr: 29 AA pos: 5214 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -22759 Hz | 00: 79211 | 11: -118462 | 10: 76534 | 01: -123245
+PDU: ADV_NONCONN_IND (type=2)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6E:21:AC:8F:DA:B6
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0xaa5169  CRC calc: 0x6fef32
+payload (hex): b6da8fac216e0201861916aafe50d91e67ee4235824d5648db9b731c85cded7024d634
+payload (bytes): b'\xb6\xda\x8f\xac!n\x02\x01\x86\x19\x16\xaa\xfeP\xd9\x1eg\xeeB5\x82MVH\xdb\x9bs\x1c\x85\xcd\xedp$\xd64'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 46c46d5bf13584764080619868557f0a9b78e67742ac41b26a12dbd9ce38a1b3b70e246b2c
+crc_rx_msb_hex (received CRC, BLESDR-domain): aa5169
+hp_std_hex (hdr+payload in standard BLE byte values): 6223b6da8fac216e0201861916aafe50d91e67ee4235824d5648db9b731c85cded7024d634
+
+---- BLE PACKET ----
+Timestamp: 19:22:11.740
+AA corr: 32 AA pos: 6685 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -1285 Hz | 00: 98373 | 11: -87111 | 10: 92364 | 01: -112931
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x31fcd3  CRC calc: 0x1441f8
+payload (hex): 23cb3e396a660201061916aafe416a6eca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeAjn\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f825676533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe416a6eca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:22:11.740
+AA corr: 32 AA pos: 5691 PRE corr: 7
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -31373 Hz | 00: 44325 | 11: -90232 | 10: 89360 | 01: -134139
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:A0:09:6A:11
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0xa1c281  CRC calc: 0x87853c
+payload (hex): 116a09a097c20201060d16edfe0200d3562e73b4dcf4860717ffb0
+payload (bytes): b'\x11j\x09\xa0\x97\xc2\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\xd3V.s\xb4\xdc\xf4\x86\x07\x17\xff\xb0'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d888569005e943408060b068b77f4000cb6a74ce2d3b2f61e0e8ff0d
+crc_rx_msb_hex (received CRC, BLESDR-domain): a1c281
+hp_std_hex (hdr+payload in standard BLE byte values): 601b116a09a097c20201060d16edfe0200d3562e73b4dcf4860717ffb0
+
+---- BLE PACKET ----
+Timestamp: 19:22:11.741
+AA corr: 32 AA pos: 1476 PRE corr: 7
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: 751 Hz | 00: 48169 | 11: -102717 | 10: 72830 | 01: -120706
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x753337  CRC calc: 0x753337
+payload (hex): 4be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a700000047d817c1
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b\xe0)\x0e\xe1\xa8~\x14\xa7\x00\x00\x00G\xd8\x17\xc1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0405abfe8685abfc886ef40d807947087157e28e5000000e21be883
+crc_rx_msb_hex (received CRC, BLESDR-domain): 753337
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a700000047d817c1
+
+---- BLE PACKET ----
+Timestamp: 19:22:11.741
+AA corr: 32 AA pos: 3402 PRE corr: 7
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -10658 Hz | 00: 60686 | 11: -87506 | 10: 70173 | 01: -111482
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FD:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x100419  CRC calc: 0x04e39c
+payload (hex): 7b3d5213fd670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+payload (bytes): b'{=R\x13\xfdg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba?\xeaQM\x9b\xea@\x86\x1a\xda\x86\x03#\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac8bfe64080609868557f0239d0bfbd4b705dfc578ab2d9570261585b61c0c48b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 100419
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fd670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+
+---- BLE PACKET ----
+Timestamp: 19:22:12.244
+AA corr: 32 AA pos: 2388 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: 0 Hz | 00: 74236 | 11: -86502 | 10: 105718 | 01: -106379
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0xc06d60  CRC calc: 0xc06d60
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:22:12.244
+AA corr: 32 AA pos: 3546 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -37935 Hz | 00: 36932 | 11: -93823 | 10: 40730 | 01: -98501
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x71bac2  CRC calc: 0x86c62d
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021077673f3c7dd893d74020b29630c93f
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x10wg?<}\xd8\x93\xd7@ \xb2\x960\xc9?'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4008eee6fc3cbe1bc9eb02044d690c93fc
+crc_rx_msb_hex (received CRC, BLESDR-domain): 71bac2
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021077673f3c7dd893d74020b29630c93f
+
+---- BLE PACKET ----
+Timestamp: 19:22:12.245
+AA corr: 32 AA pos: 5854 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -23496 Hz | 00: 81937 | 11: -101871 | 10: 108407 | 01: -156374
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 57:90:DE:6F:90:49
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9b710a  CRC calc: 0x9b710a
+payload (hex): 49906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+payload (bytes): b'I\x90o\xde\x90W\x02\x01\x06\x19\x16\xaa\xfe@6\xeex]\xb9\xd2vzq\xc2qJ\xf1!!j\xaa\x17a\x90\xb2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c49209f67b09ea4080609868557f026c771eba9d4b6e5e8e438e528f84845655e886094d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9b710a
+hp_std_hex (hdr+payload in standard BLE byte values): 602349906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+
+---- BLE PACKET ----
+Timestamp: 19:22:13.303
+AA corr: 31 AA pos: 2268 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: 3594 Hz | 00: 103139 | 11: -107402 | 10: 87315 | 01: -138790
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0xe2e8a1  CRC calc: 0xe2e8a1
+payload (hex): 352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+payload (bytes): b'5/\x195\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc1\x16~N\xe1\xc4\x89\x9a\x9cO~\xce\x99\xb4L\xa39\xe0\x03\xad\x03\x18'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033378ff3200489808f73d8c687e728723915939f27e73992d32c59c07c0b5c018
+crc_rx_msb_hex (received CRC, BLESDR-domain): e2e8a1
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+
+---- BLE PACKET ----
+Timestamp: 19:22:13.303
+AA corr: 32 AA pos: 5997 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -25956 Hz | 00: 76487 | 11: -112522 | 10: 102599 | 01: -123351
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:13.303
+AA corr: 31 AA pos: 7299 PRE corr: 7
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -18372 Hz | 00: 119872 | 11: -134996 | 10: 100520 | 01: -142076
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5A:DF:A9
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9047c9  CRC calc: 0xefedf0
+payload (hex): a9df5ac6975a0201061916aafe4008cd97be9c45506573e1a46b967d1dcf58129658d0
+payload (bytes): b'\xa9\xdfZ\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x97\xbe\x9cEPes\xe1\xa4k\x96}\x1d\xcfX\x12\x96X\xd0'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c495fb5a63e95a4080609868557f0210b3e97d39a20aa6ce8725d669beb8f31a48691a0b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9047c9
+hp_std_hex (hdr+payload in standard BLE byte values): 6023a9df5ac6975a0201061916aafe4008cd97be9c45506573e1a46b967d1dcf58129658d0
+
+---- BLE PACKET ----
+Timestamp: 19:22:13.304
+AA corr: 32 AA pos: 1048 PRE corr: 8
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -1475 Hz | 00: 78143 | 11: -66069 | 10: 85451 | 01: -110348
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9081ce  CRC calc: 0x672b99
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8156c052b1146f5a586a309
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x15l\x05+\x11F\xf5\xa5\x86\xa3\x09'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117a836a0d48862afa561c590
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9081ce
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8156c052b1146f5a586a309
+
+---- BLE PACKET ----
+Timestamp: 19:22:13.611
+AA corr: 32 AA pos: 4498 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -30702 Hz | 00: 71573 | 11: -86344 | 10: 77977 | 01: -117180
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6E:21:AC:8F:DA:F6
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x2a516b  CRC calc: 0xb013c7
+payload (hex): f6da8fac216e0201061916aafe40591e27ed3215024d72485a8b621c05cded70249e34
+payload (bytes): b'\xf6\xda\x8f\xac!n\x02\x01\x06\x19\x16\xaa\xfe@Y\x1e\x27\xed2\x15\x02MrHZ\x8bb\x1c\x05\xcd\xedp$\x9e4'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c46f5bf13584764080609868557f029a78e4b74ca840b24e125ad14638a0b3b70e24792c
+crc_rx_msb_hex (received CRC, BLESDR-domain): 2a516b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023f6da8fac216e0201061916aafe40591e27ed3215024d72485a8b621c05cded70249e34
+
+---- BLE PACKET ----
+Timestamp: 19:22:13.612
+AA corr: 32 AA pos: 6398 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: 0 Hz | 00: 73433 | 11: -76503 | 10: 106426 | 01: -104432
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x31fcd3  CRC calc: 0x31fcd3
+payload (hex): 23cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeAjf\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f825666533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:22:13.612
+AA corr: 32 AA pos: 5796 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -20594 Hz | 00: 53245 | 11: -74569 | 10: 59795 | 01: -108288
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FC:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x100419  CRC calc: 0x100419
+payload (hex): 7b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+payload (bytes): b'{=R\x13\xfcg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba?\xeaQM\x9b\xea@\x86\x1a\xda\x86\x03#\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac83fe64080609868557f0239d0bfbd4b705dfc578ab2d9570261585b61c0c48b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 100419
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+
+---- BLE PACKET ----
+Timestamp: 19:22:13.613
+AA corr: 32 AA pos: 2609 PRE corr: 7
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -58933 Hz | 00: 63629 | 11: -116898 | 10: 73263 | 01: -148442
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 65:55:1E:C3:95:BC
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xf881cd  CRC calc: 0x447a8e
+payload (hex): bc95c31e556502010403025afd17165afd1361f70a07c527f7eb5c2688ae100a2a66d01ec6
+payload (bytes): b'\xbc\x95\xc3\x1eUe\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x0a\x07\xc5\x27\xf7\xeb\x5c&\x88\xae\x10\x0a*f\xd0\x1e\xc6'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43da9c378aaa6408020c0405abfe8685abfc886ef50e0a3e4efd73a641175085054660b7863
+crc_rx_msb_hex (received CRC, BLESDR-domain): f881cd
+hp_std_hex (hdr+payload in standard BLE byte values): 6025bc95c31e556502010403025afd17165afd1361f70a07c527f7eb5c2688ae100a2a66d01ec6
+
+---- BLE PACKET ----
+Timestamp: 19:22:14.121
+AA corr: 32 AA pos: 7201 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -20585 Hz | 00: 83508 | 11: -82396 | 10: 67884 | 01: -110351
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: F4:9E:97:6B:A6:63
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0x8a31f5  CRC calc: 0x8a31f5
+payload (hex): 63a66b979ef41eff4c001219ff884ab3e866054334f26cd0e70639fe2c393c05cffe2501ff
+payload (bytes): b'c\xa6k\x97\x9e\xf4\x1e\xffL\x00\x12\x19\xff\x88J\xb3\xe8f\x05C4\xf2l\xd0\xe7\x069\xfe,9<\x05\xcf\xfe%\x01\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4c665d6e9792f78ff32004898ff1152cd1766a0c22c4f360be7609c7f349c3ca0f37fa480ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): 8a31f5
+hp_std_hex (hdr+payload in standard BLE byte values): 422563a66b979ef41eff4c001219ff884ab3e866054334f26cd0e70639fe2c393c05cffe2501ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:14.124
+AA corr: 32 AA pos: 1630 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -4756 Hz | 00: 92884 | 11: -96514 | 10: 114455 | 01: -136248
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0xc06d60  CRC calc: 0xc06d60
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:22:14.127
+AA corr: 32 AA pos: 5498 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -14088 Hz | 00: 85317 | 11: -96046 | 10: 87277 | 01: -128379
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:66
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xed086a  CRC calc: 0x6635fa
+payload (hex): 66a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+payload (bytes): b'f\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46685aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602566a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:22:14.589
+AA corr: 32 AA pos: 8009 PRE corr: 7
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -25408 Hz | 00: 64616 | 11: -92440 | 10: 82865 | 01: -114634
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 57:90:DE:6F:90:49
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9b710a  CRC calc: 0x9b710a
+payload (hex): 49906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+payload (bytes): b'I\x90o\xde\x90W\x02\x01\x06\x19\x16\xaa\xfe@6\xeex]\xb9\xd2vzq\xc2qJ\xf1!!j\xaa\x17a\x90\xb2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c49209f67b09ea4080609868557f026c771eba9d4b6e5e8e438e528f84845655e886094d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9b710a
+hp_std_hex (hdr+payload in standard BLE byte values): 602349906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+
+---- BLE PACKET ----
+Timestamp: 19:22:15.101
+AA corr: 31 AA pos: 5292 PRE corr: 7
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -32228 Hz | 00: 71772 | 11: -101802 | 10: 44957 | 01: -132365
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x6d1d63  CRC calc: 0x6d1d63
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\xa7\x00\x00\x00yh:\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e50000009e165cb8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d1d63
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+
+---- BLE PACKET ----
+Timestamp: 19:22:15.102
+AA corr: 32 AA pos: 6587 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -3140 Hz | 00: 95981 | 11: -106632 | 10: 74864 | 01: -118006
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xeae8a1  CRC calc: 0x3bd1c5
+payload (hex): 352f1935c0cc1aff4c00121910efbc35566e4ee1c4898a9e4f7ece99b44ca339a803ad0318
+payload (bytes): b'5/\x195\xc0\xcc\x1a\xffL\x00\x12\x19\x10\xef\xbc5VnN\xe1\xc4\x89\x8a\x9eO~\xce\x99\xb4L\xa39\xa8\x03\xad\x03\x18'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033358ff3200489808f73dac6a76728723915179f27e73992d32c59c15c0b5c018
+crc_rx_msb_hex (received CRC, BLESDR-domain): eae8a1
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc1aff4c00121910efbc35566e4ee1c4898a9e4f7ece99b44ca339a803ad0318
+
+---- BLE PACKET ----
+Timestamp: 19:22:15.102
+AA corr: 32 AA pos: 3396 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -10625 Hz | 00: 68917 | 11: -96256 | 10: 85352 | 01: -121520
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:15.652
+AA corr: 32 AA pos: 7196 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -16676 Hz | 00: 84721 | 11: -108903 | 10: 76441 | 01: -128343
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9147db  CRC calc: 0xa5d584
+payload (hex): abdf5bc6975a0201061916aafe0008cd9fae9c59506577e1a4eb9e7d1dcf5831964cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe\x00\x08\xcd\x9f\xae\x9cYPew\xe1\xa4\xeb\x9e}\x1d\xcfX1\x96L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0010b3f975399a0aa6ee8725d779beb8f31a8c69329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe0008cd9fae9c59506577e1a4eb9e7d1dcf5831964cd9
+
+---- BLE PACKET ----
+Timestamp: 19:22:15.652
+AA corr: 31 AA pos: 5733 PRE corr: 8
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: -26029 Hz | 00: 69787 | 11: -74879 | 10: 61118 | 01: -161881
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:A0:49:6A:11
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0xb78494  CRC calc: 0x69dead
+payload (hex): 116a49a097c20201060d16edfe0200d3566ffa30d4c4344783e9fe
+payload (bytes): b'\x11jI\xa0\x97\xc2\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\xd3Vo\xfa0\xd4\xc44G\x83\xe9\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d888569205e943408060b068b77f4000cb6af65f0c2b232ce2c1977f
+crc_rx_msb_hex (received CRC, BLESDR-domain): b78494
+hp_std_hex (hdr+payload in standard BLE byte values): 601b116a49a097c20201060d16edfe0200d3566ffa30d4c4344783e9fe
+
+---- BLE PACKET ----
+Timestamp: 19:22:16.017
+AA corr: 32 AA pos: 7823 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -15327 Hz | 00: 56849 | 11: -85650 | 10: 88587 | 01: -123917
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FC:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x100419  CRC calc: 0x100419
+payload (hex): 7b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+payload (bytes): b'{=R\x13\xfcg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba?\xeaQM\x9b\xea@\x86\x1a\xda\x86\x03#\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac83fe64080609868557f0239d0bfbd4b705dfc578ab2d9570261585b61c0c48b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 100419
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+
+---- BLE PACKET ----
+Timestamp: 19:22:16.018
+AA corr: 31 AA pos: 7888 PRE corr: 8
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: -57187 Hz | 00: 48020 | 11: -106406 | 10: 59011 | 01: -124198
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CE:1E:5A:F7:87:B9
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xc7771d  CRC calc: 0x88bdc4
+payload (hex): b987f75a1ece1eff4c001219ff17f0cb174890a64c627c38a3d367fe338a1d3e1cde4c02ff
+payload (bytes): b'\xb9\x87\xf7Z\x1e\xce\x1e\xffL\x00\x12\x19\xff\x17\xf0\xcb\x17H\x90\xa6Lb|8\xa3\xd3g\xfe3\x8a\x1d>\x1c\xdeL\x02\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a49de1ef5a787378ff32004898ffe80fd3e812096532463e1cc5cbe67fcc51b87c387b3240ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): c7771d
+hp_std_hex (hdr+payload in standard BLE byte values): 4225b987f75a1ece1eff4c001219ff17f0cb174890a64c627c38a3d367fe338a1d3e1cde4c02ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:16.018
+AA corr: 32 AA pos: 4783 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -3280 Hz | 00: 79863 | 11: -81116 | 10: 98442 | 01: -132373
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0xc06d60  CRC calc: 0xc06d60
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:22:16.545
+AA corr: 32 AA pos: 3216 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -12395 Hz | 00: 76652 | 11: -101053 | 10: 72801 | 01: -104344
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xed086a  CRC calc: 0x3ee005
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d9bfc5cefe091a6000200eff113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x9b\xfc\x5c\xef\xe0\x91\xa6\x00\x02\x00\xef\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed93f3af7078965004000f78fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d9bfc5cefe091a6000200eff113bf
+
+---- BLE PACKET ----
+Timestamp: 19:22:16.545
+AA corr: 32 AA pos: 1611 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -33997 Hz | 00: 96224 | 11: -113778 | 10: 116262 | 01: -142820
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 57:90:DE:6F:90:49
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9b710a  CRC calc: 0x9b710a
+payload (hex): 49906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+payload (bytes): b'I\x90o\xde\x90W\x02\x01\x06\x19\x16\xaa\xfe@6\xeex]\xb9\xd2vzq\xc2qJ\xf1!!j\xaa\x17a\x90\xb2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c49209f67b09ea4080609868557f026c771eba9d4b6e5e8e438e528f84845655e886094d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9b710a
+hp_std_hex (hdr+payload in standard BLE byte values): 602349906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+
+---- BLE PACKET ----
+Timestamp: 19:22:16.546
+AA corr: 30 AA pos: 6349 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -10768 Hz | 00: 78043 | 11: -82706 | 10: 75710 | 01: -139386
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: CC:99:17:9B:A7:45
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0x3f084a  CRC calc: 0xd90a7c
+payload (hex): 45a79b1799cc0201060303adfe0d16edfe0200c571bc43b3944b61
+payload (bytes): b'E\xa7\x9b\x17\x99\xcc\x02\x01\x06\x03\x03\xad\xfe\x0d\x16\xed\xfe\x02\x00\xc5q\xbcC\xb3\x94Ka'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d8a2e5d9e89933408060c0c0b57fb068b77f4000a38e3dc2cd29d286
+crc_rx_msb_hex (received CRC, BLESDR-domain): 3f084a
+hp_std_hex (hdr+payload in standard BLE byte values): 601b45a79b1799cc0201060303adfe0d16edfe0200c571bc43b3944b61
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.225
+AA corr: 32 AA pos: 1179 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -41100 Hz | 00: 39665 | 11: -112028 | 10: 54190 | 01: -87039
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x697491  CRC calc: 0xe58775
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f742236d93e71b37c26aa70000007968721b
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7B#m\x93\xe7\x1b7\xc2j\xa7\x00\x00\x00yhr\x1b'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef42c4b6c9e7d8ec4356e50000009e164ed8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 697491
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f742236d93e71b37c26aa70000007968721b
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.225
+AA corr: 32 AA pos: 3664 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -23928 Hz | 00: 84935 | 11: -67331 | 10: 50108 | 01: -98097
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 4C:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xe2e8a1  CRC calc: 0x4932f0
+payload (hex): 352f1935c04c1aff4c00121910efbc31163e4ee1c4899a9c4f5ece99b44ca339e803ad0318
+payload (bytes): b'5/\x195\xc0L\x1a\xffL\x00\x12\x19\x10\xef\xbc1\x16>N\xe1\xc4\x89\x9a\x9cO^\xce\x99\xb4L\xa39\xe8\x03\xad\x03\x18'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033258ff3200489808f73d8c687c728723915939f27a73992d32c59c17c0b5c018
+crc_rx_msb_hex (received CRC, BLESDR-domain): e2e8a1
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c04c1aff4c00121910efbc31163e4ee1c4899a9c4f5ece99b44ca339e803ad0318
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.226
+AA corr: 32 AA pos: 4977 PRE corr: 7
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: -9173 Hz | 00: 105117 | 11: -117075 | 10: 98768 | 01: -132302
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:54:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9e94e0  CRC calc: 0xd1df55
+payload (hex): 87802757546b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WTk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea2ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757546b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.624
+AA corr: 32 AA pos: 6985 PRE corr: 7
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -13275 Hz | 00: 107785 | 11: -115865 | 10: 102328 | 01: -149377
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9147db  CRC calc: 0x9147db
+payload (hex): abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x9f\xbe\x9cEPes\xe1\xa4k\x9e}\x1d\xcfX1\xd6L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0210b3f97d39a20aa6ce8725d679beb8f31a8c6b329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.626
+AA corr: 32 AA pos: 1182 PRE corr: 7
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -5880 Hz | 00: 72598 | 11: -73367 | 10: 104909 | 01: -107389
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.628
+AA corr: 32 AA pos: 7175 PRE corr: 8
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -31351 Hz | 00: 51446 | 11: -95901 | 10: 96712 | 01: -132918
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6E:21:AC:8F:DA:F6
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x2a516b  CRC calc: 0x2a516b
+payload (hex): f6da8fac216e0201061916aafe40591c27ed3215024d72485a8b621c05cded7024de34
+payload (bytes): b'\xf6\xda\x8f\xac!n\x02\x01\x06\x19\x16\xaa\xfe@Y\x1c\x27\xed2\x15\x02MrHZ\x8bb\x1c\x05\xcd\xedp$\xde4'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c46f5bf13584764080609868557f029a38e4b74ca840b24e125ad14638a0b3b70e247b2c
+crc_rx_msb_hex (received CRC, BLESDR-domain): 2a516b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023f6da8fac216e0201061916aafe40591c27ed3215024d72485a8b621c05cded7024de34
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.630
+AA corr: 32 AA pos: 1295 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: 6961 Hz | 00: 99725 | 11: -97558 | 10: 94024 | 01: -131679
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x31fcd3  CRC calc: 0xcf8321
+payload (hex): 23cb3e396a660201061916aafe516a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeQjf\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f8a5666533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe516a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.632
+AA corr: 32 AA pos: 2402 PRE corr: 7
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -14547 Hz | 00: 47894 | 11: -98970 | 10: 52417 | 01: -113743
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xb1a839  CRC calc: 0x9cbef2
+payload (hex): 4be65039a36e020104030258fd17165afd1361b7021be0290ee1a87e14a7000020ffd8f675
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02X\xfd\x17\x16Z\xfd\x13a\xb7\x02\x1b\xe0)\x0e\xe1\xa8~\x14\xa7\x00\x00 \xff\xd8\xf6u'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0401abfe8685abfc886ed40d807947087157e28e5000004ff1b6fae
+crc_rx_msb_hex (received CRC, BLESDR-domain): b1a839
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e020104030258fd17165afd1361b7021be0290ee1a87e14a7000020ffd8f675
+
+---- BLE PACKET ----
+Timestamp: 19:22:17.634
+AA corr: 32 AA pos: 2890 PRE corr: 7
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -47231 Hz | 00: 72424 | 11: -106110 | 10: 72013 | 01: -140894
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 65:55:1E:C3:95:BC
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0xf0a0ef  CRC calc: 0xf0a0ef
+payload (hex): bc95c31e556502010403025afd17165afd1361f7024ec1a6f7ebde2688a700000064d59f8e
+payload (bytes): b'\xbc\x95\xc3\x1eUe\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02N\xc1\xa6\xf7\xeb\xde&\x88\xa7\x00\x00\x00d\xd5\x9f\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43da9c378aaa6408020c0405abfe8685abfc886ef40728365efd77b6411e500000026abf971
+crc_rx_msb_hex (received CRC, BLESDR-domain): f0a0ef
+hp_std_hex (hdr+payload in standard BLE byte values): 6025bc95c31e556502010403025afd17165afd1361f7024ec1a6f7ebde2688a700000064d59f8e
+
+---- BLE PACKET ----
+Timestamp: 19:22:18.239
+AA corr: 32 AA pos: 3462 PRE corr: 8
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: -11198 Hz | 00: 54971 | 11: -67640 | 10: 61876 | 01: -110482
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FC:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x100419  CRC calc: 0x100419
+payload (hex): 7b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+payload (bytes): b'{=R\x13\xfcg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba?\xeaQM\x9b\xea@\x86\x1a\xda\x86\x03#\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac83fe64080609868557f0239d0bfbd4b705dfc578ab2d9570261585b61c0c48b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 100419
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+
+---- BLE PACKET ----
+Timestamp: 19:22:18.239
+AA corr: 32 AA pos: 2087 PRE corr: 8
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: -44386 Hz | 00: 35302 | 11: -77052 | 10: 46295 | 01: -109775
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: D1:E5:49:B3:E4:24
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xfcd9ae  CRC calc: 0xe890b8
+payload (hex): 24e4b349e5d11eff4c001219ff749045a27d66b47f590c59914e186600e5277e08429202ff
+payload (bytes): b'$\xe4\xb3I\xe5\xd1\x1e\xffL\x00\x12\x19\xfft\x90E\xa2}f\xb4\x7fY\x0cY\x91N\x18f\x00\xe5\x27~\x08B\x92\x02\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a42427cd92a78b78ff32004898ff2e09a245be662dfe9a309a8972186600a7e47e10424940ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): fcd9ae
+hp_std_hex (hdr+payload in standard BLE byte values): 422524e4b349e5d11eff4c001219ff749045a27d66b47f590c59914e186600e5277e08429202ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:18.239
+AA corr: 32 AA pos: 5943 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -11880 Hz | 00: 102918 | 11: -99440 | 10: 69260 | 01: -101286
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0xc06540  CRC calc: 0x36dc4f
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e924b6a7fdb1b0354964c278b3b0f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9$\xb6\xa7\xfd\xb1\xb05Id\xc2x\xb3\xb0\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797246de5bf8d0dac9226431ecd0dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06540
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e924b6a7fdb1b0354964c278b3b0f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:22:18.240
+AA corr: 32 AA pos: 6962 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: -40086 Hz | 00: 79272 | 11: -78869 | 10: 65246 | 01: -97178
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xed086a  CRC calc: 0xef8196
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091af000000eef112bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xaf\x00\x00\x00\xee\xf1\x12\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689f5000000778f48fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091af000000eef112bf
+
+---- BLE PACKET ----
+Timestamp: 19:22:18.805
+AA corr: 32 AA pos: 7180 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -10175 Hz | 00: 70650 | 11: -82505 | 10: 79157 | 01: -127013
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: DC:D9:17:9B:A7:45
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0x3b4046  CRC calc: 0xbc6c45
+payload (hex): 45a79b17d9dc0201060303ecfe0d16edfe02000552aa47a5820374
+payload (bytes): b'E\xa7\x9b\x17\xd9\xdc\x02\x01\x06\x03\x03\xec\xfe\x0d\x16\xed\xfe\x02\x00\x05R\xaaG\xa5\x82\x03t'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d8a2e5d9e89b3b408060c0c0377fb068b77f4000a04a55e2a541c02e
+crc_rx_msb_hex (received CRC, BLESDR-domain): 3b4046
+hp_std_hex (hdr+payload in standard BLE byte values): 601b45a79b17d9dc0201060303ecfe0d16edfe02000552aa47a5820374
+
+---- BLE PACKET ----
+Timestamp: 19:22:19.290
+AA corr: 32 AA pos: 5539 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -8897 Hz | 00: 100622 | 11: -115856 | 10: 82367 | 01: -131908
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:19.290
+AA corr: 32 AA pos: 7527 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -2526 Hz | 00: 92086 | 11: -111998 | 10: 88617 | 01: -140690
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9147db  CRC calc: 0x14cd46
+payload (hex): abdf5bc6975a0201261916aafe5009cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01&\x19\x16\xaa\xfeP\x09\xcd\x9f\xbe\x9cEPes\xe1\xa4k\x9e}\x1d\xcfX1\xd6L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080649868557f0a90b3f97d39a20aa6ce8725d679beb8f31a8c6b329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201261916aafe5009cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+
+---- BLE PACKET ----
+Timestamp: 19:22:19.291
+AA corr: 32 AA pos: 4730 PRE corr: 8
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: 6162 Hz | 00: 62856 | 11: -71357 | 10: 114262 | 01: -114922
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:22:19.839
+AA corr: 32 AA pos: 3308 PRE corr: 7
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -35546 Hz | 00: 53814 | 11: -98262 | 10: 90526 | 01: -120823
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6E:21:AC:8F:DA:F6
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x2a514b  CRC calc: 0x42c101
+payload (hex): f6da8fac216e0201061916aafe40591c27ed321d024d72485e9b621c05cded7024de34
+payload (bytes): b'\xf6\xda\x8f\xac!n\x02\x01\x06\x19\x16\xaa\xfe@Y\x1c\x27\xed2\x1d\x02MrH^\x9bb\x1c\x05\xcd\xedp$\xde4'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c46f5bf13584764080609868557f029a38e4b74cb840b24e127ad94638a0b3b70e247b2c
+crc_rx_msb_hex (received CRC, BLESDR-domain): 2a514b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023f6da8fac216e0201061916aafe40591c27ed321d024d72485e9b621c05cded7024de34
+
+---- BLE PACKET ----
+Timestamp: 19:22:19.839
+AA corr: 32 AA pos: 4508 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: 1252 Hz | 00: 79570 | 11: -77233 | 10: 74949 | 01: -107456
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x31fcd3  CRC calc: 0x31fcd3
+payload (hex): 23cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeAjf\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f825666533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:22:19.840
+AA corr: 32 AA pos: 1785 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -33455 Hz | 00: 53854 | 11: -73604 | 10: 66867 | 01: -126753
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:A0:09:6A:11
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0xb58681  CRC calc: 0xb58684
+payload (hex): 116a09a097c20201060d16edfe0200d3566efa30d4ccae0303edfe
+payload (bytes): b'\x11j\x09\xa0\x97\xc2\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\xd3Vn\xfa0\xd4\xcc\xae\x03\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d888569005e943408060b068b77f4000cb6a765f0c2b3375c0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): b58681
+hp_std_hex (hdr+payload in standard BLE byte values): 601b116a09a097c20201060d16edfe0200d3566efa30d4ccae0303edfe
+
+---- BLE PACKET ----
+Timestamp: 19:22:19.840
+AA corr: 32 AA pos: 3050 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -8839 Hz | 00: 67586 | 11: -84720 | 10: 60407 | 01: -109740
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FC:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9a0409  CRC calc: 0x74a40b
+payload (hex): 7b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea4482189b848e2340
+payload (bytes): b'{=R\x13\xfcg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba?\xeaQM\x9b\xeaD\x82\x18\x9b\x84\x8e#@'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac83fe64080609868557f0239d0bfbd4b705dfc578ab2d957224118d92171c402
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9a0409
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea4482189b848e2340
+
+---- BLE PACKET ----
+Timestamp: 19:22:19.840
+AA corr: 32 AA pos: 3885 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -39596 Hz | 00: 62996 | 11: -97887 | 10: 67828 | 01: -140200
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: F4:EC:4F:3E:12:9B
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0x063a07  CRC calc: 0x063a07
+payload (hex): 9b123e4fecf41eff4c001219ff463b6ce7a05dfa6cd60667029d2d9cd6050f99e1d2e202ff
+payload (bytes): b'\x9b\x12>O\xec\xf4\x1e\xffL\x00\x12\x19\xffF;l\xe7\xa0]\xfal\xd6\x06g\x02\x9d-\x9c\xd6\x05\x0f\x99\xe1\xd2\xe2\x02\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4d9487cf2372f78ff32004898ff62dc36e705ba5f366b60e640b9b4396ba0f099874b4740ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): 063a07
+hp_std_hex (hdr+payload in standard BLE byte values): 42259b123e4fecf41eff4c001219ff463b6ce7a05dfa6cd60667029d2d9cd6050f99e1d2e202ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:20.341
+AA corr: 32 AA pos: 6450 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -15393 Hz | 00: 67490 | 11: -82830 | 10: 75583 | 01: -109495
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xed886a  CRC calc: 0xed086a
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed886a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:22:20.341
+AA corr: 32 AA pos: 3019 PRE corr: 8
+Channel: 37 Phase: 14 Polarity: -1
+Slip: 0
+CFO Total: -15497 Hz | 00: 56954 | 11: -92529 | 10: 86472 | 01: -122286
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 57:90:DE:6F:90:49
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9b710a  CRC calc: 0x39d5e7
+payload (hex): 49906fde90570201061916aafe4036ee785db9d2767a71c2714af521216aaa056190b0
+payload (bytes): b'I\x90o\xde\x90W\x02\x01\x06\x19\x16\xaa\xfe@6\xeex]\xb9\xd2vzq\xc2qJ\xf5!!j\xaa\x05a\x90\xb0'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c49209f67b09ea4080609868557f026c771eba9d4b6e5e8e438e52af84845655a086090d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9b710a
+hp_std_hex (hdr+payload in standard BLE byte values): 602349906fde90570201061916aafe4036ee785db9d2767a71c2714af521216aaa056190b0
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.224
+AA corr: 31 AA pos: 6034 PRE corr: 8
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -18113 Hz | 00: 98821 | 11: -98290 | 10: 84001 | 01: -130365
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xe2e8a1  CRC calc: 0x53a55a
+payload (hex): 352f1935c0cc0eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+payload (bytes): b'5/\x195\xc0\xcc\x0e\xffL\x00\x12\x19\x10\xef\xbc1\x16~N\xe1\xc4\x89\x9a\x9cO~\xce\x99\xb4L\xa39\xe0\x03\xad\x03\x18'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033370ff3200489808f73d8c687e728723915939f27e73992d32c59c07c0b5c018
+crc_rx_msb_hex (received CRC, BLESDR-domain): e2e8a1
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc0eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.229
+AA corr: 32 AA pos: 1786 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -12298 Hz | 00: 77993 | 11: -96068 | 10: 100653 | 01: -130369
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.678
+AA corr: 32 AA pos: 2157 PRE corr: 7
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -19881 Hz | 00: 97219 | 11: -126719 | 10: 94471 | 01: -137177
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9147d9  CRC calc: 0xc416c1
+payload (hex): abdf5bc6975a0201061916aafe4028cd9dbe9c4c506553e1a4eb9e7d1dcf5831d64cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@(\xcd\x9d\xbe\x9cLPeS\xe1\xa4\xeb\x9e}\x1d\xcfX1\xd6L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0214b3b97d39320aa6ca8725d779beb8f31a8c6b329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147d9
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4028cd9dbe9c4c506553e1a4eb9e7d1dcf5831d64cd9
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.681
+AA corr: 32 AA pos: 3971 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -9016 Hz | 00: 85562 | 11: -58099 | 10: 84353 | 01: -98787
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x56d4ca  CRC calc: 0x44bf49
+payload (hex): c7e9519050430201061916aafe4075abcf4a0dcdf5a08a68316c092b23069d6736f740
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@u\xab\xcfJ\x0d\xcd\xf5\xa0\x8ah1l\x09+#\x06\x9dg6\xf7@'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f02aed5f352b0b3af0551168c3690d4c460b9e66cef02
+crc_rx_msb_hex (received CRC, BLESDR-domain): 56d4ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4075abcf4a0dcdf5a08a68316c092b23069d6736f740
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.683
+AA corr: 32 AA pos: 3798 PRE corr: 8
+Channel: 37 Phase: 14 Polarity: -1
+Slip: 0
+CFO Total: 3144 Hz | 00: 65349 | 11: -80286 | 10: 85137 | 01: -102479
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x31fcd3  CRC calc: 0x31fcd3
+payload (hex): 23cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeAjf\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f825666533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.685
+AA corr: 32 AA pos: 2023 PRE corr: 8
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: -14890 Hz | 00: 51072 | 11: -85634 | 10: 95687 | 01: -151758
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:A0:09:6A:11
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: TRUE  CRC rx: 0xb58684  CRC calc: 0xb58684
+payload (hex): 116a09a097c20201060d16edfe0200d3566efa30d4ccae0303edfe
+payload (bytes): b'\x11j\x09\xa0\x97\xc2\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\xd3Vn\xfa0\xd4\xcc\xae\x03\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d888569005e943408060b068b77f4000cb6a765f0c2b3375c0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): b58684
+hp_std_hex (hdr+payload in standard BLE byte values): 601b116a09a097c20201060d16edfe0200d3566efa30d4ccae0303edfe
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.690
+AA corr: 32 AA pos: 3032 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -7142 Hz | 00: 52624 | 11: -103477 | 10: 45646 | 01: -114139
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x752337  CRC calc: 0xc0749c
+payload (hex): 4be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e148e40002847d817c1
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b\xe0)\x0e\xe1\xa8~\x14\x8e@\x00(G\xd8\x17\xc1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0405abfe8685abfc886ef40d807947087157e2871020014e21be883
+crc_rx_msb_hex (received CRC, BLESDR-domain): 752337
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e148e40002847d817c1
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.692
+AA corr: 32 AA pos: 3504 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -45649 Hz | 00: 42425 | 11: -121546 | 10: 57670 | 01: -143021
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 65:55:1E:C3:95:BC
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xf8a1ef  CRC calc: 0xdafaaa
+payload (hex): bc95c31e556502010403025afd17165afd1361f7024ec1a6f7ebde26888700020066d49f8e
+payload (bytes): b'\xbc\x95\xc3\x1eUe\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02N\xc1\xa6\xf7\xeb\xde&\x88\x87\x00\x02\x00f\xd4\x9f\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43da9c378aaa6408020c0405abfe8685abfc886ef40728365efd77b6411e1004000662bf971
+crc_rx_msb_hex (received CRC, BLESDR-domain): f8a1ef
+hp_std_hex (hdr+payload in standard BLE byte values): 6025bc95c31e556502010403025afd17165afd1361f7024ec1a6f7ebde26888700020066d49f8e
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.931
+AA corr: 32 AA pos: 7053 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -32627 Hz | 00: 86865 | 11: -103082 | 10: 80326 | 01: -133519
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: F2:9C:A2:9C:45:0A
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0x1b592a  CRC calc: 0x1b592a
+payload (hex): 0a459ca29cf21eff4c001219ff72e436501d2faee175ba6f6c21f3f7f8a891a9e7fd1b00ff
+payload (bytes): b'\x0aE\x9c\xa2\x9c\xf2\x1e\xffL\x00\x12\x19\xffr\xe46P\x1d/\xae\xe1u\xbaol!\xf3\xf7\xf8\xa8\x91\xa9\xe7\xfd\x1b\x00\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a450a23945394f78ff32004898ff4e276c0ab8f47587ae5df63684cfef1f158995e7bfd800ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1b592a
+hp_std_hex (hdr+payload in standard BLE byte values): 42250a459ca29cf21eff4c001219ff72e436501d2faee175ba6f6c21f3f7f8a891a9e7fd1b00ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.933
+AA corr: 32 AA pos: 2075 PRE corr: 8
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: -2745 Hz | 00: 99855 | 11: -94419 | 10: 78712 | 01: -113454
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0xc06d60  CRC calc: 0x5bbeed
+payload (hex): cb07a1bd4b720201061916aafe4099582ce1e964b6a7fdb9b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x99X,\xe1\xe9d\xb6\xa7\xfd\xb9\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02991a348797266de5bf9d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4099582ce1e964b6a7fdb9b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:22:21.935
+AA corr: 32 AA pos: 5228 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -9734 Hz | 00: 69635 | 11: -86293 | 10: 54203 | 01: -103466
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:BD:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x81dec2  CRC calc: 0xdf8ddb
+payload (hex): 76a15593bd7802010403025afd17165afd1361f7021e751bfc5cef6091a7000020abf076ca
+payload (bytes): b'v\xa1U\x93\xbdx\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1eu\x1b\xfc\x5c\xef`\x91\xa7\x00\x00 \xab\xf0v\xca'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bd1e408020c0405abfe8685abfc886ef4078aed83f3af70689e5000004d50f6e53
+crc_rx_msb_hex (received CRC, BLESDR-domain): 81dec2
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a15593bd7802010403025afd17165afd1361f7021e751bfc5cef6091a7000020abf076ca
+
+---- BLE PACKET ----
+Timestamp: 19:22:22.519
+AA corr: 32 AA pos: 4178 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -27022 Hz | 00: 68394 | 11: -100281 | 10: 100090 | 01: -121589
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 57:90:DE:6F:90:49
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9b710a  CRC calc: 0x9b710a
+payload (hex): 49906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+payload (bytes): b'I\x90o\xde\x90W\x02\x01\x06\x19\x16\xaa\xfe@6\xeex]\xb9\xd2vzq\xc2qJ\xf1!!j\xaa\x17a\x90\xb2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c49209f67b09ea4080609868557f026c771eba9d4b6e5e8e438e528f84845655e886094d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9b710a
+hp_std_hex (hdr+payload in standard BLE byte values): 602349906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+
+---- BLE PACKET ----
+Timestamp: 19:22:22.963
+AA corr: 32 AA pos: 2822 PRE corr: 7
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -33309 Hz | 00: 73424 | 11: -130881 | 10: 84159 | 01: -133153
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x6d1d63  CRC calc: 0x6d1d63
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\xa7\x00\x00\x00yh:\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e50000009e165cb8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d1d63
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa700000079683a1d
+
+---- BLE PACKET ----
+Timestamp: 19:22:22.964
+AA corr: 32 AA pos: 7836 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -24751 Hz | 00: 62799 | 11: -105165 | 10: 77046 | 01: -121040
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: F5:10:C3:9E:05:D1
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x0964ca  CRC calc: 0xde0eca
+payload (hex): d1059ec310f51eff4c00121960a0b8ffa47ae1cf9249b61493f424dc0e4f45199a9b385522
+payload (bytes): b'\xd1\x05\x9e\xc3\x10\xf5\x1e\xffL\x00\x12\x19`\xa0\xb8\xff\xa4z\xe1\xcf\x92I\xb6\x14\x93\xf4$\xdc\x0eOE\x19\x9a\x9b8U"'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a48ba079c308af78ff3200489806051dff255e87f349926d28c92f243b70f2a29859d91caa44
+crc_rx_msb_hex (received CRC, BLESDR-domain): 0964ca
+hp_std_hex (hdr+payload in standard BLE byte values): 4025d1059ec310f51eff4c00121960a0b8ffa47ae1cf9249b61493f424dc0e4f45199a9b385522
+
+---- BLE PACKET ----
+Timestamp: 19:22:22.964
+AA corr: 30 AA pos: 3482 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -17181 Hz | 00: 112588 | 11: -105180 | 10: 80952 | 01: -139653
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0xe2e8a1  CRC calc: 0xe2e8a1
+payload (hex): 352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+payload (bytes): b'5/\x195\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc1\x16~N\xe1\xc4\x89\x9a\x9cO~\xce\x99\xb4L\xa39\xe0\x03\xad\x03\x18'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033378ff3200489808f73d8c687e728723915939f27e73992d32c59c07c0b5c018
+crc_rx_msb_hex (received CRC, BLESDR-domain): e2e8a1
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+
+---- BLE PACKET ----
+Timestamp: 19:22:22.964
+AA corr: 32 AA pos: 5910 PRE corr: 8
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: -2203 Hz | 00: 87972 | 11: -122413 | 10: 93038 | 01: -145302
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:23.523
+AA corr: 32 AA pos: 3197 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -15443 Hz | 00: 82371 | 11: -111858 | 10: 90418 | 01: -135929
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9547db  CRC calc: 0xd0db15
+payload (hex): abdf5bc6975a0201061916aafe4008cd9fbe9cc4406573e5a46b9c5c1dcf5811964cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x9f\xbe\x9c\xc4@es\xe5\xa4k\x9c\x5c\x1d\xcfX\x11\x96L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0210b3f97d392302a6cea725d6393ab8f31a8869329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9547db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4008cd9fbe9cc4406573e5a46b9c5c1dcf5811964cd9
+
+---- BLE PACKET ----
+Timestamp: 19:22:23.524
+AA corr: 32 AA pos: 6212 PRE corr: 8
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -16584 Hz | 00: 88392 | 11: -67653 | 10: 119751 | 01: -128792
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:22:23.524
+AA corr: 32 AA pos: 4740 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -34794 Hz | 00: 47697 | 11: -96155 | 10: 89885 | 01: -114264
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6E:21:AC:8F:DA:F6
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x6a516b  CRC calc: 0x26e76b
+payload (hex): f6da8fac216e0201061916aafe40591c27ed3215024d72485a8b621c05cded70249e34
+payload (bytes): b'\xf6\xda\x8f\xac!n\x02\x01\x06\x19\x16\xaa\xfe@Y\x1c\x27\xed2\x15\x02MrHZ\x8bb\x1c\x05\xcd\xedp$\x9e4'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c46f5bf13584764080609868557f029a38e4b74ca840b24e125ad14638a0b3b70e24792c
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6a516b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023f6da8fac216e0201061916aafe40591c27ed3215024d72485a8b621c05cded70249e34
+
+---- BLE PACKET ----
+Timestamp: 19:22:23.524
+AA corr: 31 AA pos: 6029 PRE corr: 8
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: -13457 Hz | 00: 76200 | 11: -62014 | 10: 59876 | 01: -93252
+PDU: ADV_NONCONN_IND (type=2)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:3B:3E:DB:2A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x21fcd3  CRC calc: 0x573623
+payload (hex): 2adb3e3b6a660201061916aafe017a6eca9c40d72a32a44a5602631cadef60858a4d50
+payload (bytes): b'*\xdb>;jf\x02\x01\x06\x19\x16\xaa\xfe\x01zn\xca\x9c@\xd7*2\xa4JV\x02c\x1c\xad\xef`\x85\x8aMP'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 46c454db7cdc56664080609868557f805e76533902eb544c25526a40c638b5f706a151b20a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 21fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 62232adb3e3b6a660201061916aafe017a6eca9c40d72a32a44a5602631cadef60858a4d50
+
+---- BLE PACKET ----
+Timestamp: 19:22:23.525
+AA corr: 31 AA pos: 3799 PRE corr: 7
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -16265 Hz | 00: 61223 | 11: -70290 | 10: 73377 | 01: -171784
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:A0:09:6A:31
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0xb74d90  CRC calc: 0x219664
+payload (hex): 316a09a097c20201060d16edfe0200d3566efa30d4ccae0303edfe
+payload (bytes): b'1j\x09\xa0\x97\xc2\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\xd3Vn\xfa0\xd4\xcc\xae\x03\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d88c569005e943408060b068b77f4000cb6a765f0c2b3375c0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): b74d90
+hp_std_hex (hdr+payload in standard BLE byte values): 601b316a09a097c20201060d16edfe0200d3566efa30d4ccae0303edfe
+
+---- BLE PACKET ----
+Timestamp: 19:22:23.525
+AA corr: 32 AA pos: 4589 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -36036 Hz | 00: 81961 | 11: -88110 | 10: 58372 | 01: -109346
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x753337  CRC calc: 0x9c3bbc
+payload (hex): 4be65039a36e02010403025afd17165afd1361f7021b60290ee9a87e14af00000047d817e1
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b`)\x0e\xe9\xa8~\x14\xaf\x00\x00\x00G\xd8\x17\xe1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0405abfe8685abfc886ef40d806947097157e28f5000000e21be887
+crc_rx_msb_hex (received CRC, BLESDR-domain): 753337
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010403025afd17165afd1361f7021b60290ee9a87e14af00000047d817e1
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.061
+AA corr: 32 AA pos: 6249 PRE corr: 8
+Channel: 37 Phase: 7 Polarity: -1
+Slip: 0
+CFO Total: -2872 Hz | 00: 49319 | 11: -82158 | 10: 72802 | 01: -96064
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FC:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x100419  CRC calc: 0x100419
+payload (hex): 7b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+payload (bytes): b'{=R\x13\xfcg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba?\xeaQM\x9b\xea@\x86\x1a\xda\x86\x03#\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac83fe64080609868557f0239d0bfbd4b705dfc578ab2d9570261585b61c0c48b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 100419
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.064
+AA corr: 32 AA pos: 4138 PRE corr: 7
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: -19999 Hz | 00: 64785 | 11: -90929 | 10: 70735 | 01: -103023
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: D6:4E:79:0D:B8:EC
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x5a0192  CRC calc: 0x3759a4
+payload (hex): ecb80d794ed61eff4c001219ff6621d602dc7a7d24c89b6a4784155d37fd1a49c5acb202ff
+payload (bytes): b'\xec\xb8\x0dyN\xd6\x1e\xffL\x00\x12\x19\xfff!\xd6\x02\xdcz}$\xc8\x9bjG\x84\x15]7\xfd\x1aI\xc5\xac\xb2\x02\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4371db09e726b78ff32004898ff66846b403b5ebe2413d956e221a8baecbf5892a3354d40ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): 5a0192
+hp_std_hex (hdr+payload in standard BLE byte values): 4225ecb80d794ed61eff4c001219ff6621d602dc7a7d24c89b6a4784155d37fd1a49c5acb202ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.067
+AA corr: 31 AA pos: 3094 PRE corr: 8
+Channel: 37 Phase: 10 Polarity: -1
+Slip: 0
+CFO Total: -37232 Hz | 00: 62502 | 11: -116279 | 10: 62780 | 01: -143503
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:CC:47:59:AF
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0xcdc98d  CRC calc: 0xfee01d
+payload (hex): af5947cc97c20201060d16edfe0200d2392eed900d21fb0703edfe
+payload (bytes): b'\xafYG\xcc\x97\xc2\x02\x01\x06\x0d\x16\xed\xfe\x02\x00\xd29.\xed\x90\x0d!\xfb\x07\x03\xed\xfe'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d8f59ae233e943408060b068b77f40004b9c74b709b084dfe0c0b77f
+crc_rx_msb_hex (received CRC, BLESDR-domain): cdc98d
+hp_std_hex (hdr+payload in standard BLE byte values): 601baf5947cc97c20201060d16edfe0200d2392eed900d21fb0703edfe
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.069
+AA corr: 32 AA pos: 2407 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -6525 Hz | 00: 82018 | 11: -74899 | 10: 101391 | 01: -123800
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:B9:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0xc06d68  CRC calc: 0x01dc9e
+payload (hex): cb07a1b94b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1a5b9a2
+payload (bytes): b'\xcb\x07\xa1\xb9Kr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xa5\xb9\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e0859dd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8da59d45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d68
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1b94b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1a5b9a2
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.071
+AA corr: 32 AA pos: 3642 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -6101 Hz | 00: 72534 | 11: -104974 | 10: 54105 | 01: -112977
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x814eea  CRC calc: 0xd67132
+payload (hex): 76a155933d7802010403025afd17165afd1361f70a3e5dd972587dc4c3aa50022faff076fa
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x0a>]\xd9rX}\xc4\xc3\xaaP\x02/\xaf\xf0v\xfa'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef507cba9b4e1abe23c3550a40f4f50f6e5f
+crc_rx_msb_hex (received CRC, BLESDR-domain): 814eea
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f70a3e5dd972587dc4c3aa50022faff076fa
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.504
+AA corr: 32 AA pos: 3810 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -10405 Hz | 00: 77755 | 11: -127319 | 10: 103269 | 01: -134745
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 57:90:DE:6F:90:49
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9b710a  CRC calc: 0x9b710a
+payload (hex): 49906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+payload (bytes): b'I\x90o\xde\x90W\x02\x01\x06\x19\x16\xaa\xfe@6\xeex]\xb9\xd2vzq\xc2qJ\xf1!!j\xaa\x17a\x90\xb2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c49209f67b09ea4080609868557f026c771eba9d4b6e5e8e438e528f84845655e886094d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9b710a
+hp_std_hex (hdr+payload in standard BLE byte values): 602349906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.992
+AA corr: 32 AA pos: 6775 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -31560 Hz | 00: 35529 | 11: -87780 | 10: 74223 | 01: -130876
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: FF:18:C3:9C:05:D1
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x2155ca  CRC calc: 0xee6071
+payload (hex): d1059cc318ff1eff4c0012196061bac5b584617b70fba3803f8516f4190c6f0fcacaa1002e
+payload (bytes): b'\xd1\x05\x9c\xc3\x18\xff\x1e\xffL\x00\x12\x19`a\xba\xc5\xb5\x84a{p\xfb\xa3\x80?\x85\x16\xf4\x19\x0co\x0f\xca\xca\xa1\x00.'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a48ba039c318ff78ff3200489806865da3ad2186de0edfc501fca1682f9830f6f05353850074
+crc_rx_msb_hex (received CRC, BLESDR-domain): 2155ca
+hp_std_hex (hdr+payload in standard BLE byte values): 4025d1059cc318ff1eff4c0012196061bac5b584617b70fba3803f8516f4190c6f0fcacaa1002e
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.995
+AA corr: 32 AA pos: 2986 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: 12064 Hz | 00: 78282 | 11: -85806 | 10: 64231 | 01: -135467
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0xde1f15  CRC calc: 0x686eaa
+payload (hex): 352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4ffece99b44ca339e003ad6e98
+payload (bytes): b'5/\x195\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc1\x16~N\xe1\xc4\x89\x9a\x9cO\xfe\xce\x99\xb4L\xa39\xe0\x03\xadn\x98'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033378ff3200489808f73d8c687e728723915939f27f73992d32c59c07c0b57619
+crc_rx_msb_hex (received CRC, BLESDR-domain): de1f15
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4ffece99b44ca339e003ad6e98
+
+---- BLE PACKET ----
+Timestamp: 19:22:24.997
+AA corr: 32 AA pos: 5328 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -26461 Hz | 00: 96655 | 11: -103584 | 10: 99176 | 01: -140921
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:25.446
+AA corr: 32 AA pos: 1592 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: 3178 Hz | 00: 76182 | 11: -48504 | 10: 77569 | 01: -110694
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:22:25.446
+AA corr: 31 AA pos: 1664 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -34065 Hz | 00: 84390 | 11: -107955 | 10: 111981 | 01: -160976
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6E:21:AC:8F:DA:F6
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x2a516b  CRC calc: 0x2a516b
+payload (hex): f6da8fac216e0201061916aafe40591c27ed3215024d72485a8b621c05cded7024de34
+payload (bytes): b'\xf6\xda\x8f\xac!n\x02\x01\x06\x19\x16\xaa\xfe@Y\x1c\x27\xed2\x15\x02MrHZ\x8bb\x1c\x05\xcd\xedp$\xde4'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c46f5bf13584764080609868557f029a38e4b74ca840b24e125ad14638a0b3b70e247b2c
+crc_rx_msb_hex (received CRC, BLESDR-domain): 2a516b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023f6da8fac216e0201061916aafe40591c27ed3215024d72485a8b621c05cded7024de34
+
+---- BLE PACKET ----
+Timestamp: 19:22:25.447
+AA corr: 32 AA pos: 4222 PRE corr: 8
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: 20263 Hz | 00: 79566 | 11: -69229 | 10: 85868 | 01: -116450
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x31fcd3  CRC calc: 0x31fcd3
+payload (hex): 23cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeAjf\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f825666533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:22:25.787
+AA corr: 32 AA pos: 1835 PRE corr: 8
+Channel: 37 Phase: 9 Polarity: -1
+Slip: 0
+CFO Total: -9939 Hz | 00: 41293 | 11: -93021 | 10: 93752 | 01: -113525
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: C2:97:A8:49:6A:11
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0xa5c601  CRC calc: 0xcf327d
+payload (hex): 116a49a897c20201060516edfe0201d3566efa30d4cca62713edf6
+payload (bytes): b'\x11jI\xa8\x97\xc2\x02\x01\x06\x05\x16\xed\xfe\x02\x01\xd3Vn\xfa0\xd4\xcc\xa6\x27\x13\xed\xf6'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d888569215e943408060a068b77f4080cb6a765f0c2b3365e4c8b76f
+crc_rx_msb_hex (received CRC, BLESDR-domain): a5c601
+hp_std_hex (hdr+payload in standard BLE byte values): 601b116a49a897c20201060516edfe0201d3566efa30d4cca62713edf6
+
+---- BLE PACKET ----
+Timestamp: 19:22:25.788
+AA corr: 32 AA pos: 3620 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -25228 Hz | 00: 59798 | 11: -91771 | 10: 65447 | 01: -122999
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0x753337  CRC calc: 0x753337
+payload (hex): 4be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a700000047d817c1
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b\xe0)\x0e\xe1\xa8~\x14\xa7\x00\x00\x00G\xd8\x17\xc1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0405abfe8685abfc886ef40d807947087157e28e5000000e21be883
+crc_rx_msb_hex (received CRC, BLESDR-domain): 753337
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010403025afd17165afd1361f7021be0290ee1a87e14a700000047d817c1
+
+---- BLE PACKET ----
+Timestamp: 19:22:25.788
+AA corr: 32 AA pos: 3060 PRE corr: 8
+Channel: 37 Phase: 4 Polarity: -1
+Slip: 0
+CFO Total: -48501 Hz | 00: 49519 | 11: -111087 | 10: 56727 | 01: -136410
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 65:55:1E:C3:95:BC
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xf0a0ed  CRC calc: 0x8197e2
+payload (hex): bc95c31e556502010403025afd17165afd1361b7024ec1a6f7ebde0680a700000874d59fae
+payload (bytes): b'\xbc\x95\xc3\x1eUe\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xb7\x02N\xc1\xa6\xf7\xeb\xde\x06\x80\xa7\x00\x00\x08t\xd5\x9f\xae'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43da9c378aaa6408020c0405abfe8685abfc886ed40728365efd77b6001e50000102eabf975
+crc_rx_msb_hex (received CRC, BLESDR-domain): f0a0ed
+hp_std_hex (hdr+payload in standard BLE byte values): 6025bc95c31e556502010403025afd17165afd1361b7024ec1a6f7ebde0680a700000874d59fae
+
+---- BLE PACKET ----
+Timestamp: 19:22:25.789
+AA corr: 32 AA pos: 5895 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -22011 Hz | 00: 61018 | 11: -71760 | 10: 60949 | 01: -113020
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FC:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x180419  CRC calc: 0x765d16
+payload (hex): 7b3d5213fc670201061916aafe409c0bfdbdd20eba1feb514d9bea40861ada860f23d1
+payload (bytes): b'{=R\x13\xfcg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba\x1f\xebQM\x9b\xea@\x86\x1a\xda\x86\x0f#\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac83fe64080609868557f0239d0bfbd4b705df8d78ab2d9570261585b61f0c48b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 180419
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fc670201061916aafe409c0bfdbdd20eba1feb514d9bea40861ada860f23d1
+
+---- BLE PACKET ----
+Timestamp: 19:22:25.789
+AA corr: 32 AA pos: 4223 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -9569 Hz | 00: 43709 | 11: -95826 | 10: 92185 | 01: -136559
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: E6:04:08:CA:2E:B2
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0xe0a6f9  CRC calc: 0xe0a6f9
+payload (hex): b22eca0804e61eff4c001219ffd4ca4827194d765fcec34ea59005a0cd22d7d031607a00ff
+payload (bytes): b'\xb2.\xca\x08\x04\xe6\x1e\xffL\x00\x12\x19\xff\xd4\xcaH\x27\x19Mv_\xce\xc3N\xa5\x90\x05\xa0\xcd"\xd7\xd01`z\x00\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a44d745310206778ff32004898ff2b5312e498b26efa73c372a509a005b344eb0b8c065e00ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): e0a6f9
+hp_std_hex (hdr+payload in standard BLE byte values): 4225b22eca0804e61eff4c001219ffd4ca4827194d765fcec34ea59005a0cd22d7d031607a00ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:26.431
+AA corr: 32 AA pos: 1209 PRE corr: 7
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -4705 Hz | 00: 79533 | 11: -85980 | 10: 100733 | 01: -114609
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:8B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0xc06d60  CRC calc: 0xbd6ed2
+payload (hex): 8b07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\x8b\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 0ec4d1e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 70238b07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:22:26.432
+AA corr: 32 AA pos: 2556 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -9309 Hz | 00: 61378 | 11: -93151 | 10: 74722 | 01: -113757
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 57:90:DE:6F:90:49
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9b710a  CRC calc: 0x9b710a
+payload (hex): 49906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+payload (bytes): b'I\x90o\xde\x90W\x02\x01\x06\x19\x16\xaa\xfe@6\xeex]\xb9\xd2vzq\xc2qJ\xf1!!j\xaa\x17a\x90\xb2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c49209f67b09ea4080609868557f026c771eba9d4b6e5e8e438e528f84845655e886094d
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9b710a
+hp_std_hex (hdr+payload in standard BLE byte values): 602349906fde90570201061916aafe4036ee785db9d2767a71c2714af121216aaa176190b2
+
+---- BLE PACKET ----
+Timestamp: 19:22:26.887
+AA corr: 32 AA pos: 7454 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: -33500 Hz | 00: 63920 | 11: -106762 | 10: 69809 | 01: -117429
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0x6d1d63  CRC calc: 0xa6df1c
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26a8700000079683a1d
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\x87\x00\x00\x00yh:\x1d'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e10000009e165cb8
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6d1d63
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26a8700000079683a1d
+
+---- BLE PACKET ----
+Timestamp: 19:22:26.888
+AA corr: 31 AA pos: 6914 PRE corr: 7
+Channel: 37 Phase: 15 Polarity: -1
+Slip: 0
+CFO Total: -627 Hz | 00: 89087 | 11: -78908 | 10: 62525 | 01: -140442
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: CC:C0:35:19:2F:35
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0xe2e8a1  CRC calc: 0xe2e8a1
+payload (hex): 352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+payload (bytes): b'5/\x195\xc0\xcc\x1e\xffL\x00\x12\x19\x10\xef\xbc1\x16~N\xe1\xc4\x89\x9a\x9cO~\xce\x99\xb4L\xa39\xe0\x03\xad\x03\x18'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4acf498ac033378ff3200489808f73d8c687e728723915939f27e73992d32c59c07c0b5c018
+crc_rx_msb_hex (received CRC, BLESDR-domain): e2e8a1
+hp_std_hex (hdr+payload in standard BLE byte values): 6025352f1935c0cc1eff4c00121910efbc31167e4ee1c4899a9c4f7ece99b44ca339e003ad0318
+
+---- BLE PACKET ----
+Timestamp: 19:22:26.888
+AA corr: 32 AA pos: 7790 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -23402 Hz | 00: 71443 | 11: -88539 | 10: 88922 | 01: -127013
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6B:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9e94e0  CRC calc: 0x9e94e0
+payload (hex): 87802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+payload (bytes): b'\x87\x80\x27WRk\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\x9f\xc3\xa5\x0d{E\x1c\xa3\xad\xe1\x1c\xd2\xea\x06+\xc6\x16\xe2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4ad64080609868557f026707c8f9c3a5b0dea238c5b587384b5760d4636847
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9e94e0
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526b0201061916aafe40e6e0139fc3a50d7b451ca3ade11cd2ea062bc616e2
+
+---- BLE PACKET ----
+Timestamp: 19:22:27.425
+AA corr: 32 AA pos: 7903 PRE corr: 7
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -18245 Hz | 00: 68347 | 11: -96483 | 10: 86116 | 01: -138338
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 5A:97:C6:5B:DF:AB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x9147db  CRC calc: 0x9147db
+payload (hex): abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+payload (bytes): b'\xab\xdf[\xc6\x97Z\x02\x01\x06\x19\x16\xaa\xfe@\x08\xcd\x9f\xbe\x9cEPes\xe1\xa4k\x9e}\x1d\xcfX1\xd6L\xd9'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d5fbda63e95a4080609868557f0210b3f97d39a20aa6ce8725d679beb8f31a8c6b329b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9147db
+hp_std_hex (hdr+payload in standard BLE byte values): 6023abdf5bc6975a0201061916aafe4008cd9fbe9c45506573e1a46b9e7d1dcf5831d64cd9
+
+---- BLE PACKET ----
+Timestamp: 19:22:27.426
+AA corr: 32 AA pos: 3002 PRE corr: 8
+Channel: 37 Phase: 3 Polarity: -1
+Slip: 0
+CFO Total: -14392 Hz | 00: 102365 | 11: -59491 | 10: 107604 | 01: -137366
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:22:27.426
+AA corr: 32 AA pos: 7058 PRE corr: 8
+Channel: 37 Phase: 8 Polarity: -1
+Slip: 0
+CFO Total: -24652 Hz | 00: 80966 | 11: -119693 | 10: 92888 | 01: -123661
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6E:21:AC:8F:DA:F6
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x6a5b6b  CRC calc: 0x7af234
+payload (hex): f6da8fac216e0241061916aafe40591c25ed321502cdfa78dbeb7e98058f8c3224d230
+payload (bytes): b'\xf6\xda\x8f\xac!n\x02A\x06\x19\x16\xaa\xfe@Y\x1c%\xed2\x15\x02\xcd\xfax\xdb\xeb~\x98\x05\x8f\x8c2$\xd20'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c46f5bf13584764082609868557f029a38a4b74ca840b35f1edbd77e19a0f1314c244b0c
+crc_rx_msb_hex (received CRC, BLESDR-domain): 6a5b6b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023f6da8fac216e0241061916aafe40591c25ed321502cdfa78dbeb7e98058f8c3224d230
+
+---- BLE PACKET ----
+Timestamp: 19:22:27.427
+AA corr: 32 AA pos: 4805 PRE corr: 8
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -16570 Hz | 00: 69735 | 11: -72741 | 10: 85638 | 01: -79994
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x31fcd3  CRC calc: 0x31fcd3
+payload (hex): 23cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeAjf\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f825666533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:22:27.687
+AA corr: 32 AA pos: 4674 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -39046 Hz | 00: 41109 | 11: -93175 | 10: 50604 | 01: -107884
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6E:A3:39:50:E6:4B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xf537b5  CRC calc: 0x75a6c1
+payload (hex): 4be65039a36e02010403025afd17165afd1361f7021be0690fe1a876348e04090a57f817e0
+payload (bytes): b'K\xe6P9\xa3n\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1b\xe0i\x0f\xe1\xa8v4\x8e\x04\x09\x0aW\xf8\x17\xe0'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a4d2670a9cc576408020c0405abfe8685abfc886ef40d80796f087156e2c71209050ea1fe807
+crc_rx_msb_hex (received CRC, BLESDR-domain): f537b5
+hp_std_hex (hdr+payload in standard BLE byte values): 60254be65039a36e02010403025afd17165afd1361f7021be0690fe1a876348e04090a57f817e0
+
+---- BLE PACKET ----
+Timestamp: 19:22:27.690
+AA corr: 32 AA pos: 3614 PRE corr: 8
+Channel: 37 Phase: 6 Polarity: -1
+Slip: 0
+CFO Total: -39033 Hz | 00: 47796 | 11: -121393 | 10: 46150 | 01: -114796
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 65:55:1E:C3:95:BC
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xf0a15c  CRC calc: 0xf0a0ef
+payload (hex): bc95c31e556502010403025afd17165afd1361f7024ec1a6f7ebde2688a700000064d59f8e
+payload (bytes): b'\xbc\x95\xc3\x1eUe\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02N\xc1\xa6\xf7\xeb\xde&\x88\xa7\x00\x00\x00d\xd5\x9f\x8e'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a43da9c378aaa6408020c0405abfe8685abfc886ef40728365efd77b6411e500000026abf971
+crc_rx_msb_hex (received CRC, BLESDR-domain): f0a15c
+hp_std_hex (hdr+payload in standard BLE byte values): 6025bc95c31e556502010403025afd17165afd1361f7024ec1a6f7ebde2688a700000064d59f8e
+
+---- BLE PACKET ----
+Timestamp: 19:22:27.692
+AA corr: 32 AA pos: 1086 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: -18981 Hz | 00: 58706 | 11: -75720 | 10: 65609 | 01: -113979
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FC:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x100419  CRC calc: 0x100419
+payload (hex): 7b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+payload (bytes): b'{=R\x13\xfcg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba?\xeaQM\x9b\xea@\x86\x1a\xda\x86\x03#\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac83fe64080609868557f0239d0bfbd4b705dfc578ab2d9570261585b61c0c48b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 100419
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514d9bea40861ada860323d1
+
+---- BLE PACKET ----
+Timestamp: 19:22:27.695
+AA corr: 32 AA pos: 5645 PRE corr: 8
+Channel: 37 Phase: 14 Polarity: -1
+Slip: 0
+CFO Total: -31401 Hz | 00: 74145 | 11: -98304 | 10: 62699 | 01: -123689
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: D6:80:1B:D7:AF:AF
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0x76c948  CRC calc: 0x76c948
+payload (hex): afafd71b80d61eff4c001219ff5b1fbb870e2aad9f41db8ba6234a69e0dc8d4aba358503ff
+payload (bytes): b'\xaf\xaf\xd7\x1b\x80\xd6\x1e\xffL\x00\x12\x19\xff[\x1f\xbb\x87\x0e*\xad\x9fA\xdb\x8b\xa6#Ji\xe0\xdc\x8dJ\xba5\x85\x03\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a4f5f5ebd8016b78ff32004898ffdaf8dde17054b5f982dbd165c45296073bb1525daca1c0ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): 76c948
+hp_std_hex (hdr+payload in standard BLE byte values): 4225afafd71b80d61eff4c001219ff5b1fbb870e2aad9f41db8ba6234a69e0dc8d4aba358503ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:28.336
+AA corr: 32 AA pos: 4726 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -2591 Hz | 00: 94025 | 11: -93701 | 10: 105601 | 01: -112355
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0xc06d60  CRC calc: 0xc06d60
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+
+---- BLE PACKET ----
+Timestamp: 19:22:28.337
+AA corr: 32 AA pos: 6164 PRE corr: 8
+Channel: 37 Phase: 14 Polarity: -1
+Slip: 0
+CFO Total: -21986 Hz | 00: 88765 | 11: -95982 | 10: 65620 | 01: -103377
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xed086a  CRC calc: 0x2a0afe
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5ced6091a7000000eef113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xed`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3ab70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5ced6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:22:28.826
+AA corr: 32 AA pos: 2598 PRE corr: 8
+Channel: 37 Phase: 1 Polarity: -1
+Slip: 0
+CFO Total: -14671 Hz | 00: 64180 | 11: -66301 | 10: 67503 | 01: -124227
+PDU: ADV_IND (type=0)
+Len: 27 TxAdd: 1 RxAdd: 0
+AdvA: 5C:D9:17:9B:A7:45
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEED
+CRC ok: FALSE  CRC rx: 0x1a500a  CRC calc: 0x1dacc7
+payload (hex): 45a79b17d95c0201060303edfe0d16edfe0200c571bec7b2820334
+payload (bytes): b'E\xa7\x9b\x17\xd9\x5c\x02\x01\x06\x03\x03\xed\xfe\x0d\x16\xed\xfe\x02\x00\xc5q\xbe\xc7\xb2\x82\x034'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06d8a2e5d9e89b3a408060c0c0b77fb068b77f4000a38e7de34d41c02c
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1a500a
+hp_std_hex (hdr+payload in standard BLE byte values): 601b45a79b17d95c0201060303edfe0d16edfe0200c571bec7b2820334
+
+---- BLE PACKET ----
+Timestamp: 19:22:28.827
+AA corr: 32 AA pos: 2311 PRE corr: 8
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: -38834 Hz | 00: 56111 | 11: -109129 | 10: 64373 | 01: -103257
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 6D:14:5E:30:A4:4A
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: FALSE  CRC rx: 0xc9d4d1  CRC calc: 0x07164b
+payload (hex): 4aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa7500aa8f038f21b
+payload (bytes): b'J\xa40^\x14m\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02#m\x93\xe7\x19?\xc2j\xa7P\x0a\xa8\xf08\xf2\x1b'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a452250c7a28b6408020c0405abfe8685abfc886ef40c4b6c9e798fc4356e50a50150f1c4fd8
+crc_rx_msb_hex (received CRC, BLESDR-domain): c9d4d1
+hp_std_hex (hdr+payload in standard BLE byte values): 60254aa4305e146d02010403025afd17165afd1361f702236d93e7193fc26aa7500aa8f038f21b
+
+---- BLE PACKET ----
+Timestamp: 19:22:28.827
+AA corr: 31 AA pos: 2157 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: -21521 Hz | 00: 86378 | 11: -111242 | 10: 99140 | 01: -148355
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: F5:10:C3:9C:05:D1
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: FALSE  CRC rx: 0x21554a  CRC calc: 0x9018b1
+payload (hex): d1059cc310f50eff4c0012196061bac5b584617b70fba3803f8516f4190c6fafcacaa1002e
+payload (bytes): b'\xd1\x05\x9c\xc3\x10\xf5\x0e\xffL\x00\x12\x19`a\xba\xc5\xb5\x84a{p\xfb\xa3\x80?\x85\x16\xf4\x19\x0co\xaf\xca\xca\xa1\x00.'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 02a48ba039c308af70ff3200489806865da3ad2186de0edfc501fca1682f9830f6f55353850074
+crc_rx_msb_hex (received CRC, BLESDR-domain): 21554a
+hp_std_hex (hdr+payload in standard BLE byte values): 4025d1059cc310f50eff4c0012196061bac5b584617b70fba3803f8516f4190c6fafcacaa1002e
+
+---- BLE PACKET ----
+Timestamp: 19:22:29.211
+AA corr: 32 AA pos: 2495 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -5633 Hz | 00: 76697 | 11: -100731 | 10: 64196 | 01: -111209
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6F:52:57:27:80:87
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x9a1e49  CRC calc: 0x4ec80e
+payload (hex): 87802757526f0201061916aafe40e6e013df41a50d3b4514a3ad855cd2ca4c2b461682
+payload (bytes): b'\x87\x80\x27WRo\x02\x01\x06\x19\x16\xaa\xfe@\xe6\xe0\x13\xdfA\xa5\x0d;E\x14\xa3\xad\x85\x5c\xd2\xcaL+F\x16\x82'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e101e4ea4af64080609868557f026707c8fb82a5b0dca228c5b5a13a4b5332d4626841
+crc_rx_msb_hex (received CRC, BLESDR-domain): 9a1e49
+hp_std_hex (hdr+payload in standard BLE byte values): 602387802757526f0201061916aafe40e6e013df41a50d3b4514a3ad855cd2ca4c2b461682
+
+---- BLE PACKET ----
+Timestamp: 19:22:29.714
+AA corr: 32 AA pos: 5533 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: 8512 Hz | 00: 86463 | 11: -72803 | 10: 107432 | 01: -124556
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 43:50:90:51:E9:C7
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x1714ca  CRC calc: 0x1714ca
+payload (hex): c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+payload (bytes): b'\xc7\xe9Q\x90PC\x02\x01\x06\x19\x16\xaa\xfe@t\xab\xcfJ\x0d\xcd\xf5\xe4\x8a\xe8\x11l\x01+\x91F\xf5\xa5\xf0\xe3B'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4e3978a090ac24080609868557f022ed5f352b0b3af275117883680d48962afa50fc742
+crc_rx_msb_hex (received CRC, BLESDR-domain): 1714ca
+hp_std_hex (hdr+payload in standard BLE byte values): 6023c7e9519050430201061916aafe4074abcf4a0dcdf5e48ae8116c012b9146f5a5f0e342
+
+---- BLE PACKET ----
+Timestamp: 19:22:29.714
+AA corr: 32 AA pos: 3254 PRE corr: 8
+Channel: 37 Phase: 2 Polarity: -1
+Slip: 0
+CFO Total: -20221 Hz | 00: 69662 | 11: -94591 | 10: 86634 | 01: -127623
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 6E:21:AC:8F:DA:F6
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x2a516b  CRC calc: 0x2a516b
+payload (hex): f6da8fac216e0201061916aafe40591c27ed3215024d72485a8b621c05cded7024de34
+payload (bytes): b'\xf6\xda\x8f\xac!n\x02\x01\x06\x19\x16\xaa\xfe@Y\x1c\x27\xed2\x15\x02MrHZ\x8bb\x1c\x05\xcd\xedp$\xde4'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c46f5bf13584764080609868557f029a38e4b74ca840b24e125ad14638a0b3b70e247b2c
+crc_rx_msb_hex (received CRC, BLESDR-domain): 2a516b
+hp_std_hex (hdr+payload in standard BLE byte values): 6023f6da8fac216e0201061916aafe40591c27ed3215024d72485a8b621c05cded7024de34
+
+---- BLE PACKET ----
+Timestamp: 19:22:29.715
+AA corr: 32 AA pos: 5854 PRE corr: 8
+Channel: 37 Phase: 5 Polarity: -1
+Slip: 0
+CFO Total: -11809 Hz | 00: 94844 | 11: -67271 | 10: 96493 | 01: -134672
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 66:6A:39:3E:CB:23
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0x31fcd3  CRC calc: 0x31fcd3
+payload (hex): 23cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+payload (bytes): b'#\xcb>9jf\x02\x01\x06\x19\x16\xaa\xfeAjf\xca\x1c@\xd7*2\xa4\xcaR\x02c\x1c\xa9\xeb \x84\x08MX'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4c4d37c9c56664080609868557f825666533802eb544c25534a40c63895d7042110b21a
+crc_rx_msb_hex (received CRC, BLESDR-domain): 31fcd3
+hp_std_hex (hdr+payload in standard BLE byte values): 602323cb3e396a660201061916aafe416a66ca1c40d72a32a4ca5202631ca9eb2084084d58
+
+---- BLE PACKET ----
+Timestamp: 19:22:29.715
+AA corr: 32 AA pos: 4929 PRE corr: 8
+Channel: 37 Phase: 13 Polarity: -1
+Slip: 0
+CFO Total: 5732 Hz | 00: 79637 | 11: -77825 | 10: 55896 | 01: -106531
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 67:FC:13:52:3D:7B
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: FALSE  CRC rx: 0x100419  CRC calc: 0xd7f34e
+payload (hex): 7b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514cdbca4406cede86a30fd1
+payload (bytes): b'{=R\x13\xfcg\x02\x01\x06\x19\x16\xaa\xfe@\x9c\x0b\xfd\xbd\xd2\x0e\xba?\xeaQL\xdb\xcaD\x06\xce\xde\x86\xa3\x0f\xd1'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4debc4ac83fe64080609868557f0239d0bfbd4b705dfc578a32db532260737b61c5f08b
+crc_rx_msb_hex (received CRC, BLESDR-domain): 100419
+hp_std_hex (hdr+payload in standard BLE byte values): 60237b3d5213fc670201061916aafe409c0bfdbdd20eba3fea514cdbca4406cede86a30fd1
+
+---- BLE PACKET ----
+Timestamp: 19:22:30.135
+AA corr: 32 AA pos: 1919 PRE corr: 7
+Channel: 37 Phase: 12 Polarity: -1
+Slip: 0
+CFO Total: -14916 Hz | 00: 64283 | 11: -97578 | 10: 55843 | 01: -119085
+PDU: ADV_NONCONN_IND (type=2)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: E9:94:CB:46:09:32
+Tag: is_airtag=true  is_tag_ecosystem=true  reason=Apple 0x004C + 0x12 0x19
+CRC ok: TRUE  CRC rx: 0x23a45d  CRC calc: 0x23a45d
+payload (hex): 320946cb94e91eff4c001219ffbe35b3d8e2753673f7cacd26a0031dbd1ef30019e93c02ff
+payload (bytes): b'2\x09F\xcb\x94\xe9\x1e\xffL\x00\x12\x19\xff\xbe5\xb3\xd8\xe2u6s\xf7\xca\xcd&\xa0\x03\x1d\xbd\x1e\xf3\x00\x19\xe9<\x02\xff'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 42a44c9062d3299778ff32004898ff7daccd1b47ae6cceef53b36405c0b8bd78cf0098973c40ff
+crc_rx_msb_hex (received CRC, BLESDR-domain): 23a45d
+hp_std_hex (hdr+payload in standard BLE byte values): 4225320946cb94e91eff4c001219ffbe35b3d8e2753673f7cacd26a0031dbd1ef30019e93c02ff
+
+---- BLE PACKET ----
+Timestamp: 19:22:30.138
+AA corr: 32 AA pos: 3546 PRE corr: 8
+Channel: 37 Phase: 11 Polarity: -1
+Slip: 0
+CFO Total: -16638 Hz | 00: 63838 | 11: -88738 | 10: 82727 | 01: -90632
+PDU: ADV_IND (type=0)
+Len: 37 TxAdd: 1 RxAdd: 0
+AdvA: 78:3D:93:55:A1:76
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFD5A
+CRC ok: TRUE  CRC rx: 0xed086a  CRC calc: 0xed086a
+payload (hex): 76a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+payload (bytes): b'v\xa1U\x93=x\x02\x01\x04\x03\x02Z\xfd\x17\x16Z\xfd\x13a\xf7\x02\x1e}\x1b\xfc\x5c\xef`\x91\xa7\x00\x00\x00\xee\xf1\x13\xbf'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06a46e85aac9bc1e408020c0405abfe8685abfc886ef4078bed83f3af70689e5000000778fc8fd
+crc_rx_msb_hex (received CRC, BLESDR-domain): ed086a
+hp_std_hex (hdr+payload in standard BLE byte values): 602576a155933d7802010403025afd17165afd1361f7021e7d1bfc5cef6091a7000000eef113bf
+
+---- BLE PACKET ----
+Timestamp: 19:22:30.140
+AA corr: 32 AA pos: 3644 PRE corr: 8
+Channel: 37 Phase: 0 Polarity: -1
+Slip: 0
+CFO Total: -21063 Hz | 00: 76403 | 11: -84583 | 10: 96655 | 01: -112794
+PDU: ADV_IND (type=0)
+Len: 35 TxAdd: 1 RxAdd: 0
+AdvA: 72:4B:BD:A1:07:CB
+Tag: is_airtag=false  is_tag_ecosystem=true  reason=ServiceData UUID 0xFEAA
+CRC ok: TRUE  CRC rx: 0xc06d60  CRC calc: 0xc06d60
+payload (hex): cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+payload (bytes): b'\xcb\x07\xa1\xbdKr\x02\x01\x06\x19\x16\xaa\xfe@\x19X,\xe1\xe9d\xb6\xa7\xfd\xb1\xb05id\xc2x\xb3\xb1\xf5\xbb\xa2'
+hp_msb_hex (dewhitened hdr+payload, BLESDR-domain): 06c4d3e085bdd24e4080609868557f02981a348797266de5bf8d0dac9626431ecd8dafdd45
+crc_rx_msb_hex (received CRC, BLESDR-domain): c06d60
+hp_std_hex (hdr+payload in standard BLE byte values): 6023cb07a1bd4b720201061916aafe4019582ce1e964b6a7fdb1b0356964c278b3b1f5bba2
+

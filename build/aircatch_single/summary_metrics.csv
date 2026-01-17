@@ -1,2 +1,2 @@
-scenario,csv,n_clusters,n_flagged,n_segments,purity,n_quarantined,n_heterogeneous
-ble_dump_jan15_1_Adv_out,ble_dump_jan15_1_Adv_out.csv,12,7,692,0.024566473988439308,0,8
+scenario,csv,n_clusters,n_flagged,n_segments,purity,n_quarantined,n_heterogeneous,n_benign_dropped
+ble_dump_jan15_1_Adv_out,ble_dump_jan15_1_Adv_out.csv,14,5,780,0.028205128205128206,0,10,0

@@ -1,0 +1,85 @@
+
+=== Segments produced (per window x ecosystem x MAC) ===
+                  seg_key  seg_id   eco               mac  n_packets  adv_macs  gt_adv
+0:APPLE:08:88:74:5E:4E:21       0 APPLE 08:88:74:5E:4E:21          1         0   False
+0:APPLE:42:0E:55:93:EB:4B       0 APPLE 42:0E:55:93:EB:4B          1         1    True
+0:APPLE:42:88:16:D1:5B:A8       0 APPLE 42:88:16:D1:5B:A8          1         1    True
+0:APPLE:44:2E:1E:B2:E1:67       0 APPLE 44:2E:1E:B2:E1:67          1         0   False
+0:APPLE:49:99:C5:3D:A8:7A       0 APPLE 49:99:C5:3D:A8:7A          1         0   False
+0:APPLE:4A:0A:C0:08:46:E8       0 APPLE 4A:0A:C0:08:46:E8          1         1    True
+0:APPLE:4B:A1:A5:2B:67:93       0 APPLE 4B:A1:A5:2B:67:93          1         1    True
+0:APPLE:4C:1D:7F:E8:BC:6C       0 APPLE 4C:1D:7F:E8:BC:6C          1         1    True
+0:APPLE:4E:45:99:FD:AD:62       0 APPLE 4E:45:99:FD:AD:62          1         0   False
+0:APPLE:4E:5F:71:BD:48:A5       0 APPLE 4E:5F:71:BD:48:A5          1         1    True
+0:APPLE:4E:FA:F8:24:F2:97       0 APPLE 4E:FA:F8:24:F2:97          1         0   False
+0:APPLE:4F:71:47:B9:5D:20       0 APPLE 4F:71:47:B9:5D:20          1         0   False
+0:APPLE:4F:71:C7:B9:5D:21       0 APPLE 4F:71:C7:B9:5D:21          2         0   False
+0:APPLE:4F:71:C7:B9:5D:29       0 APPLE 4F:71:C7:B9:5D:29          1         0   False
+0:APPLE:4F:D7:8A:D7:0B:B5       0 APPLE 4F:D7:8A:D7:0B:B5          1         0   False
+0:APPLE:50:30:45:4A:5C:94       0 APPLE 50:30:45:4A:5C:94          1         0   False
+0:APPLE:50:30:45:4E:DC:94       0 APPLE 50:30:45:4E:DC:94          2         0   False
+0:APPLE:50:38:45:4E:DE:94       0 APPLE 50:38:45:4E:DE:94          1         0   False
+0:APPLE:50:A6:5B:E3:2E:EA       0 APPLE 50:A6:5B:E3:2E:EA          1         1    True
+0:APPLE:56:8B:91:79:1B:1A       0 APPLE 56:8B:91:79:1B:1A          1         1    True
+0:APPLE:57:64:00:50:1E:6A       0 APPLE 57:64:00:50:1E:6A          1         0   False
+0:APPLE:58:D7:98:90:CB:08       0 APPLE 58:D7:98:90:CB:08          1         1    True
+0:APPLE:59:29:FA:1C:5A:A5       0 APPLE 59:29:FA:1C:5A:A5          1         1    True
+0:APPLE:59:99:C5:3D:A8:6A       0 APPLE 59:99:C5:3D:A8:6A          1         0   False
+0:APPLE:59:99:C5:3D:A8:7A       0 APPLE 59:99:C5:3D:A8:7A          8         0   False
+
+Total segment-rows: 822
+Ecosystem counts (segment-rows):
+eco
+APPLE     705
+GOOGLE    115
+TILE        2
+
+GT ADV MAC count: 397
+
+=== Cluster count exploration ===
+Segments available: 822
+Max clusters allowed: 821
+K= 3 | labels(pre)= 3 | labels(post)= 2 | sil=0.506 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K= 4 | labels(pre)= 4 | labels(post)= 2 | sil=0.412 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K= 5 | labels(pre)= 5 | labels(post)= 3 | sil=0.389 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K= 6 | labels(pre)= 6 | labels(post)= 3 | sil=0.306 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K= 7 | labels(pre)= 7 | labels(post)= 4 | sil=0.307 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K= 8 | labels(pre)= 8 | labels(post)= 4 | sil=0.272 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K= 9 | labels(pre)= 9 | labels(post)= 5 | sil=0.266 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=10 | labels(pre)=10 | labels(post)= 5 | sil=0.246 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=11 | labels(pre)=11 | labels(post)= 5 | sil=0.237 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=12 | labels(pre)=12 | labels(post)= 5 | sil=0.211 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=13 | labels(pre)=13 | labels(post)= 5 | sil=0.194 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=14 | labels(pre)=14 | labels(post)= 5 | sil=0.178 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=15 | labels(pre)=15 | labels(post)= 5 | sil=0.178 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=16 | labels(pre)=16 | labels(post)= 5 | sil=0.162 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=17 | labels(pre)=17 | labels(post)= 5 | sil=0.161 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=18 | labels(pre)=18 | labels(post)= 5 | sil=0.162 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+K=19 | labels(pre)=19 | labels(post)= 5 | sil=0.164 | best_type= TAG_APPLE | best_macdiv=0.865 | best_adv%=41.2% | best_dur=1800.0s | best_rad=2.642 | best_dens=0.327 | gt=68.1%
+
+>>> Selected K = 20 (fixed) <<<
+
+=== Cluster summary ===
+ cluster   dev_type  segments  duration_cov  unique_macs  mac_diversity  adv_mac_pct   radius  radius_clamped  mac_density  gt_any  gt_frac  homogeneous      homo_top_mac  homo_mac_share                          homo_top_key  homo_key_share
+       0  TAG_APPLE       705        1800.0          610       0.865248     0.412242 2.642003        2.642003     0.327497    True 0.680851        False 49:99:C5:3D:A8:7A        0.002837 7aa83dc599491aff4c00121900dbc22c225b5        0.002837
+       1 TAG_GOOGLE        24        1800.0           24       1.000000     0.000000 0.614831        0.614831     1.626462   False 0.000000        False 4B:15:A8:E2:AE:0D        0.041667    0daee2a8154b0201021016aafe40430690        0.041667
+       3 TAG_GOOGLE        30        1800.0           30       1.000000     0.000000 0.778377        0.778377     1.284724   False 0.000000        False 4D:5E:FE:F5:81:3C        0.033333    3c81f5fe5e4d0201021816aafe40d8b6aa        0.033333
+       4   TAG_TILE         2         900.0            2       1.000000     0.000000 0.000000        0.000000          NaN   False 0.000000        False D7:AA:1A:58:CC:04        0.500000           04cc581aaad70201060d16edfe0        0.500000
+       2 TAG_GOOGLE        61        1800.0           58       0.950820     0.000000 1.244574        1.244574     0.763972   False 0.000000        False 5D:0E:FE:F5:81:3C        0.032787    3c81f5fe0e5d0201021816aafe40dcb6aa        0.032787
+
+=== Ranked adversary candidates (top) ===
+ cluster   dev_type  segments  duration_cov  unique_macs  mac_diversity  adv_mac_pct   radius  radius_clamped  mac_density  gt_any  gt_frac
+       0  TAG_APPLE       705        1800.0          610       0.865248     0.412242 2.642003        2.642003     0.327497    True 0.680851
+       1 TAG_GOOGLE        24        1800.0           24       1.000000     0.000000 0.614831        0.614831     1.626462   False 0.000000
+       3 TAG_GOOGLE        30        1800.0           30       1.000000     0.000000 0.778377        0.778377     1.284724   False 0.000000
+       4   TAG_TILE         2         900.0            2       1.000000     0.000000 0.000000        0.000000          NaN   False 0.000000
+       2 TAG_GOOGLE        61        1800.0           58       0.950820     0.000000 1.244574        1.244574     0.763972   False 0.000000
+
+=== Final adversary decision (strict AND; no density-only) ===
+cluster=0 type=TAG_APPLE seg=705 dur=1800.0s mac_div=0.865 adv%=41.2% dens=0.327 gt%=68.1% => PASS
+cluster=1 type=TAG_GOOGLE seg=24 dur=1800.0s mac_div=1.000 adv%=0.0% dens=1.626 gt%=0.0% => PASS
+cluster=3 type=TAG_GOOGLE seg=30 dur=1800.0s mac_div=1.000 adv%=0.0% dens=1.285 gt%=0.0% => PASS
+cluster=4 type=TAG_TILE seg=2 dur=900.0s mac_div=1.000 adv%=0.0% dens=nan gt%=0.0% => fail
+cluster=2 type=TAG_GOOGLE seg=61 dur=1800.0s mac_div=0.951 adv%=0.0% dens=0.764 gt%=0.0% => PASS
+
+>>> ADVERSARY CONFIRMED <<<
