@@ -57,20 +57,20 @@ import hashlib
 # Configuration
 # =========================
 
-ADV_CSV = "ble_dump_jan16.csv"
+ADV_CSV = "ble_dump_jan15_1_Benign_out.csv"  # input CSV file
 
 PAYLOAD_TAG = "4c001219"        # optional, NOT used as filter by default
 ADV_PAYLOAD_TAG = "4c001219ff"  # ADV marker used for GT and adv_mac_pct
 
-WINDOW_S = 900                  # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
+WINDOW_S = 600                  # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
 K_RANGE = range(3, 20)
-OVERALL_CFO_WEIGHT = 1.5
+OVERALL_CFO_WEIGHT = 1
 
-MIN_DURATION_S = 900            # strict decision min support (seconds)
+MIN_DURATION_S = 600            # strict decision min support (seconds)
 
 # --- key / type logic ---
 KEY_SIM_THR = 0.99              # merge clusters if keys are extremely similar (same ecosystem)
-TYPE_SEP_WEIGHT = 8.0           # strong separation between ecosystem types
+TYPE_SEP_WEIGHT = 1.0           # strong separation between ecosystem types
 
 # Homogeneous cluster drop settings (candidate exclusion)
 HOMOGENEOUS_DUR_S = 600         # cluster duration >= 10 min
@@ -86,7 +86,7 @@ EPS = 1e-9
 # Candidate filtering (for ranked list)
 CAND_ADV_PCT_MIN = 0.00         # relaxed: set >0 to require ADV marker support
 CAND_MACDIV_MIN  = 0.20         # mac_diversity threshold for candidates (tune)
-CAND_SEG_MIN     = 3
+CAND_SEG_MIN     = 5              # min segments for candidates
 CAND_DUR_MIN     = 360.0
 
 # Final strict decision thresholds (ALL must pass)
@@ -95,11 +95,33 @@ MACDIV_MIN  = 0.80              # replaces CHURN_MIN in per-MAC segmentation reg
 DUR_MIN     = MIN_DURATION_S
 DENSITY_MIN = 0.0               # if >0, additional AND constraint (never alone)
 
+# Keep extra stats SMALL and robust
+EXTRA_STATS = (
+    "median",
+    "iqr",
+    "p10",
+    "p90",
+    "mad",
+)
+
 # CFO columns
 CFO_COLS_RAW = ["CFO_Hz", "CFO_00_Hz", "CFO_11_Hz", "CFO_10_Hz", "CFO_01_Hz"]
-CFO_COLS_SEG = ["CFO_Hz", "CFO_00", "CFO_11", "CFO_10", "CFO_01"]
+# CFO_COLS_SEG = ["CFO_Hz", "CFO_00", "CFO_11", "CFO_10", "CFO_01"]
 
-KEY_HASH_WEIGHT = 6.0
+CFO_COLS_SEG = [
+    "CFO",
+    "CFO_00",
+    "CFO_11",
+    "CFO_10",
+    "CFO_01",
+]
+
+# Automatically expand robust stats
+for base in ["CFO", "CFO_00", "CFO_11", "CFO_10", "CFO_01"]:
+    for s in EXTRA_STATS:
+        CFO_COLS_SEG.append(f"{base}_{s}")
+
+KEY_HASH_WEIGHT = 1
 KEY_BUCKETS = 64
 
 # Debug
@@ -111,6 +133,34 @@ DEBUG_PRINT_DF_HEAD = False
 # =========================
 
 _HEX_RE = re.compile(r"^[0-9a-fA-F]+$")
+
+def robust_stats(x: np.ndarray) -> dict:
+    """
+    Compute small, robust statistics for a 1D array.
+    Returns zeros if insufficient data.
+    """
+    if x is None or len(x) == 0:
+        return {
+            "median": 0.0,
+            "iqr": 0.0,
+            "p10": 0.0,
+            "p90": 0.0,
+            "mad": 0.0,
+        }
+
+    x = np.asarray(x, dtype=float)
+
+    med = np.median(x)
+    q1 = np.percentile(x, 25)
+    q3 = np.percentile(x, 75)
+
+    return {
+        "median": med,
+        "iqr": q3 - q1,
+        "p10": np.percentile(x, 10),
+        "p90": np.percentile(x, 90),
+        "mad": np.median(np.abs(x - med)),
+    }
 
 
 def _is_hex(s: str) -> bool:
@@ -153,6 +203,11 @@ def add_keyhash_feature(X: np.ndarray, seg: pd.DataFrame, weight=KEY_HASH_WEIGHT
     buckets = StandardScaler().fit_transform(buckets) * weight
     return np.hstack([X, buckets])
 
+def add_packet_support_feature(X: np.ndarray, seg: pd.DataFrame, weight: float = 3.0) -> np.ndarray:
+    # Robust: log-compress; prevents a 97-packet MAC from dominating
+    v = np.log1p(seg["n_packets"].astype(float).values).reshape(-1, 1)
+    v = StandardScaler().fit_transform(v) * weight
+    return np.hstack([X, v])
 
 def classify_tag_ecosystem_from_payload(payload_hex: str) -> str:
     """
@@ -253,7 +308,7 @@ def normalize_key_str(x):
     return out
 
 
-def extract_pubkey_from_payload(payload: str) -> str | None:
+def extract_pubkey_from_payload(payload: str):
     """
     Key = first half of the cleaned payload hex.
     """
@@ -374,6 +429,8 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
     df["payload"] = df["payload"].astype(str).str.lower()
     df["AdvA"] = df["AdvA"].astype(str)
 
+    df = df[df["crc_ok"] == 1]  # filter valid CRC only
+
     df = df.dropna(subset=["timestamp", "AdvA"] + CFO_COLS_RAW)
     df = df.sort_values("timestamp")
 
@@ -414,6 +471,23 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
         adv_macs = int(g["payload"].str.contains(ADV_PAYLOAD_TAG, na=False).sum())
         gt_adv = (mac in adv_mac_set)
 
+        # ---------------- CFO mean + robust stats ----------------
+        cfo_stats = {}
+
+        for col_raw, col_base in zip(
+            ["CFO_Hz", "CFO_00_Hz", "CFO_11_Hz", "CFO_10_Hz", "CFO_01_Hz"],
+            ["CFO", "CFO_00", "CFO_11", "CFO_10", "CFO_01"]
+        ):
+            vals = g[col_raw].astype(float).values
+
+            # Mean (existing behavior)
+            cfo_stats[col_base] = float(np.mean(vals))
+
+            # Extra robust stats
+            rs = robust_stats(vals)
+            for s in EXTRA_STATS:
+                cfo_stats[f"{col_base}_{s}"] = float(rs[s])
+
         return pd.Series({
             "seg_key": f"{int(seg_id)}:{eco}:{mac}",
             "seg_id": int(seg_id),
@@ -431,11 +505,7 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
             "mac_set": mac_set,
             "key_set": key_set,
 
-            "CFO_Hz": float(g["CFO_Hz"].mean()),
-            "CFO_00": float(g["CFO_00_Hz"].mean()),
-            "CFO_11": float(g["CFO_11_Hz"].mean()),
-            "CFO_10": float(g["CFO_10_Hz"].mean()),
-            "CFO_01": float(g["CFO_01_Hz"].mean()),
+            **cfo_stats,   # <-- NEW: inject mean + robust stats
 
             "adv_macs": adv_macs,
             "gt_adv": bool(gt_adv),
@@ -622,6 +692,11 @@ def summarize_clusters(seg: pd.DataFrame, X: np.ndarray) -> pd.DataFrame:
         uniq_macs = len(set([m for m in macs_in_cluster if m]))
         mac_diversity = uniq_macs / max(len(g), 1)
 
+        total_packets = int(g["n_packets"].sum())
+        singleton_frac = float((g["n_packets"] <= 1).mean())
+        mac_rate = float(uniq_macs / max(duration_cov, 1.0))   # MACs per second
+        pkt_per_mac = float(total_packets / max(uniq_macs, 1)) # avg packets per unique MAC
+
         row = {
             "cluster": int(cid),
             "dev_type": dev_type,
@@ -639,6 +714,10 @@ def summarize_clusters(seg: pd.DataFrame, X: np.ndarray) -> pd.DataFrame:
             "n_packets_avg": float(g["n_packets"].mean()),
             "gt_any": gt_any,
             "gt_frac": gt_frac,
+            "total_packets": total_packets,
+            "singleton_frac": singleton_frac,
+            "mac_rate": mac_rate,
+            "pkt_per_mac": pkt_per_mac,
         }
 
         row.update(is_homogeneous_cluster(g))
@@ -653,18 +732,25 @@ def summarize_clusters(seg: pd.DataFrame, X: np.ndarray) -> pd.DataFrame:
 
     df["mac_density"] = np.nan
     df.loc[mask, "mac_density"] = df.loc[mask, "mac_diversity"] / (df.loc[mask, "radius_clamped"] + EPS)
+
+    # --- NEW: scale-aware MAC density ---
+    df["mac_density_scaled"] = np.nan
+    mask = df["segments"] >= S_MIN_DENSITY
+
+    df.loc[mask, "mac_density_scaled"] = (
+        df.loc[mask, "mac_density"] *
+        np.log2(1.0 + df.loc[mask, "unique_macs"])
+    )
     return df
 
 def rank_adversary_clusters(summary_df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
     """
     Candidate clusters:
       - not homogeneous
-      - adv_mac_pct >= CAND_ADV_PCT_MIN
       - mac_diversity >= CAND_MACDIV_MIN
       - and (segments>=CAND_SEG_MIN OR duration>=CAND_DUR_MIN)
 
     Ranking:
-      - adv_mac_pct desc
       - mac_diversity desc
       - duration desc
       - mac_density desc (only meaningful for segments>=S_MIN_DENSITY)
@@ -673,7 +759,6 @@ def rank_adversary_clusters(summary_df: pd.DataFrame, top_n: int = 10) -> pd.Dat
     df = df[df["homogeneous"] == False]  # noqa: E712
 
     df = df[
-        (df["adv_mac_pct"].fillna(0.0) >= CAND_ADV_PCT_MIN) &
         (df["mac_diversity"].fillna(0.0) >= CAND_MACDIV_MIN) &
         ((df["segments"].fillna(0) >= CAND_SEG_MIN) | ((df["segments"] >= CAND_SEG_MIN) | (df["duration_cov"] >= CAND_DUR_MIN)))
     ].copy()
@@ -681,10 +766,10 @@ def rank_adversary_clusters(summary_df: pd.DataFrame, top_n: int = 10) -> pd.Dat
     if len(df) == 0:
         return df
 
-    df["dens_rank"] = df["mac_density"].fillna(-1e18)
+    df["dens_rank"] = df["mac_density_scaled"].fillna(-1e18)
     df = df.sort_values(
-        by=["adv_mac_pct", "mac_diversity", "duration_cov", "dens_rank"],
-        ascending=[False, False, False, False],
+        by=["mac_diversity", "duration_cov", "dens_rank"],
+        ascending=[False, False, False],
     )
     return df.head(top_n)
 
@@ -698,10 +783,17 @@ def main():
 
     seg, adv_mac_set = prepare_segments(adv, WINDOW_S)
 
-    # Features
-    X_cfo = cfo_feature_matrix(seg)
-    X = add_type_feature(X_cfo, seg, weight=TYPE_SEP_WEIGHT)
-    X = add_keyhash_feature(X, seg, weight=KEY_HASH_WEIGHT)
+    # Base CFO features
+    X = cfo_feature_matrix(seg)
+
+    # Behavioral support (VERY important)
+    # X = add_packet_support_feature(X, seg, weight=3.0)
+
+    # Ecosystem separation
+    # X = add_type_feature(X, seg, weight=TYPE_SEP_WEIGHT)
+
+    # Key hash separation
+    # X = add_keyhash_feature(X, seg, weight=KEY_HASH_WEIGHT)
 
     print("\n=== Segments produced (per window x ecosystem x MAC) ===")
     print(seg[["seg_key", "seg_id", "eco", "mac", "n_packets", "adv_macs", "gt_adv"]].head(25).to_string(index=False))
@@ -776,20 +868,24 @@ def main():
         raise RuntimeError("No valid K tested. Reduce K_RANGE or ensure enough segments.")
 
     # ---------------- Choose K ----------------
-    # Prefer high best_adv_mac_pct, then duration, then mac_div, then silhouette
-    # K_FINAL = (
-    #     res_df
-    #     .assign(sil_filled=lambda d: d["silhouette"].fillna(-1))
-    #     .sort_values(by=["best_adv_mac_pct", "best_duration", "best_mac_div", "sil_filled"], ascending=False)
-    #     .iloc[0]["K"]
-    # )
-    # print(f"\n>>> Selected K = {int(K_FINAL)} <<<\n")
+    # Prefer duration, then mac_div, then silhouette
+    K_FINAL = (
+        res_df
+        .assign(sil_filled=lambda d: d["silhouette"].fillna(-1))
+        .sort_values(by=["sil_filled"], ascending=False)
+        .iloc[0]["K"]
+    )
+    print(f"\n>>> Selected K = {int(K_FINAL)} <<<\n")
 
-    K_FINAL = 20  # or set to a fixed value based on exploration
-    print(f"\n>>> Selected K = {int(K_FINAL)} (fixed) <<<\n")
+    # K_FINAL = 20  # or set to a fixed value based on exploration
+    # print(f"\n>>> Selected K = {int(K_FINAL)} (fixed) <<<\n")
 
     # ---------------- Final clustering ----------------
-    labels0 = AgglomerativeClustering(n_clusters=int(K_FINAL), linkage="ward").fit_predict(X)
+    labels0 = AgglomerativeClustering(
+        n_clusters=int(K_FINAL),
+        linkage="average",
+        metric="euclidean"
+    ).fit_predict(X)
     labels = merge_clusters_by_key_similarity(seg, labels0, key_sim_thr=KEY_SIM_THR)
     seg["cluster"] = labels
 
@@ -823,7 +919,7 @@ def main():
 
     # ---------------- PCA visualization (CFO-only) + Ground Truth overlay ----------------
     pca = PCA(n_components=3)
-    X3 = pca.fit_transform(X_cfo)
+    X3 = pca.fit_transform(X)
 
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection="3d")
@@ -877,13 +973,21 @@ def main():
         for _, row in ranked.iterrows():
             dens_ok = True
             if DENSITY_MIN > 0:
-                dens_ok = (not np.isnan(row["mac_density"])) and (row["mac_density"] >= DENSITY_MIN)
+                dens_ok = (
+                    not np.isnan(row["mac_density_scaled"]) and
+                    row["mac_density_scaled"] >= DENSITY_MIN
+                )
+
+            UNIQUE_MACS_MIN = 15
+            PKT_PER_MAC_MAX = 2.0
+            SINGLETON_FRAC_MIN = 0.70
 
             ok = (
-                (row["mac_diversity"] >= MACDIV_MIN) and
-                # (row["adv_mac_pct"] >= ADV_PCT_MIN) and
-                (row["duration_cov"] >= DUR_MIN) and
-                (row["segments"] >= CAND_SEG_MIN) and
+                (row["mac_diversity"] >= 0.80) and
+                (row["duration_cov"] >= 600) and
+                (row["unique_macs"] >= UNIQUE_MACS_MIN) and
+                (row["pkt_per_mac"] <= PKT_PER_MAC_MAX) and
+                (row["singleton_frac"] >= SINGLETON_FRAC_MIN) and
                 dens_ok
             )
 
@@ -891,7 +995,7 @@ def main():
                 f"cluster={int(row['cluster'])} type={row['dev_type']} "
                 f"seg={int(row['segments'])} dur={row['duration_cov']:.1f}s "
                 f"mac_div={row['mac_diversity']:.3f} adv%={100*row['adv_mac_pct']:.1f}% "
-                f"dens={(row['mac_density'] if not np.isnan(row['mac_density']) else float('nan')):.3f} "
+                f"dens={(row['mac_density_scaled'] if not np.isnan(row['mac_density_scaled']) else float('nan')):.3f} "
                 f"gt%={100*row['gt_frac']:.1f}% "
                 f"=> {'PASS' if ok else 'fail'}"
             )
