@@ -57,7 +57,7 @@ import hashlib
 # Configuration
 # =========================
 
-ADV_CSV = "ble_dump_jan15_1_Benign_out.csv"  # input CSV file
+ADV_CSV = "ble_dump_jan18.csv"  # input CSV file
 
 PAYLOAD_TAG = "4c001219"        # optional, NOT used as filter by default
 ADV_PAYLOAD_TAG = "4c001219ff"  # ADV marker used for GT and adv_mac_pct
@@ -787,7 +787,7 @@ def main():
     X = cfo_feature_matrix(seg)
 
     # Behavioral support (VERY important)
-    # X = add_packet_support_feature(X, seg, weight=3.0)
+    X = add_packet_support_feature(X, seg, weight=3.0)
 
     # Ecosystem separation
     # X = add_type_feature(X, seg, weight=TYPE_SEP_WEIGHT)
