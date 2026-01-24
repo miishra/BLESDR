@@ -118,6 +118,8 @@ struct FeatureRow {
     int pdu_type;
     std::string adv_addr;
     std::string access_address;
+    std::string tag_type;     // "APPLE"|"GOOGLE"|"TILE"|"SAMSUNG"|"UNKNOWN"
+    std::string payload_hex;  // hex of BLE PDU payload (Length bytes), no spaces
     double cfo_quick_hz, cfo_centroid_hz, cfo_two_stage_hz;
     double cfo_std_hz, cfo_std_sym_hz;
     double iq_gain_alpha, iq_phase_deg_deg;
@@ -135,50 +137,55 @@ struct FeatureRow {
     double cfo_jump_hz_01;   // CFO for jump transitions (0→1, 1→0)
 };
 
-// Update FeatureCSV to include new columns
 struct FeatureCSV {
     std::FILE* f = nullptr;
-    
+
     explicit FeatureCSV(const std::string& path) {
         f = std::fopen(path.c_str(), "w");
         if (!f) throw std::runtime_error("cannot open features csv: " + path);
+
         std::fprintf(
             f,
             "pkt_idx,pcap_ts,rf_channel,pdu_type,adv_addr,access_address,"
+            "tag_type,payload_hex,"
             "cfo_quick_hz,cfo_centroid_hz,cfo_two_stage_hz,cfo_std_hz,cfo_std_sym_hz,"
             "iq_gain_alpha,iq_phase_deg_deg,rise_time_us,psd_centroid_hz,psd_pnr_db,bw_3db_hz,gated_len_us,"
             "cfo_two_stage_coarse_hz,"
             "joint_fo_hz,joint_I0,joint_Q0,joint_eps,joint_phi_deg,joint_A,joint_iters,joint_cost,"
             "cfo_exact_quick_hz,cfo_exact_ls_hz,sample_start,sample_end,"
-            "cfo_equal_00_hz,cfo_equal_11_hz,cfo_jump_10_hz,cfo_jump_01_hz\n"  // NEW columns
+            "cfo_equal_00_hz,cfo_equal_11_hz,cfo_jump_10_hz,cfo_jump_01_hz\n"
         );
     }
-    
+
     void row(const FeatureRow& r) {
-        std::fprintf(
-            f,
-            "%zu,%.9f,%d,%d,%s,%s,"
-            "%.6f,%.6f,%.6f,%.6f,%.6f,"
-            "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,"
-            "%.6f,"
-            "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%d,%.6f,"
-            "%.6f,%.6f,%llu,%llu,"
-            "%.6f,%.6f,%.6f,%.6f\n",  // NEW fields
-            r.pkt_idx, r.pcap_ts, r.rf_channel, r.pdu_type,
-            r.adv_addr.c_str(), r.access_address.c_str(),
-            r.cfo_quick_hz, r.cfo_centroid_hz, r.cfo_two_stage_hz,
-            r.cfo_std_hz, r.cfo_std_sym_hz,
-            r.iq_gain_alpha, r.iq_phase_deg_deg,
-            r.rise_time_us, r.psd_centroid_hz, r.psd_pnr_db, r.bw_3db_hz, r.gated_len_us,
-            r.cfo_two_stage_coarse_hz,
-            r.joint_fo_hz, r.joint_I0, r.joint_Q0, r.joint_eps,
-            r.joint_phi_deg, r.joint_A, r.joint_iters, r.joint_cost,
-            r.cfo_exact_quick_hz, r.cfo_exact_ls_hz,
-            (unsigned long long)r.sample_start, (unsigned long long)r.sample_end,
-            r.cfo_equal_hz_00, r.cfo_equal_hz_11, r.cfo_jump_hz_10, r.cfo_jump_hz_01  // NEW fields
+    std::fprintf(
+        f,
+        "%zu,%.9f,%d,%d,%s,%s,"
+        "%s,%s,"  // tag_type,payload_hex
+        "%.6f,%.6f,%.6f,%.6f,%.6f,"
+        "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,"
+        "%.6f,"
+        "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%d,%.6f,"
+        "%.6f,%.6f,%llu,%llu,"
+        "%.6f,%.6f,%.6f,%.6f\n",
+
+        r.pkt_idx, r.pcap_ts, r.rf_channel, r.pdu_type,
+        r.adv_addr.c_str(), r.access_address.c_str(),
+        r.tag_type.c_str(), r.payload_hex.c_str(),
+
+        r.cfo_quick_hz, r.cfo_centroid_hz, r.cfo_two_stage_hz,
+        r.cfo_std_hz, r.cfo_std_sym_hz,
+        r.iq_gain_alpha, r.iq_phase_deg_deg,
+        r.rise_time_us, r.psd_centroid_hz, r.psd_pnr_db, r.bw_3db_hz, r.gated_len_us,
+        r.cfo_two_stage_coarse_hz,
+        r.joint_fo_hz, r.joint_I0, r.joint_Q0, r.joint_eps,
+        r.joint_phi_deg, r.joint_A, r.joint_iters, r.joint_cost,
+        r.cfo_exact_quick_hz, r.cfo_exact_ls_hz,
+        (unsigned long long)r.sample_start, (unsigned long long)r.sample_end,
+        r.cfo_equal_hz_00, r.cfo_equal_hz_11, r.cfo_jump_hz_10, r.cfo_jump_hz_01
         );
     }
-    
+
     ~FeatureCSV() { if (f) std::fclose(f); }
 };
 
@@ -928,6 +935,83 @@ struct DumpCtx {
     int gate_mid_b_us = 80;
 };
 
+enum class TagType { APPLE, GOOGLE, TILE, SAMSUNG, UNKNOWN };
+
+static inline const char* tagtype_to_cstr(TagType t) {
+    switch (t) {
+        case TagType::APPLE:   return "APPLE";
+        case TagType::GOOGLE:  return "GOOGLE";
+        case TagType::TILE:    return "TILE";
+        case TagType::SAMSUNG: return "SAMSUNG";
+        default:               return "UNKNOWN";
+    }
+}
+
+static inline std::string hexlify(const uint8_t* p, size_t n) {
+    static const char* H = "0123456789abcdef";
+    std::string s;
+    s.resize(n * 2);
+    for (size_t i = 0; i < n; i++) {
+        s[2*i + 0] = H[(p[i] >> 4) & 0xF];
+        s[2*i + 1] = H[(p[i] >> 0) & 0xF];
+    }
+    return s;
+}
+
+static TagType detect_tag_type(const uint8_t* pdu_bytes, size_t pdu_len) {
+    // PDU bytes: Header(2) + Payload + CRC(3)
+    if (pdu_len < 8) return TagType::UNKNOWN;
+
+    const uint8_t* payload = pdu_bytes + 2;  // skip PDU header
+    size_t payload_len = pdu_len - 5;        // exclude header(2) + CRC(3)
+    if (payload_len < 6) return TagType::UNKNOWN;
+
+    // Skip AdvA
+    const uint8_t* ad_data = payload + 6;
+    size_t ad_len = payload_len - 6;
+
+    auto uuid_to_tag = [](uint16_t uuid) -> TagType {
+        switch (uuid) {
+            case 0xFEAA: return TagType::GOOGLE;  // Eddystone (often Google ecosystem)
+            case 0xFEED: return TagType::TILE;    // Tile (commonly)
+            case 0xFD5A: return TagType::SAMSUNG; // Samsung SmartTag/SmartThings Find (commonly)
+            default:     return TagType::UNKNOWN;
+        }
+    };
+
+    size_t pos = 0;
+    while (pos + 1 < ad_len) {
+        uint8_t length = ad_data[pos];
+        if (length == 0) break;
+        if (pos + 1 + length > ad_len) break;
+
+        uint8_t ad_type = ad_data[pos + 1];
+
+        // Manufacturer Specific Data (0xFF) => Apple Find My check
+        if (ad_type == 0xFF && length >= 4) {
+            uint16_t company_id = (uint16_t)ad_data[pos + 2] | ((uint16_t)ad_data[pos + 3] << 8);
+            if (company_id == 0x004C && length >= 6) {
+                uint8_t b0 = ad_data[pos + 4];
+                uint8_t b1 = ad_data[pos + 5];
+                if (b0 == 0x12 && b1 == 0x19) {
+                    return TagType::APPLE;
+                }
+            }
+        }
+
+        // Service Data - 16-bit UUID (0x16) => GOOGLE/TILE/SAMSUNG
+        if (ad_type == 0x16 && length >= 3) {
+            uint16_t svc_uuid = (uint16_t)ad_data[pos + 2] | ((uint16_t)ad_data[pos + 3] << 8);
+            TagType t = uuid_to_tag(svc_uuid);
+            if (t != TagType::UNKNOWN) return t;
+        }
+
+        pos += 1 + length;
+    }
+
+    return TagType::UNKNOWN;
+}
+
 // Helper function to check if advertising data contains Apple FindMy tag
 static bool is_findmy_tag(const uint8_t* pdu_bytes, size_t pdu_len) {
     // PDU format: Header(2) + Payload + CRC(3)
@@ -1478,6 +1562,12 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w,
 
         std::string aa_be = blehelpers::aa_to_str(pkt.access_address);
 
+        TagType tag_t = detect_tag_type(bytes_pdu, pdu_len);
+        std::string tag_type = tagtype_to_cstr(tag_t);
+
+        // Payload bytes are bytes_pdu+2 (after 2-byte header), length = payload_len
+        std::string payload_hex = (payload_len > 0) ? hexlify(bytes_pdu + 2, (size_t)payload_len) : "";
+
         // ---------- Check if this is a FindMy tag ----------
         if (!is_findmy_tag(bytes_pdu, pdu_len)) {
             // Not a FindMy tag, skip feature extraction
@@ -1686,6 +1776,7 @@ static void attach_packet_handler(BLESDR& b, pcap::Writer& w,
 
         FeatureRow row{
             dctx.pkt_idx, ts, rf_channel, pdu_type, adv_addr, aa_be,
+            tag_type, payload_hex,  // NEW
             cfo_q, cfo_c, cfo_two, cfo_std_all, cfo_std_sym,
             alpha, phi_deg, rt_us, fcent, pnr_db, bw3, gated_len_us,
             (double)coarse,
