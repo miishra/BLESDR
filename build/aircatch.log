@@ -1,80 +1,160 @@
 
 === Segments produced (per window x ecosystem x MAC) ===
-                        seg_key  seg_id   eco               mac  n_packets  adv_macs  gt_adv
-1965697:APPLE:C2:A9:D2:5A:C1:12 1965697 APPLE C2:A9:D2:5A:C1:12         21         0   False
-1965697:APPLE:C2:B8:5F:B8:66:05 1965697 APPLE C2:B8:5F:B8:66:05          2         2    True
-1965697:APPLE:C5:2F:8C:2F:AA:CF 1965697 APPLE C5:2F:8C:2F:AA:CF          1         1    True
-1965697:APPLE:CA:2E:34:21:4A:DD 1965697 APPLE CA:2E:34:21:4A:DD         28         0   False
-1965697:APPLE:CC:E9:53:9B:1A:F0 1965697 APPLE CC:E9:53:9B:1A:F0         20         0   False
-1965697:APPLE:CE:2F:2A:54:B5:51 1965697 APPLE CE:2F:2A:54:B5:51          2         2    True
-1965697:APPLE:D1:C0:8C:81:3B:E6 1965697 APPLE D1:C0:8C:81:3B:E6         23         0   False
-1965697:APPLE:D5:9D:98:91:83:8D 1965697 APPLE D5:9D:98:91:83:8D         25         0   False
-1965697:APPLE:DA:08:C5:B7:04:F7 1965697 APPLE DA:08:C5:B7:04:F7         27         0   False
-1965697:APPLE:DA:64:BC:6D:F0:FE 1965697 APPLE DA:64:BC:6D:F0:FE         22         0   False
-1965697:APPLE:DB:5F:3B:DB:3D:6D 1965697 APPLE DB:5F:3B:DB:3D:6D          2         2    True
-1965697:APPLE:DD:B3:FF:68:4C:8F 1965697 APPLE DD:B3:FF:68:4C:8F          9         0   False
-1965697:APPLE:E2:85:AC:42:71:89 1965697 APPLE E2:85:AC:42:71:89         11         0   False
-1965697:APPLE:E2:F7:C5:38:1A:0E 1965697 APPLE E2:F7:C5:38:1A:0E         24         0   False
-1965697:APPLE:E3:B8:7B:E5:B2:CF 1965697 APPLE E3:B8:7B:E5:B2:CF          2         2    True
-1965697:APPLE:E7:45:CB:42:00:BC 1965697 APPLE E7:45:CB:42:00:BC          2         2    True
-1965697:APPLE:EA:8A:BC:9F:B6:28 1965697 APPLE EA:8A:BC:9F:B6:28          1         1    True
-1965697:APPLE:EA:FD:AD:73:D6:67 1965697 APPLE EA:FD:AD:73:D6:67         25         0   False
-1965697:APPLE:EB:6A:81:E7:01:99 1965697 APPLE EB:6A:81:E7:01:99          1         0   False
-1965697:APPLE:EC:C8:8D:12:D9:77 1965697 APPLE EC:C8:8D:12:D9:77          2         2    True
-1965697:APPLE:EC:DD:8B:3E:1A:A3 1965697 APPLE EC:DD:8B:3E:1A:A3          1         0   False
-1965697:APPLE:ED:44:62:04:91:58 1965697 APPLE ED:44:62:04:91:58         20         0   False
-1965697:APPLE:EE:6B:F9:4D:4D:4B 1965697 APPLE EE:6B:F9:4D:4D:4B          2         2    True
-1965697:APPLE:EE:D4:8A:27:EA:99 1965697 APPLE EE:D4:8A:27:EA:99         17         0   False
-1965697:APPLE:F0:4C:55:BC:FC:20 1965697 APPLE F0:4C:55:BC:FC:20          2         2    True
+                  seg_key  seg_id   eco               mac  n_packets  adv_macs  gt_adv
+0:APPLE:C0:99:AD:FA:3E:2D       0 APPLE C0:99:AD:FA:3E:2D          1         0   False
+0:APPLE:C0:CB:06:E7:48:30       0 APPLE C0:CB:06:E7:48:30          1         0   False
+0:APPLE:C1:0E:A2:92:A5:9B       0 APPLE C1:0E:A2:92:A5:9B         34         0   False
+0:APPLE:C2:3F:78:80:93:F1       0 APPLE C2:3F:78:80:93:F1         15         0   False
+0:APPLE:C2:BF:94:F7:EF:7C       0 APPLE C2:BF:94:F7:EF:7C          1         1    True
+0:APPLE:C2:EE:D8:CF:68:85       0 APPLE C2:EE:D8:CF:68:85          1         1    True
+0:APPLE:C2:F7:3E:D6:82:58       0 APPLE C2:F7:3E:D6:82:58          1         1    True
+0:APPLE:C3:3E:59:41:A3:B4       0 APPLE C3:3E:59:41:A3:B4          1         1    True
+0:APPLE:C4:0A:5C:CF:BD:E6       0 APPLE C4:0A:5C:CF:BD:E6          1         0   False
+0:APPLE:C5:42:BB:CC:7A:5D       0 APPLE C5:42:BB:CC:7A:5D         16         0   False
+0:APPLE:C5:C5:1B:27:FC:C6       0 APPLE C5:C5:1B:27:FC:C6          1         1    True
+0:APPLE:C6:49:A3:2D:B5:D6       0 APPLE C6:49:A3:2D:B5:D6          1         1    True
+0:APPLE:C6:9F:EB:02:61:43       0 APPLE C6:9F:EB:02:61:43          1         1    True
+0:APPLE:C7:2D:9A:25:30:EE       0 APPLE C7:2D:9A:25:30:EE          1         1    True
+0:APPLE:C7:AF:60:4B:85:66       0 APPLE C7:AF:60:4B:85:66         21         0   False
+0:APPLE:C7:E8:22:BD:E9:69       0 APPLE C7:E8:22:BD:E9:69          1         1    True
+0:APPLE:C7:E8:4C:F7:0D:6C       0 APPLE C7:E8:4C:F7:0D:6C          1         1    True
+0:APPLE:C8:89:EE:6E:B5:21       0 APPLE C8:89:EE:6E:B5:21         69         0   False
+0:APPLE:C8:BF:27:A8:92:3A       0 APPLE C8:BF:27:A8:92:3A         16         0   False
+0:APPLE:C9:88:19:92:C1:47       0 APPLE C9:88:19:92:C1:47          1         1    True
+0:APPLE:C9:D0:30:20:32:CB       0 APPLE C9:D0:30:20:32:CB          1         1    True
+0:APPLE:CB:9E:19:3F:70:60       0 APPLE CB:9E:19:3F:70:60         35         0   False
+0:APPLE:CB:EC:8B:9E:16:45       0 APPLE CB:EC:8B:9E:16:45          1         1    True
+0:APPLE:CC:29:4F:5E:C7:31       0 APPLE CC:29:4F:5E:C7:31          1         1    True
+0:APPLE:CC:38:72:06:21:32       0 APPLE CC:38:72:06:21:32        138         0   False
 
-Total segment-rows: 706
+Total segment-rows: 381
 Ecosystem counts (segment-rows):
 eco
-APPLE      633
-GOOGLE      33
-SAMSUNG     24
-TILE        16
+APPLE      329
+GOOGLE      28
+SAMSUNG     12
+TILE        12
 
-GT ADV MAC count: 557
+GT ADV MAC count: 208
 
 === Cluster summary ===
- cluster   dev_type  segments  duration_cov  unique_macs  mac_rate_per_min  turnover  singleton_mac_frac  top_mac_share  n_eff_macs  churn_score  adv_mac_pct  core_segments  core_unique_macs  core_radius_clamped  core_mac_density_scaled  gt_any  gt_frac  homogeneous      homo_top_mac  homo_mac_share                          homo_top_key  homo_key_share
-       8 TAG_GOOGLE         2        1800.0            2          0.066667  1.000000            1.000000       0.500000    2.000000     1.000000     0.000000              2                 2             6.647601                 0.238426   False  0.00000        False 4B:7E:DD:03:C0:83        0.500000   83c003dd7e4b0201061916aafe41cbd4a13        0.500000
-       2  TAG_APPLE       561        3600.0          560          9.333333  0.998498            0.998214       0.003565  559.615417     0.998498     0.994616            113               113             2.922535                 2.338001    True  0.99287        False EC:DD:8B:3E:1A:A3        0.003565 a31a3e8bddec1eff4c00121900ce074f02e1b        0.003565
-       0  TAG_APPLE        41        3600.0           15          0.250000  0.350427            0.266667       0.097561   13.485129     0.350427     0.000000              9                 4             5.245230                 0.196744   False  0.00000        False DA:08:C5:B7:04:F7        0.097561 f704b7c508da1eff4c0012191057768ed391a        0.097561
-       1  TAG_APPLE        88        3600.0           33          0.550000  0.279727            0.242424       0.045455   29.553042     0.279727     0.000000             18                 9             4.405083                 0.377056   False  0.00000        False C2:A9:D2:5A:C1:12        0.045455 12c15ad2a9c21eff4c00121920414044c8368        0.045455
-       4  TAG_APPLE         1         900.0            1          0.066667       NaN            1.000000       1.000000    1.000000     1.000000     0.000000              1                 1             0.150000                 6.666667   False  0.00000         True C5:A9:87:52:3E:0A        1.000000 0a3e5287a9c51eff4c001219642ca038d705d        1.000000
-       5 TAG_GOOGLE         1         900.0            1          0.066667       NaN            1.000000       1.000000    1.000000     1.000000     0.000000              1                 1             0.150000                 6.666667   False  0.00000         True 6B:6C:91:4D:E0:C3        1.000000   c3e04d916c6b0201061916aafe416b98c45        1.000000
-       9 TAG_GOOGLE         1         900.0            1          0.066667       NaN            1.000000       1.000000    1.000000     1.000000     0.000000              1                 1             0.150000                 6.666667   False  0.00000         True 48:CC:87:99:A3:11        1.000000   11a39987cc480201061916aafe41d9a8851        1.000000
-       3  TAG_APPLE         5        3600.0            2          0.033333  0.166667            0.500000       0.800000    1.649385     0.166667     0.000000              5                 2             6.483894                 0.097778   False  0.00000         True D5:9D:98:91:83:8D        0.800000 8d8391989dd51eff4c001219104ff4872a5d3        0.800000
-       6  TAG_APPLE         4        3600.0            1          0.016667  0.000000            0.000000       1.000000    1.000000     0.000000     0.000000              4                 1             6.250516                 0.039997   False  0.00000         True DD:B3:FF:68:4C:8F        1.000000 8f4c68ffb3dd1eff4c00121964eb9dfe45e72        0.750000
-       7  TAG_APPLE         2        1800.0            1          0.033333  0.000000            0.000000       1.000000    1.000000     0.000000     0.000000              2                 1             5.400467                 0.092585   False  0.00000         True E7:B3:11:FD:E3:9D        1.000000 9de3fd11b3e71eff4c00121900d464d465899        1.000000
+ cluster  dev_type  segments  duration_cov  unique_macs  mac_rate_per_min  turnover  singleton_mac_frac  top_mac_share  n_eff_macs  churn_score  adv_mac_pct  core_segments  core_unique_macs  core_radius_clamped  core_mac_density_scaled  gt_any  gt_frac  homogeneous      homo_top_mac  homo_mac_share                          homo_top_key  homo_key_share
+       4 TAG_APPLE       219        5400.0          219          2.433333  1.000000            1.000000       0.004566  219.000000     1.000000     0.863636             44                44             2.823796                 1.944847    True 0.867580        False C0:99:AD:FA:3E:2D        0.004566 2d3efaad99c01eff4c001219feb1b9608418a        0.004566
+       1 TAG_APPLE        15        5400.0           15          0.166667  1.000000            1.000000       0.066667   15.000000     1.000000     0.866667              5                 5             3.071063                 0.841716    True 0.866667        False C2:EE:D8:CF:68:85        0.066667 8568cfd8eec21eff4c001219ff2281f1b98b8        0.066667
+       8 TAG_APPLE         6        3600.0            6          0.100000  1.000000            1.000000       0.166667    6.000000     1.000000     0.000000              5                 5             4.497383                 0.574770   False 0.000000        False E7:57:A7:86:2D:07        0.166667 072d86a757e71eff4c0012192067ebc34ef70        0.166667
+       7 TAG_APPLE         4        1800.0            4          0.133333       NaN            1.000000       0.250000    4.000000     1.000000     1.000000              4                 4             4.360583                 0.532481    True 1.000000        False C3:C1:1B:8F:D3:C3        0.250000 c3d38f1bc1c31eff4c001219ffd9e53d34596        0.250000
+       3 TAG_APPLE         3        1800.0            3          0.100000       NaN            1.000000       0.333333    3.000000     1.000000     0.000000              3                 3             6.218351                 0.321629   False 0.000000        False C3:69:45:23:09:19        0.333333 1909234569c31eff4c001219004930c8842e5        0.333333
+       2 TAG_APPLE        21        5400.0           18          0.200000  0.873077            0.833333       0.095238   17.227042     0.873077     0.000000              5                 4             3.675768                 0.505348   False 0.000000        False E6:DF:1D:30:2B:33        0.095238 332b301ddfe61eff4c001219609a01bb3df9e        0.095238
+       0 TAG_APPLE        18        5400.0           13          0.144444  0.752525            0.615385       0.111111   12.247110     0.752525     0.000000              5                 4             3.243230                 0.572745   False 0.000000        False E0:76:51:24:1B:D0        0.111111 d01b245176e01eff4c00121900bb34e40069e        0.111111
+       9 TAG_APPLE        93        5400.0           59          0.655556  0.682839            0.508475       0.032258   54.470027     0.682839     0.000000             19                16             2.724239                 1.263499   False 0.000000        False 42:2E:FE:D1:A8:26        0.032258           45a79b17d9dc0201060303edfe0        0.032258
+       5 TAG_APPLE         1        1800.0            1          0.033333       NaN            1.000000       1.000000    1.000000     1.000000     1.000000              1                 1             0.150000                 6.666667    True 1.000000         True D9:5C:CE:78:4F:B3        1.000000 b34f78ce5cd91eff4c001219ff51a54f7a9a4        1.000000
+       6 TAG_APPLE         1        1800.0            1          0.033333       NaN            1.000000       1.000000    1.000000     1.000000     0.000000              1                 1             0.150000                 6.666667   False 0.000000         True D1:1D:A9:16:5C:D3        1.000000 d35c16a91dd11eff4c001219fe7a90c259c2d        1.000000
 
 === Ranked adversary candidates (top) ===
- cluster   dev_type  segments  duration_cov  unique_macs  mac_rate_per_min  turnover  singleton_mac_frac  top_mac_share  n_eff_macs  churn_score  adv_mac_pct  core_radius_clamped  core_mac_density_scaled  gt_any  gt_frac
-       8 TAG_GOOGLE         2        1800.0            2          0.066667  1.000000            1.000000       0.500000    2.000000     1.000000     0.000000             6.647601                 0.238426   False  0.00000
-       2  TAG_APPLE       561        3600.0          560          9.333333  0.998498            0.998214       0.003565  559.615417     0.998498     0.994616             2.922535                 2.338001    True  0.99287
+ cluster  dev_type  segments  duration_cov  unique_macs  mac_rate_per_min  turnover  singleton_mac_frac  top_mac_share  n_eff_macs  churn_score  adv_mac_pct  core_radius_clamped  core_mac_density_scaled  gt_any  gt_frac
+       4 TAG_APPLE       219        5400.0          219          2.433333  1.000000            1.000000       0.004566  219.000000     1.000000     0.863636             2.823796                 1.944847    True 0.867580
+       1 TAG_APPLE        15        5400.0           15          0.166667  1.000000            1.000000       0.066667   15.000000     1.000000     0.866667             3.071063                 0.841716    True 0.866667
+       8 TAG_APPLE         6        3600.0            6          0.100000  1.000000            1.000000       0.166667    6.000000     1.000000     0.000000             4.497383                 0.574770   False 0.000000
+       7 TAG_APPLE         4        1800.0            4          0.133333       NaN            1.000000       0.250000    4.000000     1.000000     1.000000             4.360583                 0.532481    True 1.000000
+       3 TAG_APPLE         3        1800.0            3          0.100000       NaN            1.000000       0.333333    3.000000     1.000000     0.000000             6.218351                 0.321629   False 0.000000
+       2 TAG_APPLE        21        5400.0           18          0.200000  0.873077            0.833333       0.095238   17.227042     0.873077     0.000000             3.675768                 0.505348   False 0.000000
+       0 TAG_APPLE        18        5400.0           13          0.144444  0.752525            0.615385       0.111111   12.247110     0.752525     0.000000             3.243230                 0.572745   False 0.000000
+       9 TAG_APPLE        93        5400.0           59          0.655556  0.682839            0.508475       0.032258   54.470027     0.682839     0.000000             2.724239                 1.263499   False 0.000000
 
 === Final adversary decision (strict AND; churn + core-density) ===
 
 -- Candidate cluster check --
-cluster=8 type=TAG_GOOGLE seg=2
-Duration: 1800.0s (>= 1800) -> True
-Unique MACs: 2 (>= 15) -> False
+cluster=4 type=TAG_APPLE seg=219
+Duration: 5400.0s (>= 2700) -> True
+Unique MACs: 219 (>= 15) -> True
 Churn: turnover 1.000 >= 0.7 -> True
-MAC rate: 0.067/min (>= 2.0) -> False
-Core density scaled: 0.238 (>= 2.0) -> False
+MAC rate: 2.433/min (>= 2.0) -> True
+Core density scaled: 1.945 (>= 1) -> True
 
-=> fail | adv%=0.0% core_dens=0.238 gt%=0.0%
+=> PASS | adv%=86.4% core_dens=1.945 gt%=86.8%
+
+>>> ADVERSARY CONFIRMED (Frequently paced and rotated) <<<
 
 -- Candidate cluster check --
-cluster=2 type=TAG_APPLE seg=561
-Duration: 3600.0s (>= 1800) -> True
-Unique MACs: 560 (>= 15) -> True
-Churn: turnover 0.998 >= 0.7 -> True
-MAC rate: 9.333/min (>= 2.0) -> True
-Core density scaled: 2.338 (>= 2.0) -> True
+cluster=1 type=TAG_APPLE seg=15
+Duration: 5400.0s (>= 2700) -> True
+Unique MACs: 15 (>= 15) -> True
+Churn: turnover 1.000 >= 0.7 -> True
+MAC rate: 0.167/min (>= 2.0) -> False
+Core density scaled: 0.842 (>= 1) -> False
 
-=> PASS | adv%=99.5% core_dens=2.338 gt%=99.3%
+=> PASS | adv%=86.7% core_dens=0.842 gt%=86.7%
 
->>> ADVERSARY CONFIRMED <<<
+>>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<
+
+-- Candidate cluster check --
+cluster=8 type=TAG_APPLE seg=6
+Duration: 3600.0s (>= 2700) -> True
+Unique MACs: 6 (>= 15) -> False
+Churn: turnover 1.000 >= 0.7 -> True
+MAC rate: 0.100/min (>= 2.0) -> False
+Core density scaled: 0.575 (>= 1) -> False
+
+=> PASS | adv%=0.0% core_dens=0.575 gt%=0.0%
+
+>>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<
+
+-- Candidate cluster check --
+cluster=7 type=TAG_APPLE seg=4
+Duration: 1800.0s (>= 2700) -> False
+Unique MACs: 4 (>= 15) -> False
+Churn: singleton_mac_frac 1.000 >= 0.8 -> True
+MAC rate: 0.133/min (>= 2.0) -> False
+Core density scaled: 0.532 (>= 1) -> False
+
+=> fail | adv%=100.0% core_dens=0.532 gt%=100.0%
+
+>>> NOT CONFIRMED (criteria not met) <<<
+
+-- Candidate cluster check --
+cluster=3 type=TAG_APPLE seg=3
+Duration: 1800.0s (>= 2700) -> False
+Unique MACs: 3 (>= 15) -> False
+Churn: singleton_mac_frac 1.000 >= 0.8 -> True
+MAC rate: 0.100/min (>= 2.0) -> False
+Core density scaled: 0.322 (>= 1) -> False
+
+=> fail | adv%=0.0% core_dens=0.322 gt%=0.0%
+
+>>> NOT CONFIRMED (criteria not met) <<<
+
+-- Candidate cluster check --
+cluster=2 type=TAG_APPLE seg=21
+Duration: 5400.0s (>= 2700) -> True
+Unique MACs: 18 (>= 15) -> True
+Churn: turnover 0.873 >= 0.7 -> True
+MAC rate: 0.200/min (>= 2.0) -> False
+Core density scaled: 0.505 (>= 1) -> False
+
+=> PASS | adv%=0.0% core_dens=0.505 gt%=0.0%
+
+>>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<
+
+-- Candidate cluster check --
+cluster=0 type=TAG_APPLE seg=18
+Duration: 5400.0s (>= 2700) -> True
+Unique MACs: 13 (>= 15) -> False
+Churn: turnover 0.753 >= 0.7 -> True
+MAC rate: 0.144/min (>= 2.0) -> False
+Core density scaled: 0.573 (>= 1) -> False
+
+=> PASS | adv%=0.0% core_dens=0.573 gt%=0.0%
+
+>>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<
+
+-- Candidate cluster check --
+cluster=9 type=TAG_APPLE seg=93
+Duration: 5400.0s (>= 2700) -> True
+Unique MACs: 59 (>= 15) -> True
+Churn: turnover 0.683 >= 0.7 -> False
+MAC rate: 0.656/min (>= 2.0) -> False
+Core density scaled: 1.263 (>= 1) -> True
+
+=> PASS | adv%=0.0% core_dens=1.263 gt%=0.0%
+
+>>> ADVERSARY CONFIRMED (Frequently paced and rotated) <<<

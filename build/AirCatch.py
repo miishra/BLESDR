@@ -47,16 +47,17 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 # Configuration
 # =========================
 
-ADV_CSV = "test1.csv"  # input CSV file
+# ADV_CSV = "controlled/SDR_Adv/scenarios_SDR_Adv__adv1_apple0_google0_samsung0_tile0__20260124_172205/scenario_tx-2s_rot-2s.csv"  # input CSV file
+ADV_CSV = "car.csv"
 
 PAYLOAD_TAG = "4c001219"        # optional, NOT used as filter by default
 ADV_PAYLOAD_TAG = "4c001219ff"  # ADV marker used for GT and adv_mac_pct
 
-WINDOW_S = 900                  # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
+WINDOW_S = 1800                  # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
 K_RANGE = range(3, 20)
 OVERALL_CFO_WEIGHT = 1
 
-MIN_DURATION_S = 1800            # strict decision min support (seconds)
+MIN_DURATION_S = 2700            # strict decision min support (seconds)
 
 # --- key / type logic ---
 KEY_SIM_THR = 0.99              # merge clusters if keys are extremely similar (same ecosystem)
@@ -94,7 +95,7 @@ STRICT_SINGLETON_MAC_FRAC_MIN = 0.80
 STRICT_MAC_RATE_PER_MIN_MIN   = 2.0
 
 # Density threshold applied on CORE density scaled
-DENSITY_MIN = 2.0
+DENSITY_MIN = 1 #1.8
 
 # --- CORE density parameters ---
 CORE_FRAC_Q = 0.20              # densest core fraction (e.g., 20%)
@@ -109,7 +110,7 @@ EXTRA_STATS = (
     "mad",
 )
 
-b210 = True  # if False, will filter crc_ok==1
+b210 = False  # if False, will filter crc_ok==1
 
 # CFO columns in raw CSV
 CFO_COLS_RAW = ["CFO_Hz", "CFO_00_Hz", "CFO_11_Hz", "CFO_10_Hz", "CFO_01_Hz"]
@@ -122,6 +123,8 @@ for base in ["CFO", "CFO_00", "CFO_11", "CFO_10", "CFO_01"]:
 
 KEY_HASH_WEIGHT = 1
 KEY_BUCKETS = 64
+
+_HEX_DIGITS = set("0123456789abcdefABCDEF")
 
 # Debug
 DEBUG_PRINT_DF_HEAD = False
@@ -404,11 +407,187 @@ def collect_pubkeys(df: pd.DataFrame) -> pd.Series:
 
     return df["payload"].apply(payload_keys)
 
+# ---------------------------
+# Hex helpers + Samsung PRIVID extraction
+# ---------------------------
+
+def _clean_hexpayload(payload_hex: str) -> str:
+    if payload_hex is None:
+        return ""
+    s = str(payload_hex).strip()
+    if not s:
+        return ""
+    s = s.replace(" ", "").replace(":", "").replace("-", "").replace("\n", "").replace("\r", "").replace("\t", "")
+    s = "".join(ch for ch in s if ch in _HEX_DIGITS)
+    if len(s) < 2:
+        return ""
+    if len(s) % 2 == 1:
+        s = s[:-1]
+    return s.lower()
+
+
+def _hex_to_bytes(hx: str) -> bytes:
+    try:
+        return bytes.fromhex(hx)
+    except Exception:
+        return b""
+
+def get_samsung_privid_from_payload(payload_hex: str) -> str:
+    """
+    Extract Samsung PRIVID from payload if present.
+    PRIVID lives inside a Service Data (AD type 0x16) with UUID=0xFD5A.
+    PRIVID is 8 bytes at data[4:12] where data[0:2] is UUID.
+    Returns PRIVID hex (lowercase) or "".
+    """
+    hx = _clean_hexpayload(payload_hex)
+    if not hx:
+        return ""
+    b = _hex_to_bytes(hx)
+    if not b:
+        return ""
+
+    def extract_from_ad(ad_data: bytes) -> str:
+        pos = 0
+        n = len(ad_data)
+        while pos + 1 < n:
+            length = ad_data[pos]
+            if length == 0:
+                break
+            if pos + 1 + length > n:
+                break
+            ad_type = ad_data[pos + 1]
+            data = ad_data[pos + 2: pos + 1 + length]
+            if ad_type == 0x16 and len(data) >= 12:
+                svc_uuid = data[0] | (data[1] << 8)
+                if svc_uuid == 0xFD5A:
+                    return data[4:12].hex()
+            pos += 1 + length
+        return ""
+
+    # Layout A: AdvA(6) + AD...
+    if len(b) >= 7:
+        v = extract_from_ad(b[6:])
+        if v:
+            return v
+    # Layout B: Header(2) + AdvA(6) + AD...
+    if len(b) >= 9:
+        v = extract_from_ad(b[8:])
+        if v:
+            return v
+    return ""
+
+
+# def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set[str]]:
+#     """
+#     PER-MAC segmentation:
+#       seg_key = (seg_id, eco, AdvA)
+
+#     Returns:
+#       seg: segment dataframe
+#       adv_mac_set: ground-truth set of MACs that appear in packets whose payload contains ADV_PAYLOAD_TAG
+#     """
+#     df = df.copy()
+
+#     # normalize / required columns
+#     df["payload"] = df["payload"].astype(str).str.lower()
+#     df["AdvA"] = df["AdvA"].astype(str)
+
+#     if not b210 and "crc_ok" in df.columns:
+#         df = df[df["crc_ok"] == 1]  # filter valid CRC only
+
+#     df = df.dropna(subset=["timestamp", "AdvA"] + CFO_COLS_RAW)
+#     df = df.sort_values("timestamp")
+
+#     # Ground-truth ADV MAC set (packet-level marker)
+#     adv_mask = df["payload"].str.contains(ADV_PAYLOAD_TAG, na=False)
+#     adv_mac_set = set(df.loc[adv_mask, "AdvA"].astype(str).tolist())
+
+#     # Ecosystem per packet
+#     df["eco"] = df["payload"].apply(classify_tag_ecosystem_from_payload)
+#     df["dev_type"] = df["eco"].apply(lambda e: f"TAG_{e}")
+
+#     # Keys per packet
+#     df["pubkeys"] = collect_pubkeys(df)
+
+#     # Window index
+#     df["seg_id"] = (df["timestamp"] // window_s).astype(int)
+
+#     if DEBUG_PRINT_DF_HEAD:
+#         print("\n[DEBUG] df head:")
+#         print(df.head(30).to_string(index=False))
+
+#     def agg_segment(g: pd.DataFrame, seg_id: int, eco: str, mac: str) -> pd.Series:
+#         t_start = float(g["timestamp"].min())
+#         t_end = float(g["timestamp"].max())
+#         n_packets = int(g["AdvA"].count())
+
+#         mac = str(mac)
+#         mac_set = [mac]
+#         n_macs = 1
+
+#         keys_flat = []
+#         for lst in g["pubkeys"].tolist():
+#             if isinstance(lst, list):
+#                 keys_flat.extend(lst)
+#         key_set = sorted(set([k for k in keys_flat if k]))
+
+#         adv_macs = int(g["payload"].str.contains(ADV_PAYLOAD_TAG, na=False).sum())
+#         gt_adv = (mac in adv_mac_set)
+
+#         # CFO mean + robust stats
+#         cfo_stats = {}
+#         for col_raw, col_base in zip(
+#             ["CFO_Hz", "CFO_00_Hz", "CFO_11_Hz", "CFO_10_Hz", "CFO_01_Hz"],
+#             ["CFO", "CFO_00", "CFO_11", "CFO_10", "CFO_01"]
+#         ):
+#             vals = g[col_raw].astype(float).values
+#             cfo_stats[col_base] = float(np.mean(vals))
+#             rs = robust_stats(vals)
+#             for s in EXTRA_STATS:
+#                 cfo_stats[f"{col_base}_{s}"] = float(rs[s])
+
+#         return pd.Series({
+#             "seg_key": f"{int(seg_id)}:{eco}:{mac}",
+#             "seg_id": int(seg_id),
+#             "eco": eco,
+#             "dev_type": f"TAG_{eco}",
+#             "mac": mac,
+
+#             "t_start": t_start,
+#             "t_end": t_end,
+#             "duration_est": float(window_s),
+#             "duration_obs": float(t_end - t_start),
+
+#             "n_packets": n_packets,
+#             "n_macs": n_macs,
+#             "mac_set": mac_set,
+#             "key_set": key_set,
+
+#             **cfo_stats,
+
+#             "adv_macs": adv_macs,
+#             "gt_adv": bool(gt_adv),
+#         })
+
+#     rows = []
+#     for (sid, eco, mac), g in df.groupby(["seg_id", "eco", "AdvA"], sort=True):
+#         rows.append(agg_segment(g, sid, eco, mac))
+
+#     seg = pd.DataFrame(rows)
+#     if len(seg) == 0:
+#         raise RuntimeError("No segments produced. Check input CSV columns and filters.")
+
+#     # Per-MAC segments => churn not meaningful; keep only for debugging.
+#     seg["churn"] = seg["n_macs"] / seg["n_packets"].clip(lower=1)
+#     return seg, adv_mac_set
+
 
 def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set[str]]:
     """
-    PER-MAC segmentation:
-      seg_key = (seg_id, eco, AdvA)
+    PER-DEVICE segmentation (mostly per-MAC, but Samsung uses PRIVID):
+
+      - For non-Samsung: seg_key = (seg_id, eco, AdvA)  [per-MAC]
+      - For Samsung:     seg_key = (seg_id, eco, PRIVID) [per-PRIVID]
 
     Returns:
       seg: segment dataframe
@@ -434,6 +613,23 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
     df["eco"] = df["payload"].apply(classify_tag_ecosystem_from_payload)
     df["dev_type"] = df["eco"].apply(lambda e: f"TAG_{e}")
 
+    # --- NEW: Samsung PRIVID per packet (empty string if not found) ---
+    # Requires you to have get_samsung_privid_from_payload(payload_hex: str) -> str defined.
+    df["privid"] = ""
+    samsung_mask = (df["eco"] == "SAMSUNG")
+    if samsung_mask.any():
+        df.loc[samsung_mask, "privid"] = df.loc[samsung_mask, "payload"].apply(get_samsung_privid_from_payload)
+
+        # If PRIVID missing, fall back to AdvA so we don't drop those packets
+        missing_priv = samsung_mask & (df["privid"].astype(str) == "")
+        if missing_priv.any():
+            df.loc[missing_priv, "privid"] = df.loc[missing_priv, "AdvA"].astype(str)
+
+    # --- NEW: per-packet device identifier used for segmentation ---
+    # Non-Samsung -> AdvA; Samsung -> PRIVID (or fallback AdvA)
+    df["dev_id"] = df["AdvA"].astype(str)
+    df.loc[samsung_mask, "dev_id"] = df.loc[samsung_mask, "privid"].astype(str)
+
     # Keys per packet
     df["pubkeys"] = collect_pubkeys(df)
 
@@ -444,13 +640,15 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
         print("\n[DEBUG] df head:")
         print(df.head(30).to_string(index=False))
 
-    def agg_segment(g: pd.DataFrame, seg_id: int, eco: str, mac: str) -> pd.Series:
+    def agg_segment(g: pd.DataFrame, seg_id: int, eco: str, dev_id: str) -> pd.Series:
         t_start = float(g["timestamp"].min())
         t_end = float(g["timestamp"].max())
         n_packets = int(g["AdvA"].count())
 
-        mac = str(mac)
-        mac_set = [mac]
+        dev_id = str(dev_id)
+
+        # In this mode, each segment corresponds to exactly one device-id (MAC or PRIVID)
+        mac_set = [dev_id]
         n_macs = 1
 
         keys_flat = []
@@ -460,7 +658,9 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
         key_set = sorted(set([k for k in keys_flat if k]))
 
         adv_macs = int(g["payload"].str.contains(ADV_PAYLOAD_TAG, na=False).sum())
-        gt_adv = (mac in adv_mac_set)
+        # NOTE: gt_adv remains MAC-based ground truth; for Samsung using PRIVID, this will almost always be False.
+        # If you want gt_adv for Samsung/PRIVID too, you should add a separate ground-truth set keyed by PRIVID.
+        gt_adv = (g["AdvA"].astype(str).isin(adv_mac_set).any())
 
         # CFO mean + robust stats
         cfo_stats = {}
@@ -475,11 +675,19 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
                 cfo_stats[f"{col_base}_{s}"] = float(rs[s])
 
         return pd.Series({
-            "seg_key": f"{int(seg_id)}:{eco}:{mac}",
+            # Use dev_id in the seg_key; for Samsung this is PRIVID
+            "seg_key": f"{int(seg_id)}:{eco}:{dev_id}",
             "seg_id": int(seg_id),
             "eco": eco,
             "dev_type": f"TAG_{eco}",
-            "mac": mac,
+
+            # Keep existing "mac" column for compatibility, but it now holds MAC or PRIVID.
+            # If you want both, you can also store "advA" + "privid".
+            "mac": dev_id,
+
+            # Optional: expose original fields for debugging / downstream rules
+            "advA": str(g["AdvA"].iloc[0]) if "AdvA" in g.columns and len(g) else "",
+            "privid": str(g["privid"].iloc[0]) if eco == "SAMSUNG" and "privid" in g.columns and len(g) else "",
 
             "t_start": t_start,
             "t_end": t_end,
@@ -498,14 +706,15 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
         })
 
     rows = []
-    for (sid, eco, mac), g in df.groupby(["seg_id", "eco", "AdvA"], sort=True):
-        rows.append(agg_segment(g, sid, eco, mac))
+    # --- UPDATED grouping: use dev_id instead of AdvA ---
+    for (sid, eco, dev_id), g in df.groupby(["seg_id", "eco", "dev_id"], sort=True):
+        rows.append(agg_segment(g, sid, eco, dev_id))
 
     seg = pd.DataFrame(rows)
     if len(seg) == 0:
         raise RuntimeError("No segments produced. Check input CSV columns and filters.")
 
-    # Per-MAC segments => churn not meaningful; keep only for debugging.
+    # Per-device segments => churn not meaningful; keep only for debugging.
     seg["churn"] = seg["n_macs"] / seg["n_packets"].clip(lower=1)
     return seg, adv_mac_set
 
@@ -1055,7 +1264,7 @@ def main():
             rate_ok = (row["mac_rate_per_min"] >= STRICT_MAC_RATE_PER_MIN_MIN)
 
             ok = (
-                (row["duration_cov"] >= DUR_MIN) and
+                (row["duration_cov"] >= DUR_MIN) or # and
                 # (row["unique_macs"] >= UNIQUE_MACS_MIN) and
                 # churn_ok and
                 # rate_ok and
@@ -1081,7 +1290,15 @@ def main():
 
             confirmed_any = confirmed_any or ok
 
-        print("\n>>> ADVERSARY CONFIRMED <<<" if confirmed_any else "\n>>> NOT CONFIRMED (criteria not met) <<<")
+            # Old:
+            # print("\n>>> ADVERSARY CONFIRMED <<<" if confirmed_any else "\n>>> NOT CONFIRMED (criteria not met) <<<")
+
+            # New:
+            if ok:
+                print("\n>>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<" if (not dens_ok)
+                    else "\n>>> ADVERSARY CONFIRMED (Frequently paced and rotated) <<<")
+            else:
+                print("\n>>> NOT CONFIRMED (criteria not met) <<<")
 
 
 if __name__ == "__main__":
