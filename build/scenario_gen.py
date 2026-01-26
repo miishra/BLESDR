@@ -39,17 +39,20 @@ import os
 import sys
 import time
 import random
+import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
 
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 # ---------------------------
 # Scenario parameter grids
 # ---------------------------
 
-TX_PERIODS_SEC = [2, 10, 15, 30, 60, 300, 900]  # 2s, 10s, 15s, 30s, 1m, 5m, 15m
+TX_PERIODS_SEC = [2, 10, 15, 30, 60]  # 2s, 10s, 15s, 30s, 1m
 ROT_PERIODS_SEC = [2, 10, 30, 60, 300, 900]     # 2s, 10s, 30s, 1m, 5m, 15m
 PERSIST_SEC_DEFAULT = 30 * 60                   # 30 minutes
 
@@ -372,6 +375,29 @@ class Selection:
 
 
 # ---------------------------
+# Adversary tag helpers
+# ---------------------------
+
+def adv_tag_match_counts(df: pd.DataFrame, payload_col: str, adv_tags: List[str]) -> Dict[str, int]:
+    """Return cleaned-hex payload match counts for each tag."""
+    payload_clean = df[payload_col].astype(str).map(_clean_hexpayload)
+    out: Dict[str, int] = {}
+    for t in adv_tags:
+        tt = str(t).strip().lower().replace(" ", "")
+        if not tt:
+            continue
+        out[tt] = int(payload_clean.str.contains(re.escape(tt), na=False, regex=True).sum())
+    return out
+
+
+def filter_adv_tags_with_matches(df: pd.DataFrame, payload_col: str, adv_tags: List[str]) -> List[str]:
+    """Keep only tags that match at least one row (cleaned-hex payload search)."""
+    counts = adv_tag_match_counts(df, payload_col, adv_tags)
+    # preserve input order
+    return [t for t in [str(x).strip().lower().replace(" ", "") for x in adv_tags if str(x).strip()] if counts.get(t, 0) > 0]
+
+
+# ---------------------------
 # Interactive selection
 # ---------------------------
 
@@ -444,6 +470,238 @@ def interactive_select(
     )
 
 
+def classify_tag_ecosystem_from_payload(payload_hex: str) -> str:
+    """
+    Parse AD structures to classify ecosystem:
+      - APPLE: Manufacturer Specific (0xFF), CompanyID=0x004C, prefix bytes 0x12 0x19
+      - GOOGLE: Service Data 16-bit (0x16), UUID=0xFEAA
+      - TILE:   Service Data 16-bit (0x16), UUID=0xFEED
+      - SAMSUNG:Service Data 16-bit (0x16), UUID=0xFD5A
+      - UNKNOWN otherwise
+
+    We try two layouts:
+      A) payload = AdvA(6) + AD...
+      B) payload = Header(2) + AdvA(6) + AD...
+    """
+    hx = _clean_hexpayload(payload_hex)
+    if len(hx) < 16:
+        return "UNKNOWN"
+
+    b = _hex_to_bytes(hx)
+    if len(b) < 8:
+        return "UNKNOWN"
+
+    def parse_ad_structures(ad_data: bytes) -> str:
+        pos = 0
+        ad_len = len(ad_data)
+
+        while pos + 1 < ad_len:
+            length = ad_data[pos]
+            if length == 0:
+                break
+            if pos + 1 + length > ad_len:
+                break
+
+            ad_type = ad_data[pos + 1]
+            data = ad_data[pos + 2: pos + 1 + length]  # excludes length byte
+
+            # Manufacturer Specific (0xFF): [CompanyID LE (2)][...]
+            if ad_type == 0xFF and len(data) >= 4:
+                company_id = data[0] | (data[1] << 8)
+                if company_id == 0x004C:
+                    # FindMy prefix bytes: 0x12 0x19
+                    if data[2] == 0x12 and data[3] == 0x19:
+                        return "APPLE"
+
+            # Service Data - 16-bit UUID (0x16): [UUID LE (2)][...]
+            if ad_type == 0x16 and len(data) >= 2:
+                svc_uuid = data[0] | (data[1] << 8)
+                if svc_uuid == 0xFEAA:
+                    return "GOOGLE"
+                if svc_uuid == 0xFEED:
+                    return "TILE"
+                if svc_uuid == 0xFD5A:
+                    return "SAMSUNG"
+
+            pos += 1 + length
+
+        return "UNKNOWN"
+
+    # Layout A: AdvA(6) + AD...
+    if len(b) >= 7:
+        eco = parse_ad_structures(b[6:])
+        if eco != "UNKNOWN":
+            return eco
+
+    # Layout B: Header(2) + AdvA(6) + AD...
+    if len(b) >= 9:
+        eco = parse_ad_structures(b[8:])
+        if eco != "UNKNOWN":
+            return eco
+
+    return "UNKNOWN"
+
+
+# ---------------------------
+# Post-generation analysis
+# ---------------------------
+
+def _parse_tx_rot_from_scenario_filename(name: str) -> tuple[str, str]:
+    """Extract tx/rot tokens from scenario filenames like scenario_tx-10s_rot-5min.csv."""
+    base = os.path.basename(name)
+    m = re.search(r"tx-([^_]+)_rot-([^\.]+)", base)
+    if not m:
+        return ("unknown", "unknown")
+    return (m.group(1), m.group(2))
+
+
+def _seconds_from_token(tok: str) -> float:
+    t = str(tok).strip().lower()
+    if t.endswith("min"):
+        return float(t[:-3]) * 60.0
+    if t.endswith("s"):
+        return float(t[:-1])
+    if t.endswith("h"):
+        return float(t[:-1]) * 3600.0
+    # fallback
+    return float(re.sub(r"[^0-9.]+", "", t) or 0.0)
+
+
+def plot_effective_tx_rot_boxplots(
+    outdir: str,
+    ts_col: str,
+    mac_col: str,
+    payload_col: str,
+    sel: "Selection",
+    max_samples_per_scenario: int = 5000,
+) -> Optional[str]:
+    """Create box plots of effective TX period and effective ROT period across scenarios.
+
+    - effective TX period: inter-arrival times (seconds) between consecutive injected packets
+      (computed per injected-identity group; pooled per scenario).
+
+    - effective ROT period: time between MAC changes (seconds) in the injected stream
+      (computed by detecting when mac_col changes; pooled per scenario).
+
+    Results are grouped by configured tx-<tok> and rot-<tok> for comparison.
+    """
+    outp = os.path.join(outdir, "scenario_effective_tx_rot_boxplots.png")
+    scen_files = sorted([p for p in os.listdir(outdir) if p.endswith(".csv") and p.startswith("scenario_")])
+    if not scen_files:
+        return None
+
+    sel_adv_tags = [t.lower() for t in (sel.adv_tags or [])]
+    sel_tag_macs = set(map(_norm_mac, sel.selected_tag_macs())) if hasattr(sel, "selected_tag_macs") else set()
+    sel_samsung_priv = set([x.lower() for x in (sel.samsung_privids or [])])
+
+    def adv_mask_for_df(d: pd.DataFrame) -> pd.Series:
+        m = pd.Series(False, index=d.index)
+        if sel_adv_tags:
+            payload = d[payload_col].astype(str).str.lower()
+            for t in sel_adv_tags:
+                if t:
+                    m |= payload.str.contains(t, na=False)
+        if sel_tag_macs:
+            m |= d[mac_col].astype(str).map(_norm_mac).isin(sel_tag_macs)
+        if sel_samsung_priv:
+            priv = d[payload_col].astype(str).map(get_samsung_privid_from_payload)
+            m |= priv.astype(str).str.lower().isin(sel_samsung_priv)
+        return m
+
+    # Per grouping bucket
+    tx_groups: Dict[str, List[float]] = {}
+    rot_groups: Dict[str, List[float]] = {}
+
+    for fn in scen_files:
+        p = os.path.join(outdir, fn)
+        try:
+            d = pd.read_csv(p)
+        except Exception:
+            continue
+        if ts_col not in d.columns or payload_col not in d.columns or mac_col not in d.columns:
+            continue
+
+        d = d.dropna(subset=[ts_col]).copy()
+        d[ts_col] = pd.to_numeric(d[ts_col], errors="coerce")
+        d = d[np.isfinite(d[ts_col])].copy()
+        if d.empty:
+            continue
+
+        da = d.loc[adv_mask_for_df(d)].copy()
+        if da.empty:
+            continue
+
+        da = da.sort_values(ts_col).reset_index(drop=True)
+
+        tx_tok, rot_tok = _parse_tx_rot_from_scenario_filename(fn)
+
+        # Effective TX: pooled inter-arrivals within each injected identity group
+        # Use (payload-tag match OR privid OR mac) as an identity group key.
+        # For simplicity, approximate by mac_col after rotation (works for most cases).
+        eff_tx: List[float] = []
+        for _, g in da.groupby(mac_col, sort=False):
+            tt = g[ts_col].astype(float).values
+            if len(tt) < 2:
+                continue
+            dt = np.diff(tt)
+            dt = dt[np.isfinite(dt) & (dt >= 0)]
+            if len(dt):
+                eff_tx.extend(dt.tolist())
+
+        # Effective ROT: time between MAC changes in the injected stream
+        eff_rot: List[float] = []
+        macs = da[mac_col].astype(str).map(_norm_mac).values
+        ts = da[ts_col].astype(float).values
+        if len(ts) >= 2:
+            last_change_t = float(ts[0])
+            last_mac = macs[0]
+            for i in range(1, len(ts)):
+                if macs[i] != last_mac:
+                    eff_rot.append(float(ts[i]) - last_change_t)
+                    last_change_t = float(ts[i])
+                    last_mac = macs[i]
+
+        # subsample to keep plots light
+        if max_samples_per_scenario > 0:
+            if len(eff_tx) > max_samples_per_scenario:
+                eff_tx = eff_tx[:max_samples_per_scenario]
+            if len(eff_rot) > max_samples_per_scenario:
+                eff_rot = eff_rot[:max_samples_per_scenario]
+
+        tx_groups.setdefault(str(tx_tok), []).extend(eff_tx)
+        rot_groups.setdefault(str(rot_tok), []).extend(eff_rot)
+
+    if not tx_groups and not rot_groups:
+        return None
+
+    # Plot
+    plt.figure(figsize=(14, 8))
+
+    # TX boxplot
+    ax1 = plt.subplot(2, 1, 1)
+    tx_keys = sorted(tx_groups.keys(), key=lambda k: _seconds_from_token(k) if k != "unknown" else 1e18)
+    tx_data = [tx_groups[k] for k in tx_keys]
+    ax1.boxplot(tx_data, labels=tx_keys, showfliers=False)
+    ax1.set_title("Effective transmission period (inter-arrival times) by configured tx")
+    ax1.set_ylabel("seconds")
+    ax1.grid(True, alpha=0.3)
+
+    # ROT boxplot
+    ax2 = plt.subplot(2, 1, 2)
+    rot_keys = sorted(rot_groups.keys(), key=lambda k: _seconds_from_token(k) if k != "unknown" else 1e18)
+    rot_data = [rot_groups[k] for k in rot_keys]
+    ax2.boxplot(rot_data, labels=rot_keys, showfliers=False)
+    ax2.set_title("Effective rotation period (time between MAC changes) by configured rot")
+    ax2.set_ylabel("seconds")
+    ax2.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(outp, dpi=200)
+    plt.close()
+
+    return outp
+
+
 # ---------------------------
 # Main
 # ---------------------------
@@ -452,7 +710,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
 
     ap.add_argument("--input", required=True, help="Path to input SDR capture CSV.")
-    ap.add_argument("--outdir", default="controlled/Car_Adv/", help="Output folder (default: auto-named).")
+    ap.add_argument("--outdir", default="controlled/SDR_Adv/", help="Output folder (default: auto-named).")
 
     ap.add_argument("--timestamp-col", default="timestamp", help="Timestamp column name.")
     ap.add_argument("--mac-col", default="AdvA", help="MAC column name.")
@@ -519,15 +777,20 @@ def main() -> int:
         print("ERROR: --adv-tags list is empty; provide at least one tag.", file=sys.stderr)
         return 2
 
-    # Tag col
     tag_col = detect_tag_col(df_full, args.tag_col)
     if tag_col:
         df_full[tag_col] = df_full[tag_col].astype(str).map(canon_tag_value)
         print(f"[i] Using tag column: {tag_col}")
     else:
-        tag_col = None
-        print("[i] No tag column detected/provided. Known-device persistence removal for tags needs labels. "
-              "Only adversary payload-tag row removal will be applied.")
+        # --- NEW: compute tag type from payload if column missing ---
+        tag_col = "eco"
+        df_full[tag_col] = df_full[payload_col].astype(str).apply(classify_tag_ecosystem_from_payload)
+        df_full[tag_col] = df_full[tag_col].astype(str).map(canon_tag_value)
+        print(f"[i] Tag column missing. Derived '{tag_col}' from payload.")
+
+        # optional debug
+        print("[i] Derived tag distribution:")
+        print(df_full[tag_col].value_counts(dropna=False).to_string())
 
     persist_sec = int(args.persist_minutes) * 60
 
@@ -546,8 +809,16 @@ def main() -> int:
     all_macs_base = set(df_base[mac_col].tolist())
 
     # Candidate reporting (fixed):
-    adv_row_count = int(adv_mask.sum())          # e.g., 739
-    adv_tag_candidates = adv_tags[:]             # e.g., ["4c001219ff"] -> 1 candidate
+    adv_row_count = int(adv_mask.sum())
+
+    # Filter adversary candidates to tags that actually match this capture
+    adv_counts_all = adv_tag_match_counts(df_full, payload_col, adv_tags)
+    adv_tag_candidates = [t for t in adv_tags if adv_counts_all.get(str(t).strip().lower().replace(" ", ""), 0) > 0]
+
+    if len(adv_tag_candidates) != len(adv_tags):
+        dropped = [t for t in adv_tags if t not in adv_tag_candidates]
+        print(f"[w] Dropping adversary tags with 0 matches in this capture: {dropped}")
+
     samsung_priv_candidates = sorted(list(persistent_samsung_privids))
 
     apple_candidates = sorted(list(persistent_macs_by_type.get("APPLE", set()))) if tag_col else []
@@ -579,6 +850,10 @@ def main() -> int:
             tile_macs=[_norm_mac(x) for x in parse_csv_list(args.select_tile)],
             samsung_privids=parse_csv_list(args.select_samsung_privids),
         )
+
+        # If user explicitly asked for adversary tags, keep only those that match
+        if sel.adv_tags:
+            sel.adv_tags = filter_adv_tags_with_matches(df_full, payload_col, sel.adv_tags)
     else:
         sel = interactive_select(
             adv_tag_candidates=adv_tag_candidates,
@@ -590,7 +865,22 @@ def main() -> int:
         )
 
     if not (sel.adv_tags or sel.apple_macs or sel.google_macs or sel.tile_macs or sel.samsung_privids):
-        print("No devices selected to re-introduce. Exiting.")
+        print("[i] No devices selected to re-introduce. Will export background-only dataset.")
+
+        # Build output folder name based on "0 selections"
+        base = os.path.splitext(os.path.basename(args.input))[0]
+        stamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())
+        counts_part = "adv0_apple0_google0_samsung0_tile0"
+
+        # Join properly with args.outdir (args.outdir is a base folder like "controlled/Car_Adv/")
+        outdir = os.path.join(args.outdir, f"scenarios_{base}__{counts_part}__{stamp}")
+        os.makedirs(outdir, exist_ok=True)
+        print(f"\n[i] Writing scenario CSVs to: {outdir}")
+
+        # Save a single background-only CSV (same columns as input)
+        out_path = os.path.join(outdir, "background_only.csv")
+        df_base.sort_values(ts_col).to_csv(out_path, index=False)
+        print(f"[✓] Wrote background-only CSV: {out_path}")
         return 0
 
     print("\n=== Selected set to re-introduce ===")
@@ -670,7 +960,7 @@ def main() -> int:
     # scenarios_SDR_Adv__adv1_apple4_google10_samsung2_tile16__20260124_153045
     counts_part = f"adv{n_adv}_apple{n_apple}_google{n_google}_samsung{n_samsung}_tile{n_tile}"
 
-    outdir = args.outdir + f"scenarios_{base}__{counts_part}__{stamp}"
+    outdir = os.path.join(args.outdir, f"scenarios_{base}__{counts_part}__{stamp}")
     os.makedirs(outdir, exist_ok=True)
     print(f"\n[i] Writing scenario CSVs to: {outdir}")
 
@@ -701,6 +991,22 @@ def main() -> int:
             total += 1
 
     print(f"[✓] Done. Wrote {total} scenario CSVs.")
+
+    # 7) Post-check: plot effective TX/ROT as boxplots
+    try:
+        p = plot_effective_tx_rot_boxplots(
+            outdir=outdir,
+            ts_col=ts_col,
+            mac_col=mac_col,
+            payload_col=payload_col,
+            sel=sel,
+            max_samples_per_scenario=5000,
+        )
+        if p:
+            print(f"[✓] Wrote effective tx/rot boxplots: {p}")
+    except Exception as e:
+        print(f"[w] Failed to plot effective tx/rot boxplots: {e}")
+
     return 0
 
 

@@ -1,0 +1,29 @@
+=== FILE LEVEL ===
+
+[Benign] files=8
+n_packets: n=8 p50=4.3e+03 p90=5.86e+03 p99=5.89e+03 mean=3.88e+03
+n_segments: n=8 p50=974 p90=1.39e+03 p99=1.5e+03 mean=798
+adv_tag_pkt_frac: n=8 p50=0 p90=0 p99=0 mean=0
+cfo_std_norm_p50: n=8 p50=0 p90=8.34e+03 p99=2.59e+04 mean=3.48e+03
+cfo_std_norm_p90: n=8 p50=2.81e+04 p90=3.04e+04 p99=3.2e+04 mean=2.86e+04
+
+[Car_Adv] files=30
+n_packets: n=30 p50=1.18e+03 p90=1.6e+03 p99=1.6e+03 mean=1.24e+03
+n_segments: n=30 p50=34 p90=38.1 p99=45.3 mean=32.3
+adv_tag_pkt_frac: n=30 p50=0 p90=0 p99=0 mean=0
+cfo_std_norm_p50: n=30 p50=2.37e+04 p90=4.43e+04 p99=4.69e+04 mean=2.73e+04
+cfo_std_norm_p90: n=30 p50=5.57e+04 p90=6.13e+04 p99=6.39e+04 mean=5.53e+04
+
+=== SEGMENT LEVEL ===
+
+[Benign] segments=6385
+n_packets: n=6385 p50=1 p90=5 p99=119 mean=4.86
+duration_obs: n=6385 p50=0 p90=287 p99=860 mean=70.2
+cfo_std_norm: n=6385 p50=0 p90=2.85e+04 p99=4.25e+04 mean=7.32e+03
+n_adv_tag_packets: n=6385 p50=0 p90=0 p99=0 mean=0
+
+[Car_Adv] segments=968
+n_packets: n=968 p50=15.5 p90=87 p99=218 mean=38.4
+duration_obs: n=968 p50=465 p90=1.6e+03 p99=1.77e+03 mean=597
+cfo_std_norm: n=968 p50=2.63e+04 p90=5.71e+04 p99=7.31e+04 mean=3.11e+04
+n_adv_tag_packets: n=968 p50=2 p90=14.3 p99=64.3 mean=6.22

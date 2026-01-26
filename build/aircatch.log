@@ -1,160 +1,74 @@
+/home/tribe/mabhishe/myspace/anaconda3/lib/python3.9/site-packages/pandas/core/computation/expressions.py:21: UserWarning: Pandas requires version '2.8.4' or newer of 'numexpr' (version '2.8.1' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/home/tribe/mabhishe/myspace/anaconda3/lib/python3.9/site-packages/pandas/core/arrays/masked.py:60: UserWarning: Pandas requires version '1.3.6' or newer of 'bottleneck' (version '1.3.4' currently installed).
+  from pandas.core import (
 
-=== Segments produced (per window x ecosystem x MAC) ===
-                  seg_key  seg_id   eco               mac  n_packets  adv_macs  gt_adv
-0:APPLE:C0:99:AD:FA:3E:2D       0 APPLE C0:99:AD:FA:3E:2D          1         0   False
-0:APPLE:C0:CB:06:E7:48:30       0 APPLE C0:CB:06:E7:48:30          1         0   False
-0:APPLE:C1:0E:A2:92:A5:9B       0 APPLE C1:0E:A2:92:A5:9B         34         0   False
-0:APPLE:C2:3F:78:80:93:F1       0 APPLE C2:3F:78:80:93:F1         15         0   False
-0:APPLE:C2:BF:94:F7:EF:7C       0 APPLE C2:BF:94:F7:EF:7C          1         1    True
-0:APPLE:C2:EE:D8:CF:68:85       0 APPLE C2:EE:D8:CF:68:85          1         1    True
-0:APPLE:C2:F7:3E:D6:82:58       0 APPLE C2:F7:3E:D6:82:58          1         1    True
-0:APPLE:C3:3E:59:41:A3:B4       0 APPLE C3:3E:59:41:A3:B4          1         1    True
-0:APPLE:C4:0A:5C:CF:BD:E6       0 APPLE C4:0A:5C:CF:BD:E6          1         0   False
-0:APPLE:C5:42:BB:CC:7A:5D       0 APPLE C5:42:BB:CC:7A:5D         16         0   False
-0:APPLE:C5:C5:1B:27:FC:C6       0 APPLE C5:C5:1B:27:FC:C6          1         1    True
-0:APPLE:C6:49:A3:2D:B5:D6       0 APPLE C6:49:A3:2D:B5:D6          1         1    True
-0:APPLE:C6:9F:EB:02:61:43       0 APPLE C6:9F:EB:02:61:43          1         1    True
-0:APPLE:C7:2D:9A:25:30:EE       0 APPLE C7:2D:9A:25:30:EE          1         1    True
-0:APPLE:C7:AF:60:4B:85:66       0 APPLE C7:AF:60:4B:85:66         21         0   False
-0:APPLE:C7:E8:22:BD:E9:69       0 APPLE C7:E8:22:BD:E9:69          1         1    True
-0:APPLE:C7:E8:4C:F7:0D:6C       0 APPLE C7:E8:4C:F7:0D:6C          1         1    True
-0:APPLE:C8:89:EE:6E:B5:21       0 APPLE C8:89:EE:6E:B5:21         69         0   False
-0:APPLE:C8:BF:27:A8:92:3A       0 APPLE C8:BF:27:A8:92:3A         16         0   False
-0:APPLE:C9:88:19:92:C1:47       0 APPLE C9:88:19:92:C1:47          1         1    True
-0:APPLE:C9:D0:30:20:32:CB       0 APPLE C9:D0:30:20:32:CB          1         1    True
-0:APPLE:CB:9E:19:3F:70:60       0 APPLE CB:9E:19:3F:70:60         35         0   False
-0:APPLE:CB:EC:8B:9E:16:45       0 APPLE CB:EC:8B:9E:16:45          1         1    True
-0:APPLE:CC:29:4F:5E:C7:31       0 APPLE CC:29:4F:5E:C7:31          1         1    True
-0:APPLE:CC:38:72:06:21:32       0 APPLE CC:38:72:06:21:32        138         0   False
+=== Run mode: batch_Benign ===
+CSV files: 8
 
-Total segment-rows: 381
-Ecosystem counts (segment-rows):
-eco
-APPLE      329
-GOOGLE      28
-SAMSUNG     12
-TILE        12
+[1/8] Running: controlled/Benign/airport.csv
 
-GT ADV MAC count: 208
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 781
 
-=== Cluster summary ===
- cluster  dev_type  segments  duration_cov  unique_macs  mac_rate_per_min  turnover  singleton_mac_frac  top_mac_share  n_eff_macs  churn_score  adv_mac_pct  core_segments  core_unique_macs  core_radius_clamped  core_mac_density_scaled  gt_any  gt_frac  homogeneous      homo_top_mac  homo_mac_share                          homo_top_key  homo_key_share
-       4 TAG_APPLE       219        5400.0          219          2.433333  1.000000            1.000000       0.004566  219.000000     1.000000     0.863636             44                44             2.823796                 1.944847    True 0.867580        False C0:99:AD:FA:3E:2D        0.004566 2d3efaad99c01eff4c001219feb1b9608418a        0.004566
-       1 TAG_APPLE        15        5400.0           15          0.166667  1.000000            1.000000       0.066667   15.000000     1.000000     0.866667              5                 5             3.071063                 0.841716    True 0.866667        False C2:EE:D8:CF:68:85        0.066667 8568cfd8eec21eff4c001219ff2281f1b98b8        0.066667
-       8 TAG_APPLE         6        3600.0            6          0.100000  1.000000            1.000000       0.166667    6.000000     1.000000     0.000000              5                 5             4.497383                 0.574770   False 0.000000        False E7:57:A7:86:2D:07        0.166667 072d86a757e71eff4c0012192067ebc34ef70        0.166667
-       7 TAG_APPLE         4        1800.0            4          0.133333       NaN            1.000000       0.250000    4.000000     1.000000     1.000000              4                 4             4.360583                 0.532481    True 1.000000        False C3:C1:1B:8F:D3:C3        0.250000 c3d38f1bc1c31eff4c001219ffd9e53d34596        0.250000
-       3 TAG_APPLE         3        1800.0            3          0.100000       NaN            1.000000       0.333333    3.000000     1.000000     0.000000              3                 3             6.218351                 0.321629   False 0.000000        False C3:69:45:23:09:19        0.333333 1909234569c31eff4c001219004930c8842e5        0.333333
-       2 TAG_APPLE        21        5400.0           18          0.200000  0.873077            0.833333       0.095238   17.227042     0.873077     0.000000              5                 4             3.675768                 0.505348   False 0.000000        False E6:DF:1D:30:2B:33        0.095238 332b301ddfe61eff4c001219609a01bb3df9e        0.095238
-       0 TAG_APPLE        18        5400.0           13          0.144444  0.752525            0.615385       0.111111   12.247110     0.752525     0.000000              5                 4             3.243230                 0.572745   False 0.000000        False E0:76:51:24:1B:D0        0.111111 d01b245176e01eff4c00121900bb34e40069e        0.111111
-       9 TAG_APPLE        93        5400.0           59          0.655556  0.682839            0.508475       0.032258   54.470027     0.682839     0.000000             19                16             2.724239                 1.263499   False 0.000000        False 42:2E:FE:D1:A8:26        0.032258           45a79b17d9dc0201060303edfe0        0.032258
-       5 TAG_APPLE         1        1800.0            1          0.033333       NaN            1.000000       1.000000    1.000000     1.000000     1.000000              1                 1             0.150000                 6.666667    True 1.000000         True D9:5C:CE:78:4F:B3        1.000000 b34f78ce5cd91eff4c001219ff51a54f7a9a4        1.000000
-       6 TAG_APPLE         1        1800.0            1          0.033333       NaN            1.000000       1.000000    1.000000     1.000000     0.000000              1                 1             0.150000                 6.666667   False 0.000000         True D1:1D:A9:16:5C:D3        1.000000 d35c16a91dd11eff4c001219fe7a90c259c2d        1.000000
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 219
 
-=== Ranked adversary candidates (top) ===
- cluster  dev_type  segments  duration_cov  unique_macs  mac_rate_per_min  turnover  singleton_mac_frac  top_mac_share  n_eff_macs  churn_score  adv_mac_pct  core_radius_clamped  core_mac_density_scaled  gt_any  gt_frac
-       4 TAG_APPLE       219        5400.0          219          2.433333  1.000000            1.000000       0.004566  219.000000     1.000000     0.863636             2.823796                 1.944847    True 0.867580
-       1 TAG_APPLE        15        5400.0           15          0.166667  1.000000            1.000000       0.066667   15.000000     1.000000     0.866667             3.071063                 0.841716    True 0.866667
-       8 TAG_APPLE         6        3600.0            6          0.100000  1.000000            1.000000       0.166667    6.000000     1.000000     0.000000             4.497383                 0.574770   False 0.000000
-       7 TAG_APPLE         4        1800.0            4          0.133333       NaN            1.000000       0.250000    4.000000     1.000000     1.000000             4.360583                 0.532481    True 1.000000
-       3 TAG_APPLE         3        1800.0            3          0.100000       NaN            1.000000       0.333333    3.000000     1.000000     0.000000             6.218351                 0.321629   False 0.000000
-       2 TAG_APPLE        21        5400.0           18          0.200000  0.873077            0.833333       0.095238   17.227042     0.873077     0.000000             3.675768                 0.505348   False 0.000000
-       0 TAG_APPLE        18        5400.0           13          0.144444  0.752525            0.615385       0.111111   12.247110     0.752525     0.000000             3.243230                 0.572745   False 0.000000
-       9 TAG_APPLE        93        5400.0           59          0.655556  0.682839            0.508475       0.032258   54.470027     0.682839     0.000000             2.724239                 1.263499   False 0.000000
+[2/8] Running: controlled/Benign/background_only.csv
 
-=== Final adversary decision (strict AND; churn + core-density) ===
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1206
 
--- Candidate cluster check --
-cluster=4 type=TAG_APPLE seg=219
-Duration: 5400.0s (>= 2700) -> True
-Unique MACs: 219 (>= 15) -> True
-Churn: turnover 1.000 >= 0.7 -> True
-MAC rate: 2.433/min (>= 2.0) -> True
-Core density scaled: 1.945 (>= 1) -> True
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1175
 
-=> PASS | adv%=86.4% core_dens=1.945 gt%=86.8%
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
 
->>> ADVERSARY CONFIRMED (Frequently paced and rotated) <<<
+[3/8] Running: controlled/Benign/nycab.csv
 
--- Candidate cluster check --
-cluster=1 type=TAG_APPLE seg=15
-Duration: 5400.0s (>= 2700) -> True
-Unique MACs: 15 (>= 15) -> True
-Churn: turnover 1.000 >= 0.7 -> True
-MAC rate: 0.167/min (>= 2.0) -> False
-Core density scaled: 0.842 (>= 1) -> False
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 99
 
-=> PASS | adv%=86.7% core_dens=0.842 gt%=86.7%
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 8
 
->>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<
+[4/8] Running: controlled/Benign/prud1_jan21_ivy.csv
 
--- Candidate cluster check --
-cluster=8 type=TAG_APPLE seg=6
-Duration: 3600.0s (>= 2700) -> True
-Unique MACs: 6 (>= 15) -> False
-Churn: turnover 1.000 >= 0.7 -> True
-MAC rate: 0.100/min (>= 2.0) -> False
-Core density scaled: 0.575 (>= 1) -> False
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 154
 
-=> PASS | adv%=0.0% core_dens=0.575 gt%=0.0%
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 230
 
->>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 109
 
--- Candidate cluster check --
-cluster=7 type=TAG_APPLE seg=4
-Duration: 1800.0s (>= 2700) -> False
-Unique MACs: 4 (>= 15) -> False
-Churn: singleton_mac_frac 1.000 >= 0.8 -> True
-MAC rate: 0.133/min (>= 2.0) -> False
-Core density scaled: 0.532 (>= 1) -> False
+[5/8] Running: controlled/Benign/prud2_jan21_ivy.csv
 
-=> fail | adv%=100.0% core_dens=0.532 gt%=100.0%
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 94
 
->>> NOT CONFIRMED (criteria not met) <<<
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 118
 
--- Candidate cluster check --
-cluster=3 type=TAG_APPLE seg=3
-Duration: 1800.0s (>= 2700) -> False
-Unique MACs: 3 (>= 15) -> False
-Churn: singleton_mac_frac 1.000 >= 0.8 -> True
-MAC rate: 0.100/min (>= 2.0) -> False
-Core density scaled: 0.322 (>= 1) -> False
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 75
 
-=> fail | adv%=0.0% core_dens=0.322 gt%=0.0%
+[6/8] Running: controlled/Benign/tobos1.csv
 
->>> NOT CONFIRMED (criteria not met) <<<
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 233
 
--- Candidate cluster check --
-cluster=2 type=TAG_APPLE seg=21
-Duration: 5400.0s (>= 2700) -> True
-Unique MACs: 18 (>= 15) -> True
-Churn: turnover 0.873 >= 0.7 -> True
-MAC rate: 0.200/min (>= 2.0) -> False
-Core density scaled: 0.505 (>= 1) -> False
+[7/8] Running: controlled/Benign/tobos2.csv
 
-=> PASS | adv%=0.0% core_dens=0.505 gt%=0.0%
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 109
 
->>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 169
 
--- Candidate cluster check --
-cluster=0 type=TAG_APPLE seg=18
-Duration: 5400.0s (>= 2700) -> True
-Unique MACs: 13 (>= 15) -> False
-Churn: turnover 0.753 >= 0.7 -> True
-MAC rate: 0.144/min (>= 2.0) -> False
-Core density scaled: 0.573 (>= 1) -> False
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 142
 
-=> PASS | adv%=0.0% core_dens=0.573 gt%=0.0%
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 195
 
->>> ADVERSARY CONFIRMED (Slowly paced and rotated) <<<
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 48
 
--- Candidate cluster check --
-cluster=9 type=TAG_APPLE seg=93
-Duration: 5400.0s (>= 2700) -> True
-Unique MACs: 59 (>= 15) -> True
-Churn: turnover 0.683 >= 0.7 -> False
-MAC rate: 0.656/min (>= 2.0) -> False
-Core density scaled: 1.263 (>= 1) -> True
+[8/8] Running: controlled/Benign/tony.csv
 
-=> PASS | adv%=0.0% core_dens=1.263 gt%=0.0%
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 475
 
->>> ADVERSARY CONFIRMED (Frequently paced and rotated) <<<
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 618
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 114
+
+=== Outputs ===
+Wrote: aircatch_batch_Benign_meta__dens0.9.csv
+Wrote: aircatch_batch_Benign_candidate_checks__dens0.9.csv
+Wrote: aircatch_batch_Benign_core_density_dist__dens0.9.png
+Wrote: aircatch_batch_Benign_advmax_per_scenario__densgrid.csv
+Wrote: aircatch_batch_Benign_advmax_core_density_vs_tx_rot__dens0.9.png
