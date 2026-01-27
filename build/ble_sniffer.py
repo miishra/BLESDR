@@ -2086,10 +2086,19 @@ def _process_one_window_task(task):
                 f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}"
             )
 
+    # Choose what to output/print.
+    # IMPORTANT: Even when CRC_filter=on, if the window is tag-like we want the
+    # refinement/attribution effort (inst) to reflect the tag decode path.
     pkt_for_print = best_crc if do_crc_filter else best_any
     if pkt_for_print is None:
         return out
 
+    # If the window is tag-like but the CRC-selected packet isn't (common in collisions),
+    # force refinement/seeding to follow the tag hypothesis.
+    if best_any is not None and (best_any.get("is_tag_ecosystem", False) or best_any.get("is_airtag", False)):
+        pkt_for_print = best_any
+
+    # Re-apply filter based on the chosen pkt_for_print
     if not _keep_filter(pkt_for_print, filter_tags):
         return out
 
@@ -2581,9 +2590,14 @@ def ble_sniffer(
                     print(f"  CRC OK (len>={FS_LONG_MIN_BYTES}B; per-window best_crc)      : {stats['crc_ok_long']}/{stats['bursts']}")
                     crc_fail_printed += 1
 
+            # Choose what to output/print.
             pkt_for_print = best_crc if do_crc_filter else best_any
             if pkt_for_print is None:
                 continue
+
+            # If window is tag-like but CRC-selected packet isn't, follow the tag hypothesis.
+            if best_any is not None and (best_any.get("is_tag_ecosystem", False) or best_any.get("is_airtag", False)):
+                pkt_for_print = best_any
 
             if not _keep(pkt_for_print):
                 continue
