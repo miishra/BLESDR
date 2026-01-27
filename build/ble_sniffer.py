@@ -60,11 +60,19 @@ from concurrent.futures import ProcessPoolExecutor
 # ============================================================
 
 FS_IN_DEFAULT = 1344106.900141  # 1_365_333.33, 1344106.900141
-FS_OUT_TARGET = 4_000_000
-SYMBOL_RATE = 1_000_000 
+FS_OUT_TARGET = 6_000_000 # 6,000,015.181793842
+SYMBOL_RATE = 1_000_002.5302989738 # 1_000_000 # 1_000_002.5302989738
+
+# SYMBOL_RATE   = 1_000_002.5302989738
+# FS_OUT_TARGET = 6_000_015.181793842    # = 6 * SYMBOL_RATE
+# FS_IN_DEFAULT = 1344106.900141    # ONLY if your captured IQ is truly at this rate
 
 # FindMy-relevant: score CRC_OK only for long packets (per-window best CRC candidate)
-FS_SCAN_LONG_MIN = 24   # bytes (adjust to 20 if you want)
+FS_SCAN_LONG_MIN = 20   # bytes (lowered to exercise long-packet refinements earlier)
+
+# Threshold for applying long-packet timing refinements.
+# Use a robust window-length heuristic (does not depend on correctly decoded header length).
+FS_LONG_MIN_BYTES = 20
 
 # SPI framing (EFR32-style)
 SPI_CHUNK_BYTES = 2048
@@ -1009,10 +1017,10 @@ def decode_one_burst_from_freq(
     sps: int,
     aa_corr_min: int,
     preamble_min: int,
-    debug: bool = False,
-    slip_sweep: bool = False,
-    slip_max: int = 8,
-    crc_diag: bool = False,
+    debug: bool,
+    slip_sweep: bool,
+    slip_max: int,
+    crc_diag: bool,
     *,
     iq_burst: np.ndarray = None,
     fs_out: float = FS_OUT_TARGET,
@@ -1118,36 +1126,172 @@ def decode_one_burst_from_freq(
         _try_decode(bits, aa_pos, aa_corr, pre_corr, phase=int(ph), frac=float(frac0), eps=0.0, step=float(sps), polarity=int(pol))
 
     def _try_local_step_refine(freq_src: np.ndarray, ph: int, frac0: float, pol: int, step0: float):
-        """Try a tiny local sweep of symbol step (effective SPS) to fix long-payload drift."""
+        """Try a local sweep of symbol step (effective SPS) + tiny frac sweep to fix long-payload drift."""
         if freq_src is None or freq_src.size < 256:
             return
 
-        # ppm-scale search. This is NOT a wide search: +/- 200 ppm.
-        # Over a 300+ bit payload, 100 ppm can cause noticeable sampling drift.
-        ppm_grid = (-200, -120, -80, -40, -20, 0, 20, 40, 80, 120, 200)
+        # ppm-scale search (wider + denser) without being a wide brute-force.
+        ppm_grid = list(range(-250, 251, 25))  # 21 points
+
+        # tiny fractional sweep around current frac
+        frac_grid = (frac0 - 0.06, frac0, frac0 + 0.06)
+        frac_grid = tuple(max(-0.5, min(0.5, f)) for f in frac_grid)
+
         for ppm in ppm_grid:
             step = float(step0) * (1.0 + (float(ppm) * 1e-6))
-            phase0 = float(ph) + float(frac0) * float(sps)
+            for frac in frac_grid:
+                phase0 = float(ph) + float(frac) * float(sps)
 
-            sym = _sym_stream_interp(freq_src, phase0=phase0, step=step)
-            if sym is None or sym.size < 64:
+                sym = _sym_stream_interp(freq_src, phase0=phase0, step=step)
+                if sym is None or sym.size < 64:
+                    continue
+
+                x = sym if pol > 0 else -sym
+                bits = (x > 0).astype(np.uint8)
+
+                aa_pos, aa_corr = correlate_access_address_fast(bits)
+                if aa_pos is None:
+                    continue
+                pre_corr = preamble_corr_at(bits, aa_pos)
+                if aa_corr < aa_corr_min or pre_corr < preamble_min:
+                    continue
+
+                # BUGFIX: pass the correct frac/eps/step/pol variables
+                _try_decode(bits, aa_pos, aa_corr, pre_corr, phase=int(ph), frac=float(frac), eps=0.0, step=float(step), polarity=int(pol))
+
+                if crc_ok_any:
+                    return
+
+    def _try_piecewise_step_refine(freq_src: np.ndarray, ph: int, frac0: float, pol: int, step0: float,
+                                  min_payload_bytes: int = FS_LONG_MIN_BYTES):
+        """Piecewise drift hack: use base step for preamble/AA/header, and allow a small step delta for late payload.
+
+        This targets failures where header parses but CRC fails due to drift accumulating toward end of payload.
+        """
+        if freq_src is None or freq_src.size < 512:
+            return
+
+        # Only attempt if window is long enough to matter
+        try:
+            min_post_aa_bits = 32 + 16 + 8 * (int(min_payload_bytes) + 3)
+            if int(freq_src.size) < int(min_post_aa_bits) * int(sps):
+                return
+        except Exception:
+            return
+
+        # Step delta for payload end (ppm). Keep small and bounded.
+        ppm_delta_grid = (-200, -120, -80, -40, -20, 0, 20, 40, 80, 120, 200)
+
+        # Split point: start of payload in bits after AA (AA32 + HDR16 = 48 bits)
+        split_bits = 32 + 16
+        split_sym = int(split_bits)
+
+        # Decode using two symbol streams: early and late
+        base_phase0 = float(ph) + float(frac0) * float(sps)
+
+        # Early stream at base step
+        sym_early = _sym_stream_interp(freq_src, phase0=base_phase0, step=float(step0))
+        if sym_early is None or sym_early.size < (split_sym + 64):
+            return
+
+        x0 = sym_early if pol > 0 else -sym_early
+        bits0 = (x0 > 0).astype(np.uint8)
+        aa_pos0, aa_corr0 = correlate_access_address_fast(bits0)
+        if aa_pos0 is None:
+            return
+        pre_corr0 = preamble_corr_at(bits0, aa_pos0)
+        if aa_corr0 < aa_corr_min or pre_corr0 < preamble_min:
+            return
+
+        # Use the detected aa_pos0 to align split point
+        split_at = int(aa_pos0 + split_bits)
+        if split_at <= 0 or split_at + 16 >= bits0.size:
+            return
+
+        for ppm_d in ppm_delta_grid:
+            step_late = float(step0) * (1.0 + (float(ppm_d) * 1e-6))
+            sym_late = _sym_stream_interp(freq_src, phase0=base_phase0, step=float(step_late))
+            if sym_late is None or sym_late.size < bits0.size:
                 continue
 
-            x = sym if pol > 0 else -sym
-            bits = (x > 0).astype(np.uint8)
+            xl = sym_late if pol > 0 else -sym_late
+            bits_late = (xl > 0).astype(np.uint8)
 
-            aa_pos, aa_corr = correlate_access_address_fast(bits)
+            # Stitch: early up to split_at, late from split_at onward
+            n = min(bits0.size, bits_late.size)
+            if split_at >= n:
+                continue
+            stitched = np.empty(n, dtype=np.uint8)
+            stitched[:split_at] = bits0[:split_at]
+            stitched[split_at:] = bits_late[split_at:n]
+
+            # Re-run AA corr quickly to ensure alignment didn't break
+            aa_pos, aa_corr = correlate_access_address_fast(stitched)
             if aa_pos is None:
                 continue
-            pre_corr = preamble_corr_at(bits, aa_pos)
+            pre_corr = preamble_corr_at(stitched, aa_pos)
             if aa_corr < aa_corr_min or pre_corr < preamble_min:
                 continue
 
-            _try_decode(bits, aa_pos, aa_corr, pre_corr, phase=int(ph), frac=float(frac0), eps=0.0, step=float(step), polarity=int(pol))
+            _try_decode(stitched, aa_pos, aa_corr, pre_corr, phase=int(ph), frac=float(frac0), eps=0.0,
+                        step=float(step0), polarity=int(pol))
 
-            # stop early if we recovered a CRC_OK
             if crc_ok_any:
                 return
+
+    def _try_soft_flip_crc_repair(sym: np.ndarray, ph: int, frac0: float, pol: int, step: float,
+                                 max_flips: int = 2, top_bits: int = 24):
+        """Bounded soft-bit flip repair: flip a few lowest-confidence bits and re-check decode.
+
+        Only used after AA+PRE gate and header parse succeed, to avoid runtime blowup.
+        """
+        if sym is None or sym.size < 64:
+            return
+
+        x = sym if pol > 0 else -sym
+        bits, conf = soft_slice(x)
+
+        aa_pos, aa_corr = correlate_access_address_fast(bits)
+        if aa_pos is None:
+            return
+        pre_corr = preamble_corr_at(bits, aa_pos)
+        if aa_corr < aa_corr_min or pre_corr < preamble_min:
+            return
+
+        # Identify weakest bits in a bounded region after AA (header+payload+crc)
+        start = aa_pos + 32
+        if start + 16 >= bits.size:
+            return
+        region_start = start
+        region_end = min(bits.size, start + 8 * (2 + 37 + 3))
+        if region_end - region_start < 32:
+            return
+
+        idxs = np.argsort(conf[region_start:region_end])[:max(1, int(top_bits))]
+        idxs = [int(region_start + i) for i in idxs]
+
+        # Try single-bit flips then (optionally) two-bit flips (bounded)
+        tried = 0
+        for i in range(len(idxs)):
+            b1 = idxs[i]
+            bb = bits.copy()
+            bb[b1] ^= 1
+            _try_decode(bb, aa_pos, aa_corr, pre_corr, phase=int(ph), frac=float(frac0), eps=0.0, step=float(step), polarity=int(pol))
+            tried += 1
+            if crc_ok_any:
+                return
+            if tried > 128:
+                break
+
+        if max_flips >= 2:
+            for i in range(min(len(idxs), 12)):
+                for j in range(i + 1, min(len(idxs), 12)):
+                    bb = bits.copy()
+                    bb[idxs[i]] ^= 1
+                    bb[idxs[j]] ^= 1
+                    _try_decode(bb, aa_pos, aa_corr, pre_corr, phase=int(ph), frac=float(frac0), eps=0.0, step=float(step), polarity=int(pol))
+                    if crc_ok_any:
+                        return
 
     def _try_decode(bits: np.ndarray, aa_pos: int, aa_corr: int, pre_corr: int,
                     phase: int, frac: float, eps: float, step: float, polarity: int):
@@ -1206,6 +1350,9 @@ def decode_one_burst_from_freq(
             if crc_ok:
                 crc_ok_any = True
 
+            # Tag hinting that does not depend on CRC passing.
+            tag_hint_airtag, tag_hint_any, tag_hint_reason = _tag_hint_from_dewhitened_msb(pkt_msb, length)
+
             try:
                 _, _, pdu_t, txadd, rxadd, l2, payload = parse_legacy_adv_from_blesdr_bytes(pkt_msb)
                 parsed_any = True
@@ -1215,6 +1362,14 @@ def decode_one_burst_from_freq(
             addrs = extract_addresses(pdu_t, payload)
             pkt_std = bytes(swap_bits8(b) for b in pkt_msb)
             is_airtag, is_tag, tag_reason = is_findmy_or_tag_ecosystem(pkt_std)
+
+            # If full parse-based detection misses, fall back to CRC-free hint.
+            if (not is_tag) and tag_hint_any:
+                is_tag = True
+                if not tag_reason:
+                    tag_reason = tag_hint_reason
+            if (not is_airtag) and tag_hint_airtag:
+                is_airtag = True
 
             pkt = {
                 "aa_pos": int(aa0),
@@ -1285,41 +1440,136 @@ def decode_one_burst_from_freq(
         {"name": "repair", "eps_list": eps_grid, "frac_list": frac_grid},
     ]
 
+    # Helper: robust "window looks long" check based on available samples.
+    # We approximate: need at least AA(32) + HDR(16) + (payload+CRC)(8*(N+3)) bits.
+    # This avoids relying on the decoded header length, which may be wrong on CRC_FAIL.
+    def _window_is_long_enough(min_payload_bytes: int) -> bool:
+        try:
+            min_post_aa_bits = 32 + 16 + 8 * (int(min_payload_bytes) + 3)
+            min_samples = int(min_post_aa_bits) * int(sps)
+            return (freq_burst is not None) and (int(freq_burst.size) >= min_samples)
+        except Exception:
+            return False
+
+    def _tag_hint_from_dewhitened_msb(pkt_msb: bytes, length_bytes: int) -> tuple:
+        """CRC-free tag hinting.
+
+        Uses dewhitened PDU bytes (BLESDR/MSB domain) and interprets them (SwapBits) to
+        scan AD structures for known tag-related UUID16 values. This allows us to treat
+        CRC-fail packets as tag candidates and spend more refinement effort on them.
+
+        Returns: (is_airtag_like, is_tag_ecosystem, reason)
+        """
+        try:
+            if pkt_msb is None or length_bytes is None:
+                return (False, False, "")
+            length_bytes = int(length_bytes)
+            if length_bytes < 8 or len(pkt_msb) < (2 + length_bytes):
+                return (False, False, "")
+
+            # Convert to standard byte values to parse AD structures.
+            pkt_std = bytes(swap_bits8(b) for b in pkt_msb[: 2 + length_bytes])
+
+            payload = pkt_std[2:2 + length_bytes]
+            if len(payload) < 6:
+                return (False, False, "")
+
+            ad = payload[6:]
+            pos = 0
+            while pos + 1 < len(ad):
+                L = int(ad[pos])
+                if L == 0:
+                    break
+                if pos + 1 + L > len(ad):
+                    break
+                ad_type = int(ad[pos + 1])
+                ad_data = ad[pos + 2: pos + 1 + L]
+
+                # Service UUIDs 16-bit: complete (0x03) / incomplete (0x02)
+                if ad_type in (0x02, 0x03):
+                    for i in range(0, len(ad_data) - 1, 2):
+                        uuid16 = int(ad_data[i]) | (int(ad_data[i + 1]) << 8)
+                        if _is_tag_service_uuid(uuid16):
+                            # Treat FEED/FD5A/FEAA as tag ecosystems; FEED heavily used by FindMy.
+                            is_airtag_like = (uuid16 == 0xFEED)
+                            return (is_airtag_like, True, f"svc_uuid16=0x{uuid16:04X}")
+
+                # Service Data - 16-bit UUID (0x16): first 2 bytes are UUID16
+                if ad_type == 0x16 and len(ad_data) >= 2:
+                    uuid16 = int(ad_data[0]) | (int(ad_data[1]) << 8)
+                    if _is_tag_service_uuid(uuid16):
+                        is_airtag_like = (uuid16 == 0xFEED)
+                        return (is_airtag_like, True, f"svc_data_uuid16=0x{uuid16:04X}")
+
+                pos += 1 + L
+
+            return (False, False, "")
+        except Exception:
+            return (False, False, "")
+
+    # --- Cheap pre-select of (phase, polarity) to avoid spending effort on bad eyes ---
+    # Uses AA corr + preamble corr + timing_quality on preamble+AA region.
+    # Then expensive passes run only on top-K candidates.
+    TOPK_PHASE_POL = 5
+    phase_pol_scores = []  # (score, phase, polarity, aa_pos, aa_corr, pre_corr)
+    for polarity in (+1, -1):
+        for phase in range(sps):
+            try:
+                sym0 = _sym_stream_interp(freq_burst, phase0=float(phase), step=float(sps))
+                if sym0 is None or sym0.size < 64:
+                    continue
+                x0 = sym0 if polarity > 0 else -sym0
+                bits0 = (x0 > 0).astype(np.uint8)
+                aa_pos0, aa_corr0 = correlate_access_address_fast(bits0)
+                if aa_pos0 is None:
+                    continue
+                pre_corr0 = preamble_corr_at(bits0, aa_pos0)
+                tq = timing_quality(sym0, aa_pos0)
+                # Score: favor AA and preamble, then eye opening
+                score = (float(aa_corr0) * 5.0) + (float(pre_corr0) * 20.0) + float(tq)
+                phase_pol_scores.append((score, phase, polarity, aa_pos0, aa_corr0, pre_corr0))
+            except Exception:
+                continue
+
+    if phase_pol_scores:
+        phase_pol_scores.sort(key=lambda t: t[0], reverse=True)
+        phase_pol_keep = [(ph, pol) for (_sc, ph, pol, *_rest) in phase_pol_scores[:TOPK_PHASE_POL]]
+    else:
+        phase_pol_keep = [(ph, pol) for pol in (+1, -1) for ph in range(sps)]
+
     for pass_idx, P in enumerate(passes):
-        for polarity in (+1, -1):
-            for phase in range(sps):
-                for eps in P["eps_list"]:
-                    step = float(sps) * (1.0 + float(eps))
-                    for frac in P["frac_list"]:
-                        phase0 = float(phase) + float(frac) * float(sps)
+        # only explore best (phase,pol) pairs
+        for (phase, polarity) in phase_pol_keep:
+            for eps in P["eps_list"]:
+                step = float(sps) * (1.0 + float(eps))
+                for frac in P["frac_list"]:
+                    phase0 = float(phase) + float(frac) * float(sps)
 
-                        sym = _sym_stream_interp(freq_burst, phase0=phase0, step=step)
-                        if sym is None or sym.size < 64:
-                            continue
+                    sym = _sym_stream_interp(freq_burst, phase0=phase0, step=step)
+                    if sym is None or sym.size < 64:
+                        continue
 
-                        x = sym if polarity > 0 else -sym
-                        bits = (x > 0).astype(np.uint8)
+                    x = sym if polarity > 0 else -sym
+                    bits = (x > 0).astype(np.uint8)
 
-                        aa_pos, aa_corr = correlate_access_address_fast(bits)
-                        if aa_pos is None:
-                            continue
+                    aa_pos, aa_corr = correlate_access_address_fast(bits)
+                    if aa_pos is None:
+                        continue
 
-                        if aa_corr >= aa_corr_min:
-                            aa_hit_any = True
-                        pre_corr = preamble_corr_at(bits, aa_pos)
-                        if pre_corr >= preamble_min:
-                            pre_hit_any = True
+                    if aa_corr >= aa_corr_min:
+                        aa_hit_any = True
+                    pre_corr = preamble_corr_at(bits, aa_pos)
+                    if pre_corr >= preamble_min:
+                        pre_hit_any = True
 
-                        if aa_corr < aa_corr_min or pre_corr < preamble_min:
-                            continue
+                    if aa_corr < aa_corr_min or pre_corr < preamble_min:
+                        continue
 
-                        both_hit_any = True
+                    both_hit_any = True
 
-                        _try_decode(bits, aa_pos, aa_corr, pre_corr, phase, frac, eps, step, polarity)
+                    _try_decode(bits, aa_pos, aa_corr, pre_corr, phase, frac, eps, step, polarity)
 
-                        # early stop if fast pass got CRC_OK
-                        if pass_idx == 0 and crc_ok_any:
-                            break
+                    # early stop if fast pass got CRC_OK
                     if pass_idx == 0 and crc_ok_any:
                         break
                 if pass_idx == 0 and crc_ok_any:
@@ -1328,10 +1578,11 @@ def decode_one_burst_from_freq(
         if pass_idx == 0 and crc_ok_any:
             break
 
-    # If CRC was achieved during base passes, mark it
+    # Base-pass attribution
     if crc_ok_any:
         inst["crc_ok_base"] = 1
 
+    # Summary always returned
     summary = {
         "aa_hit": bool(aa_hit_any),
         "pre_hit": bool(pre_hit_any),
@@ -1341,10 +1592,11 @@ def decode_one_burst_from_freq(
         "inst": inst,
     }
 
+    # If nothing decoded, stop here
     if not hypotheses:
         return None, None, summary
 
-    # rank
+    # rank + select best
     hypotheses.sort(
         key=lambda p: (
             1 if p.get("crc_ok", False) else 0,
@@ -1361,11 +1613,13 @@ def decode_one_burst_from_freq(
     # Local refinement for long payloads / FindMy-like
     # ---------------------------
     if best_crc is None:
-        L = int(best_any.get("length", 0))
-        likely_long = (L >= 20) or bool(best_any.get("is_tag_ecosystem", False))
+        win_long = _window_is_long_enough(FS_LONG_MIN_BYTES)
+        is_tag_hint = bool(best_any.get("is_tag_ecosystem", False))
 
-        inst["is_long"] = 1 if (L >= int(FS_SCAN_LONG_MIN)) else 0
-        inst["is_tag"] = 1 if bool(best_any.get("is_tag_ecosystem", False)) else 0
+        inst["is_long"] = 1 if win_long else 0
+        inst["is_tag"] = 1 if is_tag_hint else 0
+
+        likely_long = bool(win_long or is_tag_hint)
 
         if likely_long:
             ph = int(best_any.get("phase", 0))
@@ -1374,61 +1628,15 @@ def decode_one_burst_from_freq(
             eps0 = float(best_any.get("eps", 0.0))
             step0 = float(best_any.get("step", float(sps)))
 
-            # tight neighborhood (do NOT blow up runtime)
-            frac_ref = (frac0 - 0.12, frac0 - 0.06, frac0, frac0 + 0.06, frac0 + 0.12)
-            eps_ref  = (eps0 - 0.006, eps0 - 0.003, eps0, eps0 + 0.003, eps0 + 0.006)
-            frac_ref = tuple(max(-0.5, min(0.5, f)) for f in frac_ref)
+            # Tag-focused mode: we are willing to spend more effort if it's likely a tag.
+            tag_focus = bool(is_tag_hint)
 
-            crc_before = bool(crc_ok_any)
-            inst["ran_local"] = 1
-
-            before = len(hypotheses)
-            for eps in eps_ref:
-                step = float(sps) * (1.0 + float(eps))
-                for frac in frac_ref:
-                    phase0 = float(ph) + float(frac) * float(sps)
-                    sym = _sym_stream_interp(freq_burst, phase0=phase0, step=step)
-                    if sym is None or sym.size < 64:
-                        continue
-
-                    x = sym if pol > 0 else -sym
-                    bits = (x > 0).astype(np.uint8)
-
-                    aa_pos, aa_corr = correlate_access_address_fast(bits)
-                    if aa_pos is None:
-                        continue
-                    pre_corr = preamble_corr_at(bits, aa_pos)
-                    if aa_corr < aa_corr_min or pre_corr < preamble_min:
-                        continue
-
-                    _try_decode(bits, aa_pos, aa_corr, pre_corr, ph, frac, eps, step, pol)
-
-            # refresh bests after local refine
-            if len(hypotheses) > before:
-                hypotheses.sort(
-                    key=lambda p: (
-                        1 if p.get("crc_ok", False) else 0,
-                        p.get("aa_corr", 0),
-                        p.get("pre_corr", 0),
-                        p.get("length", 0),
-                    ),
-                    reverse=True,
-                )
-                best_any = hypotheses[0]
-                best_crc = next((p for p in hypotheses if p.get("crc_ok", False)), None)
-
-            if best_crc is not None and (not crc_before):
-                inst["crc_ok_local"] = 1
-
-            summary["crc_ok"] = (best_crc is not None)
-
-            # If still no CRC_OK, try a very local step (SPS) refinement.
-            if best_crc is None and not crc_ok_any:
+            # Try step/SPS refine early
+            if best_crc is None and win_long:
                 inst["ran_step"] = 1
                 crc_before = bool(crc_ok_any)
                 _try_local_step_refine(freq_burst, ph=ph, frac0=frac0, pol=pol, step0=step0)
 
-                # IMPORTANT: local step refine appends to hypotheses; re-rank
                 if hypotheses:
                     hypotheses.sort(
                         key=lambda p: (
@@ -1446,8 +1654,122 @@ def decode_one_burst_from_freq(
                     inst["crc_ok_step"] = 1
                 summary["crc_ok"] = (best_crc is not None)
 
+            # If still no CRC_OK on long windows, try piecewise step tweak
+            if best_crc is None and win_long:
+                _try_piecewise_step_refine(freq_burst, ph=ph, frac0=frac0, pol=pol, step0=step0, min_payload_bytes=FS_LONG_MIN_BYTES)
+                if hypotheses:
+                    hypotheses.sort(
+                        key=lambda p: (
+                            1 if p.get("crc_ok", False) else 0,
+                            p.get("aa_corr", 0),
+                            p.get("pre_corr", 0),
+                            p.get("length", 0),
+                        ),
+                        reverse=True,
+                    )
+                    best_any = hypotheses[0]
+                    best_crc = next((p for p in hypotheses if p.get("crc_ok", False)), None)
+                    summary["crc_ok"] = (best_crc is not None)
+
+            # If still no CRC_OK, try local eps/frac neighborhood
+            if best_crc is None and win_long:
+                crc_before = bool(crc_ok_any)
+                inst["ran_local"] = 1
+
+                before = len(hypotheses)
+
+                # Seed from several strong (phase,pol) candidates rather than only best_any.
+                # Tag-focused: allow more seeds.
+                seed_candidates = []
+                try:
+                    limit = 12 if tag_focus else 8
+                    for (phase_seed, pol_seed) in phase_pol_keep[:max(1, min(len(phase_pol_keep), limit))]:
+                        step_probe = float(sps) * (1.0 + float(eps0))
+                        phase0_probe = float(phase_seed) + float(frac0) * float(sps)
+                        sym_probe = _sym_stream_interp(freq_burst, phase0=phase0_probe, step=step_probe)
+                        if sym_probe is None or sym_probe.size < 64:
+                            continue
+                        x_probe = sym_probe if pol_seed > 0 else -sym_probe
+                        bits_probe = (x_probe > 0).astype(np.uint8)
+                        aa_pos_probe, aa_corr_probe = correlate_access_address_fast(bits_probe)
+                        if aa_pos_probe is None:
+                            continue
+                        pre_corr_probe = preamble_corr_at(bits_probe, aa_pos_probe)
+                        if aa_corr_probe < aa_corr_min or pre_corr_probe < preamble_min:
+                            continue
+                        tq = timing_quality(x_probe, aa_pos_probe)
+                        seed_candidates.append((tq, aa_corr_probe, pre_corr_probe, int(phase_seed), int(pol_seed)))
+                except Exception:
+                    seed_candidates = []
+
+                seed_candidates.append((1e9, best_any.get("aa_corr", 0), best_any.get("pre_corr", 0), ph, pol))
+                seed_candidates.sort(reverse=True)
+                seed_candidates = seed_candidates[: (8 if tag_focus else 4)]
+
+                # Neighborhoods: tag-focused = broader grids.
+                frac_steps = (
+                    (-0.20, -0.15, -0.10, -0.06, -0.03, 0.0, 0.03, 0.06, 0.10, 0.15, 0.20)
+                    if tag_focus else
+                    (-0.15, -0.10, -0.06, -0.03, 0.0, 0.03, 0.06, 0.10, 0.15)
+                )
+                eps_steps = (
+                    (-0.012, -0.009, -0.006, -0.004, -0.002, 0.0, 0.002, 0.004, 0.006, 0.009, 0.012)
+                    if tag_focus else
+                    (-0.009, -0.006, -0.004, -0.002, 0.0, 0.002, 0.004, 0.006, 0.009)
+                )
+
+                frac_ref = tuple(max(-0.5, min(0.5, frac0 + df)) for df in frac_steps)
+                eps_ref = tuple(eps0 + de for de in eps_steps)
+
+                attempts = []
+                for (_, __, ___, phase_seed, pol_seed) in seed_candidates:
+                    for eps in eps_ref:
+                        step = float(sps) * (1.0 + float(eps))
+                        for frac in frac_ref:
+                            phase0 = float(phase_seed) + float(frac) * float(sps)
+                            sym = _sym_stream_interp(freq_burst, phase0=phase0, step=step)
+                            if sym is None or sym.size < 64:
+                                continue
+                            x = sym if pol_seed > 0 else -sym
+                            prefix = x[:min(x.size, 96)]
+                            q = float(np.mean(np.abs(prefix)))
+                            attempts.append((q, phase_seed, pol_seed, frac, eps))
+
+                attempts.sort(key=lambda t: t[0], reverse=True)
+                max_attempts = 900 if tag_focus else 220
+
+                for (_, phase_seed, pol_seed, frac, eps) in attempts[:max_attempts]:
+                    step = float(sps) * (1.0 + float(eps))
+                    phase0 = float(phase_seed) + float(frac) * float(sps)
+                    sym = _sym_stream_interp(freq_burst, phase0=phase0, step=step)
+                    if sym is None or sym.size < 64:
+                        continue
+
+                    x = sym if pol_seed > 0 else -sym
+                    bits = (x > 0).astype(np.uint8)
+
+                    aa_pos, aa_corr = correlate_access_address_fast(bits)
+                    if aa_pos is None:
+                        continue
+                    pre_corr = preamble_corr_at(bits, aa_pos)
+                    if aa_corr < aa_corr_min or pre_corr < preamble_min:
+                        continue
+
+                    _try_decode(bits, aa_pos, aa_corr, pre_corr, int(phase_seed), float(frac), float(eps), float(step), int(pol_seed))
+
+                    if any(p.get("crc_ok", False) for p in hypotheses[before:]):
+                        break
+
+            # If we have a long-window CRC_FAIL that parsed, try bounded soft flip repair
+            if best_crc is None and win_long:
+                try:
+                    sym0 = _sym_stream_interp(freq_burst, phase0=float(ph) + float(frac0) * float(sps), step=float(step0))
+                    _try_soft_flip_crc_repair(sym0, ph=ph, frac0=frac0, pol=pol, step=float(step0), max_flips=2, top_bits=24)
+                except Exception:
+                    pass
+
             # If still no CRC_OK, try CFO correction as a second stage
-            if best_crc is None:
+            if best_crc is None and win_long:
                 inst["ran_cfo"] = 1
                 crc_before = bool(crc_ok_any)
                 _try_cfo_second_stage(iq_src=iq_burst, ph=ph, frac0=frac0, pol=pol)
@@ -1515,6 +1837,21 @@ def _keep_filter(pkt, filter_tags: str):
     if filter_tags == "only-tags":
         return pkt.get("is_tag_ecosystem", False)
     return True
+
+def _inst_or_merge(a: dict, b: dict) -> dict:
+    """OR-merge two inst dicts (treat missing as 0)."""
+    if a is None:
+        a = {}
+    if b is None:
+        return a
+    out = dict(a)
+    for k, v in b.items():
+        try:
+            out[k] = int(out.get(k, 0)) | int(v)
+        except Exception:
+            # fallback: "truthy" OR
+            out[k] = 1 if (out.get(k, 0) or v) else 0
+    return out
 
 def _process_one_window_task(task):
     """
@@ -1605,6 +1942,9 @@ def _process_one_window_task(task):
     best_crc = None
     best_crc_score = None
 
+    # Local aggregation across channels for this window
+    win_inst = None
+
     for ch in ch_list:
         any_pkt, crc_pkt, summ = decode_one_burst_from_freq(
             freq_burst=freq_burst_use,
@@ -1619,6 +1959,10 @@ def _process_one_window_task(task):
             iq_burst=iq_burst_base,
             fs_out=float(fs_out),
         )
+
+        # merge inst (window-level) across attempted channels
+        if isinstance(summ, dict):
+            win_inst = _inst_or_merge(win_inst, summ.get("inst", None))
 
         for k in burst_flags:
             burst_flags[k] |= summ[k]
@@ -1769,7 +2113,7 @@ def _process_one_window_task(task):
 
     # attach per-window instrumentation (choose best available inst)
     if out.get("inst") is None:
-        out["inst"] = summ.get("inst", None)
+        out["inst"] = win_inst
 
     return out
 
@@ -2112,8 +2456,8 @@ def ble_sniffer(
                     fs_out=float(fs_out),
                 )
 
-                if win_inst is None and isinstance(summ, dict):
-                    win_inst = summ.get("inst", None)
+                if isinstance(summ, dict):
+                    win_inst = _inst_or_merge(win_inst, summ.get("inst", None))
 
                 for k in burst_flags:
                     burst_flags[k] |= summ[k]
@@ -2162,7 +2506,7 @@ def ble_sniffer(
                     print(f"  pdu={best_any['pdu_type_name']} len={best_any['length']} AdvA={best_any.get('AdvA','NO_AdvA')}")
                     print(f"  crc_rx={diag['rx']} crc_calc={diag['calc']} rx==swap={diag['rx==calc_byteswapped']} xor=0x{diag['rx==calc_xor']:06x}")
                     # NOTE: don't call pct() here; it's defined later in the function.
-                    print(f"  CRC OK (len>={FS_SCAN_LONG_MIN}B; per-window best_crc)      : {stats['crc_ok_long']}/{stats['bursts']}")
+                    print(f"  CRC OK (len>={FS_LONG_MIN_BYTES}B; per-window best_crc)      : {stats['crc_ok_long']}/{stats['bursts']}")
                     crc_fail_printed += 1
 
             pkt_for_print = best_crc if do_crc_filter else best_any
@@ -2338,7 +2682,7 @@ def ble_sniffer(
     print(f"  Windows where local refine ran                : {stats['inst_ran_local']}")
     print(f"  Windows where step/SPS refine ran             : {stats['inst_ran_step']}")
     print(f"  Windows where CFO second stage ran            : {stats['inst_ran_cfo']}")
-    print(f"  Windows classified long (len>={FS_SCAN_LONG_MIN}) : {stats['inst_long_windows']}")
+    print(f"  Windows classified long (len>={FS_LONG_MIN_BYTES}) : {stats['inst_long_windows']}")
     print(f"  Windows classified tag-ecosystem              : {stats['inst_tag_windows']}")
     print(f"  Step refine recovered CRC on long windows     : {stats['inst_crc_ok_step_long']}")
     print(f"  Step refine recovered CRC on tag windows      : {stats['inst_crc_ok_step_tag']}")
@@ -2474,7 +2818,7 @@ def main():
         best_score = -1
         best_stats = None
 
-        print(f"[AUTO_FS] Scanning fs-in to maximize CRC_OK for length >= {FS_SCAN_LONG_MIN} ...")
+        print(f"[AUTO_FS] Scanning fs-in to maximize CRC_OK for length >= {FS_LONG_MIN_BYTES} ...")
 
         for fs_try in grid:
             print("=" * 72)

@@ -1,55 +1,42 @@
-[INFO] Loading RAW SPI int16 IQ from ../../big_jan5.bin
-[INFO] Resample ratio L/M = 9282/3119 => fs_out ≈ 4000000.08 (target 4000000)
-[INFO] SPS = 4 (fs_out/symbol_rate), CRC_filter=on
+[INFO] Loading RAW SPI int16 IQ from ../../prud_final_raw_1769469657822_1of10.bin
+[INFO] Resample ratio L/M = 17512/3923 => fs_out ≈ 6000000.01 (target 6000000)
+[INFO] SPS = 6 (fs_out/symbol_rate), CRC_filter=on
 [INFO] Dewhiten: BLESDR byte/MSB stepping (SwapBits(chan)|2, poly 0x11)
 [INFO] CRC: BLESDR reverse_crc (init 0x555555 for adv)
 [INFO] Continuous scan enabled: energy burst detector disabled (note: --thr ignored)
 [INFO] CFO window: pre_aa_hdr_payload
 [INFO] CFO grouping: AdvA only (top 100)
 [INFO] Tag filter: none
-[INFO] Decode windows found (analyzed): 211058
-[INFO] Multiprocessing enabled: workers=32, windows=211058, chunksize=16
-/data/abhi/BLESDR/build/ble_sniffer.py:883: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
-  ax.boxplot(
-/data/abhi/BLESDR/build/ble_sniffer.py:969: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
-  ax.boxplot(
-/data/abhi/BLESDR/build/ble_sniffer.py:969: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
-  ax.boxplot(
-/data/abhi/BLESDR/build/ble_sniffer.py:969: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
-  ax.boxplot(
-/data/abhi/BLESDR/build/ble_sniffer.py:969: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.
-  ax.boxplot(
+[INFO] Decode windows found (analyzed): 33804
+[INFO] Multiprocessing enabled: workers=32, windows=33804, chunksize=16
 [STATS] Window-level detection quality (continuous AA scan)
-  Windows total                                 : 211058
-  AA match (>= 28/32)                            : 210438 (99.71%)
-  Preamble match (>= 7/8)                      : 210364 (99.67%)
-  BOTH (AA & preamble)                           : 209223 (99.13%)
-  Parsed header/payload (BOTH-based)             : 206737 (97.95%)
-  CRC OK (any BOTH-based candidate)              : 97837 (46.36%)
-  AirTag/FindMy (best_any per window)            : 9047 (4.29%)
-  Tag-ecosystem (best_any; incl. AirTag)         : 19310 (9.15%)
-  Kept after tag filter (printing/CFO inputs)    : 97837 (46.36%)
-[INFO] Packets stored for printing: 97837 (max=20000000)
-[CFO] Plotting CFO violin+box for top 42 AdvAs (tag ecosystem only, min_count>=100).
-[CFO] Saved violin+box plot to: cfo_boxplot_by_adva.pdf
-[CFO] Groups plotted: 42 (excluded: NO_AdvA; tag ecosystem only; min_count>=100)
-[CFO] Plotting transition CFO 'cfo_equal_00_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_equal_00_hz.pdf
-[CFO] Plotting transition CFO 'cfo_equal_11_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_equal_11_hz.pdf
-[CFO] Plotting transition CFO 'cfo_jump_10_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_jump_10_hz.pdf
-[CFO] Plotting transition CFO 'cfo_jump_01_hz' for 20 AdvAs -> transition_cfo_by_adva_cfo_jump_01_hz.pdf
-[CFO] Total CFO samples plotted: 97837  (unique AdvA groups: 999)
-[CFO] Saved per-packet CFO samples to CSV: test.csv  (rows=10850)
+  Windows total                                 : 33804
+  AA match (>= 28/32)                            : 33744 (99.82%)
+  Preamble match (>= 7/8)                      : 33717 (99.74%)
+  BOTH (AA & preamble)                           : 33609 (99.42%)
+  Parsed header/payload (BOTH-based)             : 32999 (97.62%)
+  CRC OK (any BOTH-based candidate)              : 7998 (23.66%)
+  AirTag/FindMy (best_any per window)            : 582 (1.72%)
+  Tag-ecosystem (best_any; incl. AirTag)         : 583 (1.72%)
+  Kept after tag filter (printing/CFO inputs)    : 7998 (23.66%)
+[INFO] Packets stored for printing: 7998 (max=20000000)
+[CFO] No CFO samples available to plot (after excluding NO_AdvA, tag-only, and min_count>=100).
+[CFO] No samples to plot for cfo_equal_00_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_equal_11_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_jump_10_hz (tag-only, min_count>=100).
+[CFO] No samples to plot for cfo_jump_01_hz (tag-only, min_count>=100).
+[CFO] Saved per-packet CFO samples to CSV: test.csv  (rows=88)
 [STATS] CRC recovery attribution (per window; mutually non-exclusive flags)
-  CRC_OK achieved during base passes            : 97510
-  CRC_OK recovered by local eps/frac refine     : 276
-  CRC_OK recovered by local step/SPS refine     : 51
+  CRC_OK achieved during base passes            : 7023
+  CRC_OK recovered by local eps/frac refine     : 0
+  CRC_OK recovered by local step/SPS refine     : 26
   CRC_OK recovered by CFO second stage          : 0
-  Windows where local refine ran                : 327
-  Windows where step/SPS refine ran             : 51
-  Windows where CFO second stage ran            : 0
-  Windows classified long (len>=24) : 268
-  Windows classified tag-ecosystem              : 24
-  Step refine recovered CRC on long windows     : 46
-  Step refine recovered CRC on tag windows      : 11
+  Windows where local refine ran                : 945
+  Windows where step/SPS refine ran             : 975
+  Windows where CFO second stage ran            : 945
+  Windows classified long (len>=20) : 975
+  Windows classified tag-ecosystem              : 22
+  Step refine recovered CRC on long windows     : 26
+  Step refine recovered CRC on tag windows      : 1
   CFO stage recovered CRC on long windows       : 0
   CFO stage recovered CRC on tag windows        : 0
