@@ -28,14 +28,14 @@
 [CFO] Saved per-packet CFO samples to CSV: test.csv  (rows=88)
 [STATS] CRC recovery attribution (per window; mutually non-exclusive flags)
   CRC_OK achieved during base passes            : 7023
-  CRC_OK recovered by local eps/frac refine     : 0
+  CRC_OK recovered by local eps/frac refine     : 731
   CRC_OK recovered by local step/SPS refine     : 26
   CRC_OK recovered by CFO second stage          : 0
   Windows where local refine ran                : 945
-  Windows where step/SPS refine ran             : 975
-  Windows where CFO second stage ran            : 945
-  Windows classified long (len>=20) : 975
-  Windows classified tag-ecosystem              : 22
+  Windows where step/SPS refine ran             : 1037
+  Windows where CFO second stage ran            : 214
+  Windows classified long (len>=20) : 1037
+  Windows classified tag-ecosystem              : 88
   Step refine recovered CRC on long windows     : 26
   Step refine recovered CRC on tag windows      : 1
   CFO stage recovered CRC on long windows       : 0

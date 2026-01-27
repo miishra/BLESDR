@@ -1403,6 +1403,10 @@ def decode_one_burst_from_freq(
 
             hypotheses.append(pkt)
 
+            # Persist tag evidence for window-level classification.
+            if bool(is_tag):
+                tag_seen_any = True
+
     # ---------------------------
     # stats flags
     # ---------------------------
@@ -1424,6 +1428,9 @@ def decode_one_burst_from_freq(
         "is_long": 0,
         "is_tag": 0,
     }
+
+    # Track tag evidence even when CRC_OK happens early (so refinement gating/stats are correct).
+    tag_seen_any = False
 
     hypotheses = []
 
@@ -1582,6 +1589,12 @@ def decode_one_burst_from_freq(
     if crc_ok_any:
         inst["crc_ok_base"] = 1
 
+    # Tag classification should reflect what we saw in base passes.
+    # This is important because many tag packets decode CRC_OK in base passes and never
+    # enter the long/tag refinement block, otherwise inst['is_tag'] would remain 0.
+    if tag_seen_any:
+        inst["is_tag"] = 1
+
     # Summary always returned
     summary = {
         "aa_hit": bool(aa_hit_any),
@@ -1609,15 +1622,32 @@ def decode_one_burst_from_freq(
     best_any = hypotheses[0]
     best_crc = next((p for p in hypotheses if p.get("crc_ok", False)), None)
 
+    # Ensure window-level tag flag follows best_any as well (even if no tag_seen_any set).
+    if bool(best_any.get("is_tag_ecosystem", False)):
+        inst["is_tag"] = 1
+
+    # ------------------------------------------------------------
+    # TAG-FOCUSED DEEP REFINEMENT (runs even if CRC_OK already found)
+    # ------------------------------------------------------------
+    # If you only care about tag-like devices, it's useful to spend extra search to
+    # (a) potentially recover CRC on tag windows that were CRC-fail, and
+    # (b) potentially find a *better* tag hypothesis if multiple collide in a window.
+    # This also makes 'ran_*' instrumentation reflect effort applied to tag windows.
+    force_tag_refine = bool(inst.get("is_tag", 0))
+
+    # If we're forcing tag refinement, treat as if we don't have a CRC yet (so the
+    # refinement stages execute) but keep the current best_crc to compare against.
+    _best_crc_before_forced = best_crc
+
     # ---------------------------
     # Local refinement for long payloads / FindMy-like
     # ---------------------------
-    if best_crc is None:
+    if best_crc is None or force_tag_refine:
         win_long = _window_is_long_enough(FS_LONG_MIN_BYTES)
-        is_tag_hint = bool(best_any.get("is_tag_ecosystem", False))
+        is_tag_hint = bool(inst.get("is_tag", 0)) or bool(best_any.get("is_tag_ecosystem", False))
 
         inst["is_long"] = 1 if win_long else 0
-        inst["is_tag"] = 1 if is_tag_hint else 0
+        # inst['is_tag'] already set above if tag evidence exists
 
         likely_long = bool(win_long or is_tag_hint)
 
@@ -1631,8 +1661,12 @@ def decode_one_burst_from_freq(
             # Tag-focused mode: we are willing to spend more effort if it's likely a tag.
             tag_focus = bool(is_tag_hint)
 
+            # If we're here due to tag-forcing, ensure downstream conditions see "no CRC".
+            if force_tag_refine:
+                best_crc = None
+
             # Try step/SPS refine early
-            if best_crc is None and win_long:
+            if best_crc is None and (win_long or is_tag_hint):
                 inst["ran_step"] = 1
                 crc_before = bool(crc_ok_any)
                 _try_local_step_refine(freq_burst, ph=ph, frac0=frac0, pol=pol, step0=step0)
@@ -1654,9 +1688,16 @@ def decode_one_burst_from_freq(
                     inst["crc_ok_step"] = 1
                 summary["crc_ok"] = (best_crc is not None)
 
-            # If still no CRC_OK on long windows, try piecewise step tweak
-            if best_crc is None and win_long:
-                _try_piecewise_step_refine(freq_burst, ph=ph, frac0=frac0, pol=pol, step0=step0, min_payload_bytes=FS_LONG_MIN_BYTES)
+            # If still no CRC_OK, try piecewise step tweak
+            if best_crc is None and (win_long or is_tag_hint):
+                _try_piecewise_step_refine(
+                    freq_burst,
+                    ph=ph,
+                    frac0=frac0,
+                    pol=pol,
+                    step0=step0,
+                    min_payload_bytes=FS_LONG_MIN_BYTES,
+                )
                 if hypotheses:
                     hypotheses.sort(
                         key=lambda p: (
@@ -1672,7 +1713,7 @@ def decode_one_burst_from_freq(
                     summary["crc_ok"] = (best_crc is not None)
 
             # If still no CRC_OK, try local eps/frac neighborhood
-            if best_crc is None and win_long:
+            if best_crc is None and (win_long or is_tag_hint):
                 crc_before = bool(crc_ok_any)
                 inst["ran_local"] = 1
 
@@ -1760,8 +1801,25 @@ def decode_one_burst_from_freq(
                     if any(p.get("crc_ok", False) for p in hypotheses[before:]):
                         break
 
-            # If we have a long-window CRC_FAIL that parsed, try bounded soft flip repair
-            if best_crc is None and win_long:
+                if len(hypotheses) > before:
+                    hypotheses.sort(
+                        key=lambda p: (
+                            1 if p.get("crc_ok", False) else 0,
+                            p.get("aa_corr", 0),
+                            p.get("pre_corr", 0),
+                            p.get("length", 0),
+                        ),
+                        reverse=True,
+                    )
+                    best_any = hypotheses[0]
+                    best_crc = next((p for p in hypotheses if p.get("crc_ok", False)), None)
+
+                if best_crc is not None and (not crc_before):
+                    inst["crc_ok_local"] = 1
+                summary["crc_ok"] = (best_crc is not None)
+
+            # If we have a CRC_FAIL that parsed, try bounded soft flip repair
+            if best_crc is None and (win_long or is_tag_hint):
                 try:
                     sym0 = _sym_stream_interp(freq_burst, phase0=float(ph) + float(frac0) * float(sps), step=float(step0))
                     _try_soft_flip_crc_repair(sym0, ph=ph, frac0=frac0, pol=pol, step=float(step0), max_flips=2, top_bits=24)
@@ -1769,7 +1827,7 @@ def decode_one_burst_from_freq(
                     pass
 
             # If still no CRC_OK, try CFO correction as a second stage
-            if best_crc is None and win_long:
+            if best_crc is None and (win_long or is_tag_hint):
                 inst["ran_cfo"] = 1
                 crc_before = bool(crc_ok_any)
                 _try_cfo_second_stage(iq_src=iq_burst, ph=ph, frac0=frac0, pol=pol)
@@ -1790,6 +1848,12 @@ def decode_one_burst_from_freq(
                 if best_crc is not None and (not crc_before):
                     inst["crc_ok_cfo"] = 1
                 summary["crc_ok"] = (best_crc is not None)
+
+            # After refinements, if we forced tag refinement, restore the original CRC result
+            # if nothing better was found.
+            if force_tag_refine and best_crc is None and _best_crc_before_forced is not None:
+                best_crc = _best_crc_before_forced
+                summary["crc_ok"] = True
 
     return best_any, best_crc, summary
 
@@ -1910,7 +1974,7 @@ def _process_one_window_task(task):
     # ---------------------------------------------------------
     freq_burst_use = freq_burst_base
 
-        # ---------------------------------------------------------
+    # ---------------------------------------------------------
     # Coarse CFO pre-correction + median-centering (works)
     # ---------------------------------------------------------
     # - For GFSK discriminator, constant CFO appears as a DC bias.
@@ -1930,9 +1994,6 @@ def _process_one_window_task(task):
     except Exception:
         # Fallback: just median-center raw discriminator
         freq_burst_use = freq_burst_base - np.median(freq_burst_base)
-
-    except Exception:
-        freq_burst_use = freq_burst_base
 
     burst_flags = {"aa_hit": False, "pre_hit": False, "both_hit": False, "parsed": False, "crc_ok": False}
 
@@ -1976,6 +2037,12 @@ def _process_one_window_task(task):
             sc = (crc_pkt["aa_corr"], crc_pkt["pre_corr"], crc_pkt["length"], 1)
             if best_crc is None or sc > best_crc_score:
                 best_crc, best_crc_score = crc_pkt, sc
+
+    # Ensure window-level inst reflects the same tag classification used for stats/tag_any.
+    # This fixes mismatches where `best_any` is tag-like but `inst['is_tag']` remains 0.
+    if best_any is not None:
+        if best_any.get("is_tag_ecosystem", False) or best_any.get("is_airtag", False):
+            win_inst = _inst_or_merge(win_inst, {"is_tag": 1})
 
     if best_crc is not None and best_crc.get("crc_ok", False):
         if int(best_crc.get("length", 0)) >= int(FS_SCAN_LONG_MIN):
@@ -2471,6 +2538,11 @@ def ble_sniffer(
                     sc = (crc_pkt["aa_corr"], crc_pkt["pre_corr"], crc_pkt["length"], 1)
                     if best_crc is None or sc > best_crc_score:
                         best_crc, best_crc_score = crc_pkt, sc
+
+            # Ensure window-level inst reflects the same tag classification used for stats/tag_any.
+            if best_any is not None:
+                if best_any.get("is_tag_ecosystem", False) or best_any.get("is_airtag", False):
+                    win_inst = _inst_or_merge(win_inst, {"is_tag": 1})
 
             if burst_flags["aa_hit"]:
                 stats["aa_hit"] += 1
