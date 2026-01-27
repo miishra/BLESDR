@@ -58,7 +58,7 @@ ADV_CSV = "controlled/Car_Adv/scenarios_car__adv0_apple0_google0_samsung0_tile0_
 
 # Fixed dataset folder (no prompt)
 CONTROLLED_ROOT = "controlled"
-CONTROLLED_SUBFOLDER = "Benign"  # <-- change this to another subfolder name under controlled/
+CONTROLLED_SUBFOLDER = "Car_Adv"  # <-- change this to another subfolder name under controlled/
 
 PAYLOAD_TAG = "4c001219"        # optional, NOT used as filter by default
 ADV_PAYLOAD_TAG = "4c001219ff"  # ADV marker used for GT and adv_mac_pct

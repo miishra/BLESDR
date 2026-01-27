@@ -3,72 +3,732 @@
 /home/tribe/mabhishe/myspace/anaconda3/lib/python3.9/site-packages/pandas/core/arrays/masked.py:60: UserWarning: Pandas requires version '1.3.6' or newer of 'bottleneck' (version '1.3.4' currently installed).
   from pandas.core import (
 
-=== Run mode: batch_Benign ===
-CSV files: 8
+=== Run mode: batch_Car_Adv ===
+CSV files: 90
 
-[1/8] Running: controlled/Benign/airport.csv
+[1/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-10s_rot-10s.csv
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 781
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1261
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 219
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1260
 
-[2/8] Running: controlled/Benign/background_only.csv
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1206
+[2/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-10s_rot-15min.csv
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1175
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1261
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1260
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[3/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-10s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1261
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1260
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[4/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-10s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1261
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1260
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[5/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-10s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1261
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1260
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[6/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-10s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1261
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1260
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[7/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-15s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1253
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1241
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[8/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-15s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1253
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1241
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[9/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-15s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1253
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1241
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[10/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-15s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1253
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1241
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[11/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-15s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1253
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1241
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[12/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-15s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1253
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1241
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[13/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-1min_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1226
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1199
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[14/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-1min_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1226
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1199
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[15/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-1min_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1226
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1199
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[16/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-1min_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1226
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1199
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[17/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-1min_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1226
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1199
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[18/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-1min_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1226
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1199
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[19/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-2s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1292
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1334
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[20/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-2s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1292
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1334
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[21/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-2s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1292
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1334
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[22/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-2s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1292
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1334
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[23/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-2s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1292
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1334
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[24/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-2s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1292
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1334
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[25/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-30s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1219
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[26/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-30s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1219
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[27/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-30s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1219
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[28/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-30s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1219
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[29/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-30s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1219
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[30/90] Running: controlled/Car_Adv/scenarios_car__adv0_apple1_google0_samsung0_tile0__20260126_073756/scenario_tx-30s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1219
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[31/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-10s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
 
 [DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
 
-[3/8] Running: controlled/Benign/nycab.csv
+[32/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-10s_rot-15min.csv
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 99
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 8
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
 
-[4/8] Running: controlled/Benign/prud1_jan21_ivy.csv
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 154
+[33/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-10s_rot-1min.csv
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 230
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 109
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
 
-[5/8] Running: controlled/Benign/prud2_jan21_ivy.csv
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 94
+[34/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-10s_rot-2s.csv
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 118
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 75
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
 
-[6/8] Running: controlled/Benign/tobos1.csv
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 233
+[35/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-10s_rot-30s.csv
 
-[7/8] Running: controlled/Benign/tobos2.csv
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 109
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 169
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 142
+[36/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-10s_rot-5min.csv
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 195
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 48
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
 
-[8/8] Running: controlled/Benign/tony.csv
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 475
+[37/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-15s_rot-10s.csv
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 618
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1216
 
-[DEBUG] Dropped GOOGLE connected-state packets; remaining: 114
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[38/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-15s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1216
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[39/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-15s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1216
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[40/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-15s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1216
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[41/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-15s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1216
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[42/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-15s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1216
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1190
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[43/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-1min_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1213
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[44/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-1min_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1213
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[45/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-1min_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1213
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[46/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-1min_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1213
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[47/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-1min_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1213
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[48/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-1min_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1213
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[49/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-2s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1191
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[50/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-2s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1191
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[51/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-2s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1191
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[52/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-2s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1191
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[53/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-2s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1191
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[54/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-2s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1217
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1191
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[55/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-30s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1214
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[56/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-30s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1214
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[57/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-30s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1214
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[58/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-30s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1214
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[59/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-30s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1214
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[60/90] Running: controlled/Car_Adv/scenarios_car__adv1_apple0_google0_samsung0_tile0__20260126_005951/scenario_tx-30s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1214
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1187
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 91
+
+[61/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-10s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1272
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1259
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[62/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-10s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1272
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1259
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[63/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-10s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1272
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1259
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[64/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-10s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1272
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1259
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[65/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-10s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1272
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1259
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[66/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-10s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1272
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1259
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[67/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-15s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1263
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1247
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[68/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-15s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1263
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1247
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[69/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-15s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1263
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1247
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[70/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-15s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1263
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1247
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[71/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-15s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1263
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1247
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[72/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-15s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1263
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1247
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 95
+
+[73/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-1min_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1211
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[74/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-1min_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1211
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[75/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-1min_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1211
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[76/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-1min_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1211
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[77/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-1min_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1211
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[78/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-1min_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1237
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1211
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 92
+
+[79/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-2s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1294
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1301
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 97
+
+[80/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-2s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1294
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1301
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 97
+
+[81/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-2s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1294
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1301
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 97
+
+[82/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-2s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1294
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1301
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 97
+
+[83/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-2s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1294
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1301
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 97
+
+[84/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-2s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1294
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1301
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 97
+
+[85/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-30s_rot-10s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1249
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1224
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[86/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-30s_rot-15min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1249
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1224
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[87/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-30s_rot-1min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1249
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1224
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[88/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-30s_rot-2s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1249
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1224
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[89/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-30s_rot-30s.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1249
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1224
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
+
+[90/90] Running: controlled/Car_Adv/scenarios_car__adv2_apple0_google0_samsung0_tile0__20260126_074639/scenario_tx-30s_rot-5min.csv
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1249
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 1224
+
+[DEBUG] Dropped GOOGLE connected-state packets; remaining: 93
 
 === Outputs ===
-Wrote: aircatch_batch_Benign_meta__dens0.9.csv
-Wrote: aircatch_batch_Benign_candidate_checks__dens0.9.csv
-Wrote: aircatch_batch_Benign_core_density_dist__dens0.9.png
-Wrote: aircatch_batch_Benign_advmax_per_scenario__densgrid.csv
-Wrote: aircatch_batch_Benign_advmax_core_density_vs_tx_rot__dens0.9.png
+Wrote: aircatch_batch_Car_Adv_meta__dens0.9.csv
+Wrote: aircatch_batch_Car_Adv_candidate_checks__dens0.9.csv
+Wrote: aircatch_batch_Car_Adv_core_density_dist__dens0.9.png
+Wrote: aircatch_batch_Car_Adv_advmax_per_scenario__densgrid.csv
+Wrote: aircatch_batch_Car_Adv_advmax_core_density_vs_tx_rot__dens0.9.png
