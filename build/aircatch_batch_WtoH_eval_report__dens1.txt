@@ -1,0 +1,39 @@
+AirCatch evaluation report
+n_csv=23
+
+=== Overall detection (scenario-level) ===
+TP=20 FP=0 FN=2 TN=1
+Precision=1.0000 Recall=0.9091 F1=0.9524
+
+=== Operational error rates ===
+TotalHours=28.981 FP_per_hour=0.0000 FN_per_hour=0.0690
+
+=== Time-to-detect (TTD, seconds) on positive scenarios ===
+n=22  median=6600.00  p90=6600.00  p95=6600.00
+
+Purity: n=23 mean=0.9642 median=0.9659
+
+=== Per-CSV ===
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-30s_rot-5min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9917929922913312
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-10s_rot-5min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.996403133903134
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-2s_rot-5min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9659110615632355
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-10s_rot-1min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.959065302088558
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-10s_rot-15min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9830540809555409
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-1min_rot-15min.csv: gt_pos=True pred_pos=False tp=0 fp=0 fn=1 tn=0 prec=0.000 rec=0.000 f1=0.000 FP/h=0.000 FN/h=0.794 TTD_s=6599.999999999999 sil=nan purity=0.9983347972478407
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-2s_rot-15min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9969404186795491
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-2s_rot-1min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9335262195951213
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-2s_rot-30s.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9279899961416535
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-10s_rot-30s.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9214311618840383
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-1min_rot-5min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9927587844254511
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-30s_rot-15min.csv: gt_pos=True pred_pos=False tp=0 fp=0 fn=1 tn=0 prec=0.000 rec=0.000 f1=0.000 FP/h=0.000 FN/h=0.794 TTD_s=6599.999999999999 sil=nan purity=0.9981467753891771
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-15s_rot-1min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9600115740740741
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-1min_rot-1min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9301415302963291
+controlled/WtoH/scenarios_Work_to_home_gym__adv0_apple0_google0_samsung0_tile0__20260128_231212/background_only.csv: gt_pos=False pred_pos=False tp=0 fp=0 fn=0 tn=1 prec=0.000 rec=0.000 f1=0.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=1.0
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-30s_rot-1min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9264633004685372
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-15s_rot-15min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=1.0
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-30s_rot-30s.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.8955574319149586
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-15s_rot-30s.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9068437557646192
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-15s_rot-5min.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9930767673261598
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-2s_rot-2s.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=1.0
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-10s_rot-10s.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9476851851851852
+controlled/WtoH/scenarios_Work_to_home_gym__adv1_apple0_google0_samsung0_tile0__20260128_230324/scenario_tx-2s_rot-10s.csv: gt_pos=True pred_pos=True tp=1 fp=0 fn=0 tn=0 prec=1.000 rec=1.000 f1=1.000 FP/h=0.000 FN/h=0.000 TTD_s=6599.999999999999 sil=nan purity=0.9519400352733685

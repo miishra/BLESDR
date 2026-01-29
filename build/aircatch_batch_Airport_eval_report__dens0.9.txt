@@ -1,0 +1,14 @@
+AirCatch evaluation report
+n_csv=1
+
+=== Overall detection (scenario-level) ===
+TP=0 FP=1 FN=0 TN=0
+Precision=0.0000 Recall=0.0000 F1=0.0000
+
+=== Operational error rates ===
+TotalHours=0.752 FP_per_hour=1.3301 FN_per_hour=0.0000
+
+Purity: n=1 mean=1.0000 median=1.0000
+
+=== Per-CSV ===
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv: gt_pos=False pred_pos=True tp=0 fp=1 fn=0 tn=0 prec=0.000 rec=0.000 f1=0.000 FP/h=1.330 FN/h=0.000 TTD_s=3600.0 sil=nan purity=1.0

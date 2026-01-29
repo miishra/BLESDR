@@ -1,4 +1,5 @@
-[INFO] Loading RAW SPI int16 IQ from ../../prud_final_raw_1769469657822_1of10.bin
+[INFO] Loaded chunk timestamps from airport_timestamp_location_1769646127943.txt (rows=9520)
+[INFO] Loading RAW SPI int16 IQ from ../../airport_raw_1769646127943.bin
 [INFO] Resample ratio L/M = 17512/3923 => fs_out ≈ 6000000.01 (target 6000000)
 [INFO] SPS = 6 (fs_out/symbol_rate), CRC_filter=on
 [INFO] Dewhiten: BLESDR byte/MSB stepping (SwapBits(chan)|2, poly 0x11)
@@ -7,36 +8,36 @@
 [INFO] CFO window: pre_aa_hdr_payload
 [INFO] CFO grouping: AdvA only (top 100)
 [INFO] Tag filter: none
-[INFO] Decode windows found (analyzed): 33804
-[INFO] Multiprocessing enabled: workers=32, windows=33804, chunksize=16
+[INFO] Decode windows found (analyzed): 426178
+[INFO] Multiprocessing enabled: workers=32, windows=426178, chunksize=32
 [STATS] Window-level detection quality (continuous AA scan)
-  Windows total                                 : 33804
-  AA match (>= 28/32)                            : 33744 (99.82%)
-  Preamble match (>= 7/8)                      : 33717 (99.74%)
-  BOTH (AA & preamble)                           : 33609 (99.42%)
-  Parsed header/payload (BOTH-based)             : 32999 (97.62%)
-  CRC OK (any BOTH-based candidate)              : 7998 (23.66%)
-  AirTag/FindMy (best_any per window)            : 582 (1.72%)
-  Tag-ecosystem (best_any; incl. AirTag)         : 583 (1.72%)
-  Kept after tag filter (printing/CFO inputs)    : 7998 (23.66%)
-[INFO] Packets stored for printing: 7998 (max=20000000)
+  Windows total                                 : 426178
+  AA match (>= 28/32)                            : 425254 (99.78%)
+  Preamble match (>= 7/8)                      : 425156 (99.76%)
+  BOTH (AA & preamble)                           : 423312 (99.33%)
+  Parsed header/payload (BOTH-based)             : 415342 (97.46%)
+  CRC OK (any BOTH-based candidate)              : 117791 (27.64%)
+  AirTag/FindMy (best_any per window)            : 4741 (1.11%)
+  Tag-ecosystem (best_any; incl. AirTag)         : 6943 (1.63%)
+  Kept after tag filter (printing/CFO inputs)    : 117791 (27.64%)
+[INFO] Packets stored for printing: 117791 (max=20000000)
 [CFO] No CFO samples available to plot (after excluding NO_AdvA, tag-only, and min_count>=100).
 [CFO] No samples to plot for cfo_equal_00_hz (tag-only, min_count>=100).
 [CFO] No samples to plot for cfo_equal_11_hz (tag-only, min_count>=100).
 [CFO] No samples to plot for cfo_jump_10_hz (tag-only, min_count>=100).
 [CFO] No samples to plot for cfo_jump_01_hz (tag-only, min_count>=100).
-[CFO] Saved per-packet CFO samples to CSV: test.csv  (rows=88)
+[CFO] Saved per-packet CFO samples to CSV: boston_airport.csv  (rows=1235)
 [STATS] CRC recovery attribution (per window; mutually non-exclusive flags)
-  CRC_OK achieved during base passes            : 7023
-  CRC_OK recovered by local eps/frac refine     : 731
-  CRC_OK recovered by local step/SPS refine     : 26
+  CRC_OK achieved during base passes            : 109103
+  CRC_OK recovered by local eps/frac refine     : 5051
+  CRC_OK recovered by local step/SPS refine     : 308
   CRC_OK recovered by CFO second stage          : 0
-  Windows where local refine ran                : 945
-  Windows where step/SPS refine ran             : 1037
-  Windows where CFO second stage ran            : 214
-  Windows classified long (len>=20) : 1037
-  Windows classified tag-ecosystem              : 88
-  Step refine recovered CRC on long windows     : 26
-  Step refine recovered CRC on tag windows      : 1
+  Windows where local refine ran                : 8333
+  Windows where step/SPS refine ran             : 9654
+  Windows where CFO second stage ran            : 3282
+  Windows classified long (len>=20) : 9654
+  Windows classified tag-ecosystem              : 1235
+  Step refine recovered CRC on long windows     : 308
+  Step refine recovered CRC on tag windows      : 9
   CFO stage recovered CRC on long windows       : 0
   CFO stage recovered CRC on tag windows        : 0

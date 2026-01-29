@@ -1,9 +1,0 @@
-src_file,cluster,dev_type,segments,duration_cov,unique_macs,turnover,singleton_mac_frac,mac_rate_per_min,core_mac_density_scaled,adv_mac_pct,gt_frac,tx_s,rot_s,tx_tok,rot_tok,pass_dens_ge_0.25,pass_dens_ge_0.5,pass_dens_ge_0.75,pass_dens_ge_1.0,pass_dens_ge_1.25,pass_dens_ge_1.5,pass_dens_ge_1.8,pass_dens_ge_2.0,pass_dens_ge_2.5,pass_dens_ge_3.0
-controlled/Benign/airport.csv,3,TAG_GOOGLE,17,1800.0,17,,,,0.8832559822650933,0.0,0.0,,,,,True,True,True,False,False,False,False,False,False,False
-controlled/Benign/background_only.csv,0,TAG_APPLE,23,1800.0,23,,,,0.919745492869246,0.0,0.0,,,,,True,True,True,False,False,False,False,False,False,False
-controlled/Benign/nycab.csv,0,TAG_APPLE,1,1800.0,1,,,,0.0,0.0,0.0,,,,,False,False,False,False,False,False,False,False,False,False
-controlled/Benign/prud1_jan21_ivy.csv,3,TAG_APPLE,5,1800.0,5,,,,0.7705077269665377,0.0,0.0,,,,,True,True,True,False,False,False,False,False,False,False
-controlled/Benign/prud2_jan21_ivy.csv,0,TAG_APPLE,6,1800.0,6,,,,1.0268515668977054,0.0,0.0,,,,,True,True,True,True,False,False,False,False,False,False
-controlled/Benign/tobos1.csv,0,TAG_APPLE,2,1800.0,2,,,,0.0,0.0,0.0,,,,,False,False,False,False,False,False,False,False,False,False
-controlled/Benign/tobos2.csv,0,TAG_APPLE,1,1800.0,1,,,,0.0,0.0,0.0,,,,,False,False,False,False,False,False,False,False,False,False
-controlled/Benign/tony.csv,1,TAG_APPLE,11,1800.0,11,,,,0.8952577529275215,0.0,0.0,,,,,True,True,True,False,False,False,False,False,False,False

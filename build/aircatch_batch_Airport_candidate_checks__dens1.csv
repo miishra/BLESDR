@@ -1,0 +1,9 @@
+src_file,cluster,dev_type,segments,duration_cov,duration_span,persistence_s,unique_macs,core_mac_density_scaled,adv_mac_pct,gt_frac,dur_ok,unique_ok,dens_ok,decision_ok,k_chosen
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,0,TAG_APPLE,21,3600.0,,2583.3009999999927,21,0.9297383258928413,0.0,0.0,True,True,False,False,3
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,1,TAG_APPLE,10,3600.0,,2449.525999999998,9,0.709236986975039,0.0,0.0,True,False,False,False,3
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,2,TAG_APPLE,3,3600.0,,2149.2060000000056,3,0.20702185962597391,0.0,0.0,True,False,False,False,3
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,5,TAG_GOOGLE,37,3600.0,,1318.5969999999943,37,0.8714518822674057,0.0,0.0,False,True,False,False,5
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,7,TAG_GOOGLE,6,3600.0,,138.34000000001106,6,0.820424903640593,0.0,0.0,False,False,False,False,5
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,3,TAG_GOOGLE,16,1800.0,,956.1239999999962,16,0.7925207630913219,0.0,0.0,False,True,False,False,5
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,4,TAG_GOOGLE,39,3600.0,,1310.262000000003,39,0.5901449439490497,0.0,0.0,False,True,False,False,5
+controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,6,TAG_GOOGLE,11,3600.0,,184.64100000000326,11,0.47566768640378704,0.0,0.0,False,False,False,False,5
