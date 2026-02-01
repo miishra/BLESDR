@@ -26,7 +26,7 @@
 [CFO] No samples to plot for cfo_equal_11_hz (tag-only, min_count>=100).
 [CFO] No samples to plot for cfo_jump_10_hz (tag-only, min_count>=100).
 [CFO] No samples to plot for cfo_jump_01_hz (tag-only, min_count>=100).
-[CFO] Saved per-packet CFO samples to CSV: boston_airport.csv  (rows=1235)
+[CFO] Saved per-packet CFO samples to CSV: airport.csv  (rows=1235)
 [STATS] CRC recovery attribution (per window; mutually non-exclusive flags)
   CRC_OK achieved during base passes            : 109103
   CRC_OK recovered by local eps/frac refine     : 5051

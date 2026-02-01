@@ -1,0 +1,2 @@
+src_file,confusion,gt_pos,pred_pos,tp,fp,fn,tn,precision,recall,f1,hours,ttd_s,tx_tok,rot_tok,tx_s,rot_s,core_density,WINDOW_S,DENSITY_MIN,PERIODIC_MODE,PERIODIC_BLOCK_S,PERIODIC_STEP_S,PERIODIC_MIN_PERSISTENCE_S
+controlled/Airport/scenarios_airport_total_trip__adv0_apple0_google0_samsung0_tile0__20260130_033342/background_only.csv,FP,False,True,0,1,0,0,0.0,0.0,0.0,2.925384619500902,9900.0,,,,,,300,1.0,True,1500.0,1200.0,1700.0

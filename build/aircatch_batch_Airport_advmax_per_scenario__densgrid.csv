@@ -1,2 +1,2 @@
 src_file,cluster,dev_type,segments,duration_cov,unique_macs,turnover,singleton_mac_frac,mac_rate_per_min,core_mac_density_scaled,adv_mac_pct,gt_frac,tx_s,rot_s,tx_tok,rot_tok,pass_dens_ge_0.5,pass_dens_ge_0.7,pass_dens_ge_0.9,pass_dens_ge_1.1,pass_dens_ge_1.3,pass_dens_ge_1.5,pass_dens_ge_1.8,pass_dens_ge_2.0
-controlled/Airport/scenarios_airport__adv0_apple0_google0_samsung0_tile0__20260129_121353/background_only.csv,0,TAG_APPLE,21,3600.0,21,,,,0.9297383258928413,0.0,0.0,,,,,True,True,True,False,False,False,False,False
+controlled/Airport/scenarios_airport_total_trip__adv0_apple0_google0_samsung0_tile0__20260130_033342/background_only.csv,3,TAG_GOOGLE,11,1800.0,11,,,,1.4033510211321742,0.0,0.0,,,,,True,True,True,True,True,False,False,False

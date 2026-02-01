@@ -58,14 +58,25 @@ ADV_CSV = "controlled/SDR_Adv/scenarios_car__adv0_apple0_google0_samsung0_tile0_
 
 # Fixed dataset folder (no prompt)
 CONTROLLED_ROOT = "controlled"
-CONTROLLED_SUBFOLDER = "WtoH"  # <-- change this to another subfolder name under controlled/
+# Use a single subfolder name here (string). Multi-scenario runs use CONTROLLED_SUBFOLDERS.
+CONTROLLED_SUBFOLDER = "HtoW"
+CONTROLLED_SUBFOLDERS = ["HtoW", "WtoH", "Airport", "Car_Trip"]
 
 PAYLOAD_TAG = "4c001219"        # optional, NOT used as filter by default
 
 # ADV marker(s) used for GT and adv_mac_pct
 ADV_PAYLOAD_TAGS = ["4c001219fc", "4c001219fd", "4c001219fe", "4c001219ff"]
 
-WINDOW_S = 1800                 # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
+# --- key / type logic ---
+KEY_SIM_THR = 0.99              # merge clusters if keys are extremely similar (same ecosystem)
+TYPE_SEP_WEIGHT = 1.0           # strong separation between ecosystem types
+
+# =========================
+# Minimal tunables (recommended for persistent-attacker detection)
+# =========================
+# (Restored to original paper/experiment defaults)
+
+WINDOW_S = 300                 # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
 K_RANGE = range(3, 20)
 OVERALL_CFO_WEIGHT = 1
 
@@ -76,17 +87,17 @@ KEY_SIM_THR = 0.99              # merge clusters if keys are extremely similar (
 TYPE_SEP_WEIGHT = 1.0           # strong separation between ecosystem types
 
 # Density safety
-S_MIN_DENSITY = 3               # compute density only if cluster has >=3 segments
+S_MIN_DENSITY = 10               # compute density only if cluster has >=10 segments
 R_MIN = 0.15                    # clamp radius in z-space for density
 EPS = 1e-9
 
-CORE_FRAC_Q = 0.2               # fraction of points to keep in core for density
+CORE_FRAC_Q = 0.15               # fraction of points to keep in core for density
 CORE_MIN_PTS = 3                # min points in core for density
-CORE_RADIUS_PCTL = 0.90         # robust clamp: use pctl of core distances as radius (reduces spikes)
+CORE_RADIUS_PCTL = 0.9         # robust clamp: use pctl of core distances as radius (reduces spikes)
 
 CORE_DENSITY_VERSION = "v2_full_support_pctl_radius"
 
-b210 = False                     # set True if B210 CRC filtering desired
+b210 = False                    # set True if B210 CRC filtering desired
 
 CFO_COLS_RAW = ["CFO_Hz", "CFO_00_Hz", "CFO_11_Hz", "CFO_10_Hz", "CFO_01_Hz"]
 CFO_COLS_SEG = ["CFO", "CFO_00", "CFO_11", "CFO_10", "CFO_01"]
@@ -98,32 +109,30 @@ UNIQUE_MACS_MIN = 15
 _HEX_DIGITS = "0123456789abcdefABCDEF"
 
 # Density threshold applied on CORE density scaled
-DENSITY_MIN = 1 #1.8
+DENSITY_MIN = 1  # 1.8
 
 # Grid of density thresholds used for per-scenario (adv-max) pass/fail reporting
 # (kept separate from DENSITY_MIN so we can sweep thresholds without rerunning.)
-DENSITY_GRID = [0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.8, 2.0]
+DENSITY_GRID = [0.8, 1, 1.2, 1.5]
 
 # Periodic mode (process each CSV in successive time blocks)
 PERIODIC_MODE = True
-PERIODIC_BLOCK_S = 3600   # 10 minutes, 1800 for 30 minutes
-PERIODIC_STEP_S = 3000    # non-overlapping by default, 1800 for 30 minutes
+PERIODIC_BLOCK_S = 1500   # 30 minutes
+PERIODIC_STEP_S = 1200    # non-overlapping by default, 30 minutes
 
 # Periodic persistence confirmation (simple)
 # Require the same cluster to persist long enough within the file (seconds).
 # This uses the cluster's per-block persistence_s (t_end.max - t_start.min) and aggregates across blocks.
-PERIODIC_MIN_PERSISTENCE_S = 3600
+PERIODIC_MIN_PERSISTENCE_S = 1700
 
+STRICT_MIN_PERSISTENCE_S = 0
 
-# =========================
-# No-passer-by strict gates (persistence + real CFO density)
-# =========================
-# Keep these generic and defensible:
-#  1) persistence: reject short passer-bys
-#
-# NOTE: Temporal uniformity gating was removed by request.
+# (Do not use PERSISTENCE_MIN_S in this restored configuration)
+PERSISTENCE_MIN_S = float(STRICT_MIN_PERSISTENCE_S)
 
-STRICT_MIN_PERSISTENCE_S = 1700
+# Periodic persistence confirmation (simple)
+# Require the same cluster to persist long enough within the file (seconds).
+# This uses the cluster's per-block persistence_s (t_end.max - t_start.min) and aggregates across blocks.
 
 def robust_stats(x: np.ndarray) -> dict:
     """Compute small, robust statistics for a 1D array.
@@ -158,7 +167,7 @@ def robust_stats(x: np.ndarray) -> dict:
             "p10": 0.0,
             "p90": 0.0,
             "mad": 0.0,
-            "mean": 0.0,
+            # "mean": 0.0,
             "std": 0.0,
             "p01": 0.0,
             "p05": 0.0,
@@ -420,7 +429,7 @@ def key_char_similarity(a: str, b: str) -> float:
     if not a or not b:
         return 0.0
     a = a.lower()
-    b = b.lower()
+    b = a.lower()
     n = min(len(a), len(b))
     if n == 0:
         return 0.0
@@ -620,7 +629,13 @@ def prepare_segments(df: pd.DataFrame, window_s: int) -> tuple[pd.DataFrame, set
     google_mask = df["payload"].str.contains("aafe40", na=False)
     if google_mask.any():
         df = df[~google_mask]
-        print("\n[DEBUG] Dropped GOOGLE connected-state packets; remaining:", len(df))        
+        print("\n[DEBUG] Dropped GOOGLE connected-state packets; remaining:", len(df))  
+
+    # Drop packets that contain "4c00121900" in payload as they are Other (Apple/MAC/IPad) devices
+    other_mask = df["payload"].str.contains("4c00121900", na=False)
+    if other_mask.any():
+        df = df[~other_mask]
+        print("\n[DEBUG] Dropped Other (Apple/MAC/IPad) packets; remaining:", len(df))
 
     # Ecosystem per packet
     df["eco"] = df["payload"].apply(classify_tag_ecosystem_from_payload)
@@ -1085,7 +1100,10 @@ def _strict_decision(row: pd.Series) -> tuple[bool, dict]:
 
 
 def _list_csvs_in_controlled_subfolder(root: str = CONTROLLED_ROOT, subfolder: str = CONTROLLED_SUBFOLDER) -> list[Path]:
-    base = Path(root) / subfolder
+    # Allow accidental list/tuple input (take first element)
+    if isinstance(subfolder, (list, tuple)):
+        subfolder = subfolder[0] if subfolder else ""
+    base = Path(root) / str(subfolder)
     return _collect_csv_files(base)
 
 
@@ -1170,14 +1188,11 @@ def _save_pca3d_plot(seg_t: pd.DataFrame, X_t: np.ndarray, src_file: str, dev_ty
 
         labels = seg_t.get("cluster", pd.Series([-1] * len(seg_t))).astype(int).values
 
-        fig = plt.figure(figsize=(9, 7))
-        ax = fig.add_subplot(111, projection="3d")
-
         uniq = np.unique(labels)
         cmap = plt.get_cmap("tab20")
         for i, lab in enumerate(uniq):
             m = labels == lab
-            ax.scatter(
+            plt.scatter(
                 Z[m, 0], Z[m, 1], Z[m, 2],
                 s=18,
                 alpha=0.85,
@@ -1185,18 +1200,13 @@ def _save_pca3d_plot(seg_t: pd.DataFrame, X_t: np.ndarray, src_file: str, dev_ty
                 label=f"c{int(lab)}" if lab >= 0 else "noise",
             )
 
-        ax.set_title(
-            f"3D PCA: {Path(src_file).name} | {dev_type}\n"
-            f"explained var: {pca.explained_variance_ratio_.sum():.2f}"
-        )
-        ax.set_xlabel("PC1")
-        ax.set_ylabel("PC2")
-        ax.set_zlabel("PC3")
-        ax.legend(loc="best", fontsize=8)
+        plt.xlabel("PC1")
+        plt.ylabel("PC2")
+        plt.legend(loc="best", fontsize=8)
 
         plt.tight_layout()
         plt.savefig(out_png, dpi=200)
-        plt.close(fig)
+        plt.close()
     except Exception:
         # Plotting must never break the pipeline
         try:
@@ -1534,7 +1544,7 @@ def _write_core_density_plot(all_candidates: pd.DataFrame, out_png: str) -> None
     if DENSITY_MIN is not None:
         plt.axvline(float(DENSITY_MIN), color="red", linestyle="--", linewidth=2, label=f"DENSITY_MIN={DENSITY_MIN}")
         plt.legend(loc="best")
-    plt.title("core_mac_density_scaled distribution (ranked candidates across scenarios)")
+    # plt.title("core_mac_density_scaled distribution (ranked candidates across scenarios)")
     plt.xlabel("core_mac_density_scaled")
     plt.ylabel("count")
     plt.tight_layout()
@@ -1569,7 +1579,7 @@ def _write_adv_mac_pct_distribution_pdf(checks_df: pd.DataFrame, out_pdf: str) -
     plt.axvline(p90, color="darkred", linestyle=":", linewidth=1.2, label=f"p90={p90:.2f}")
     plt.axvline(p95, color="darkgreen", linestyle=":", linewidth=1.2, label=f"p95={p95:.2f}")
 
-    plt.title("Distribution of adv_mac_pct across flagged candidate clusters")
+    # plt.title("Distribution of adv_mac_pct across flagged candidate clusters")
     plt.xlabel("adv_mac_pct (fraction of MACs in cluster with ADV tag)")
     plt.ylabel("# candidate clusters")
     plt.xlim(0.0, 1.0)
@@ -1613,7 +1623,7 @@ def _write_adv_mac_pct_cdf_pdf(checks_df: pd.DataFrame, out_pdf: str) -> None:
     fig, ax = plt.subplots(figsize=(7.2, 4.2))
     _plot_cdf(ax, vals, label="flagged candidates", color="slateblue")
 
-    ax.set_title("CDF of adv_mac_pct (flagged candidate clusters)")
+    # ax.set_title("CDF of adv_mac_pct (flagged candidate clusters)")
     ax.set_xlabel("adv_mac_pct (fraction of MACs with ADV tag)")
     ax.set_ylabel("CDF")
     ax.set_xlim(0.0, 1.0)
@@ -1675,7 +1685,7 @@ def _write_core_density_flagged_vs_not_cdf_pdf(summary_df: pd.DataFrame, checks_
     _plot_cdf(ax, v_flag, label=f"flagged decision_ok=True (n={v_flag.size})", color="darkorange")
     _plot_cdf(ax, v_nofl, label=f"not flagged (n={v_nofl.size})", color="steelblue")
 
-    ax.set_title("CDF of core_mac_density_scaled: decision_ok True vs False")
+    # ax.set_title("CDF of core_mac_density_scaled: decision_ok True vs False")
     ax.set_xlabel("core_mac_density_scaled")
     ax.set_ylabel("CDF")
     ax.set_ylim(0.0, 1.0)
@@ -1714,7 +1724,7 @@ def _write_core_density_adv_present_vs_not_cdf_pdf(summary_df: pd.DataFrame, *, 
     _plot_cdf(ax, v_yes, label=f"adv present (n={v_yes.size})", color="crimson")
     _plot_cdf(ax, v_no, label=f"adv absent (n={v_no.size})", color="seagreen")
 
-    ax.set_title(f"CDF of core_mac_density_scaled: {adv_presence_col}>0 vs ==0")
+    # ax.set_title(f"CDF of core_mac_density_scaled: {adv_presence_col}>0 vs ==0")
     ax.set_xlabel("core_mac_density_scaled")
     ax.set_ylabel("CDF")
     ax.set_ylim(0.0, 1.0)
@@ -1802,35 +1812,35 @@ def _write_advmax_density_plot(advmax_df: pd.DataFrame, out_png: str) -> None:
         d[col] = pd.to_numeric(d[col], errors="coerce")
 
     d = d[np.isfinite(d["tx_s"]) & np.isfinite(d["rot_s"]) & np.isfinite(d["core_mac_density_scaled"])].copy()
+
+    # Always build scatter arrays from the filtered numeric DataFrame only
     if len(d) == 0:
-        # Still write an empty placeholder figure so batch doesn't crash
         fig, ax = plt.subplots(figsize=(8, 3))
-        ax.set_title("Adversary-max core density vs tx/rot behavior (no valid rows)")
         ax.axis("off")
         fig.tight_layout()
         try:
             fig.savefig(out_png, dpi=200)
+        except Exception:
+            pass
         finally:
             plt.close(fig)
         return
 
-    # Use rot period as color, tx period as x; density as y
-    # NOTE: force numpy float dtype here to prevent any downstream dtype leakage.
-    x = np.asarray(d["tx_s"].values, dtype=float)
-    y = np.asarray(d["core_mac_density_scaled"].values, dtype=float)
-    c = np.asarray(d["rot_s"].values, dtype=float)
+    x = d["tx_s"].astype(float).to_numpy()
+    y = d["core_mac_density_scaled"].astype(float).to_numpy()
+    c = d["rot_s"].astype(float).to_numpy()
 
-    # Safety: drop any non-finite rows after numpy coercion
+    # Safety: remove any non-finite values
     m = np.isfinite(x) & np.isfinite(y) & np.isfinite(c)
     x, y, c = x[m], y[m], c[m]
-
     if x.size == 0:
         fig, ax = plt.subplots(figsize=(8, 3))
-        ax.set_title("Adversary-max core density vs tx/rot behavior (no valid numeric rows)")
         ax.axis("off")
         fig.tight_layout()
         try:
             fig.savefig(out_png, dpi=200)
+        except Exception:
+            pass
         finally:
             plt.close(fig)
         return
@@ -1845,29 +1855,27 @@ def _write_advmax_density_plot(advmax_df: pd.DataFrame, out_png: str) -> None:
             s=60,
             alpha=0.9,
             edgecolors="k",
-            linewidths=0.3,
+            linewidths="0.3",
         )
         cb = fig.colorbar(sc, ax=ax)
         cb.set_label("rot period (s)")
 
-        # reference density line
         if DENSITY_MIN is not None and np.isfinite(float(DENSITY_MIN)):
             ax.axhline(float(DENSITY_MIN), color="red", linestyle="--", linewidth=2, label=f"DENSITY_MIN={DENSITY_MIN}")
             ax.legend(loc="best")
 
-        # If we try to log-scale an axis with non-positive values, matplotlib will throw.
-        has_pos_y = bool((y > 0).any())
-        has_pos_x = bool((x > 0).any())
-
-        ax.set_yscale("log" if has_pos_y else "linear")
-        ax.set_xscale("log" if has_pos_x else "linear")
+        # log scales only if positive
+        ax.set_yscale("log" if bool((y > 0).any()) else "linear")
+        ax.set_xscale("log" if bool((x > 0).any()) else "linear")
 
         ax.set_xlabel("tx period (s) [log]")
         ax.set_ylabel("core_mac_density_scaled (adv-max cluster)")
-        ax.set_title("Adversary-max core density vs tx/rot behavior")
         fig.tight_layout()
 
-        fig.savefig(out_png, dpi=200)
+        try:
+            fig.savefig(out_png, dpi=200)
+        except Exception:
+            pass
     finally:
         plt.close(fig)
 
@@ -2042,7 +2050,7 @@ def _write_eval_plots(per_csv_rows: list[dict], out_prefix: str) -> None:
     fig, ax = plt.subplots(figsize=(5.2, 3.6))
     ax.bar(["Precision", "Recall", "F1"], [prec, rec, f1], color=["#4C78A8", "#F58518", "#54A24B"], alpha=0.9)
     ax.set_ylim(0.0, 1.0)
-    ax.set_title("Detection (scenario-level)")
+    # ax.set_title("Detection (scenario-level)")
     ax.grid(axis="y", alpha=0.25)
     fig.tight_layout()
     try:
@@ -2057,7 +2065,7 @@ def _write_eval_plots(per_csv_rows: list[dict], out_prefix: str) -> None:
 
     fig, ax = plt.subplots(figsize=(5.2, 3.6))
     ax.bar(["FP/h", "FN/h"], [fp_h, fn_h], color=["#E45756", "#72B7B2"], alpha=0.9)
-    ax.set_title("Operational error rates")
+    # ax.set_title("Operational error rates")
     ax.grid(axis="y", alpha=0.25)
     fig.tight_layout()
     try:
@@ -2068,12 +2076,12 @@ def _write_eval_plots(per_csv_rows: list[dict], out_prefix: str) -> None:
     # 3) TTD CDF for positives
     if "ttd_s" in df.columns:
         ttd = df.loc[df["gt_pos"].astype(bool), "ttd_s"]
-        ttd = pd.to_numeric(ttd, errors="coerce")
+        ttd = pd.to_numeric(tttd, errors="coerce")
         ttd = ttd[np.isfinite(ttd)]
         if len(ttd) > 0: 
             fig, ax = plt.subplots(figsize=(6.2, 3.9))
             _plot_cdf(ax, ttd.values.astype(float), label=f"TTD n={len(ttd)}", color="black")
-            ax.set_title("Time-to-detect (TTD) CDF on positive scenarios")
+            # ax.set_title("Time-to-detect (TTD) CDF on positive scenarios")
             ax.set_xlabel("seconds")
             ax.set_ylabel("CDF")
             ax.grid(alpha=0.25)
@@ -2091,7 +2099,7 @@ def _write_eval_plots(per_csv_rows: list[dict], out_prefix: str) -> None:
         if len(sil) > 0:
             fig, ax = plt.subplots(figsize=(6.2, 3.9))
             ax.hist(sil.values.astype(float), bins=25, color="#4C78A8", alpha=0.85)
-            ax.set_title("Silhouette score distribution")
+            # ax.set_title("Silhouette score distribution")
             ax.set_xlabel("silhouette")
             ax.set_ylabel("count")
             ax.grid(alpha=0.25)
@@ -2109,6 +2117,34 @@ def _worker_run_one_csv(args):
     try:
         raw = pd.read_csv(p)
         cand_df, summary_df, meta = _run_one_csv(p)
+
+        # --- NEW: Temporal walkthrough plot (USENIX-style) ---
+        # Recompute segments so we have per-segment t_start/t_end and cluster ids.
+        try:
+            seg_df, _ = prepare_segments(raw.copy(), WINDOW_S)
+            # A lightweight re-run of clustering labels is needed because _run_one_csv does not return seg labels.
+            # We only need seg_df['cluster'] aligned with summary_df's clusters. Use the same per-dev_type clustering.
+            seg_labeled_parts = []
+            cluster_off = 0
+            for dev_type, seg_t in seg_df.groupby("dev_type", sort=True):
+                seg_t = seg_t.copy().reset_index(drop=True)
+                if len(seg_t) < 3:
+                    continue
+                X_cfo_t = cfo_feature_matrix(seg_t)
+                X_t = add_packet_support_feature(X_cfo_t.copy(), seg_t, weight=3.0)
+                X_t = add_cfo_robust_spread_features(X_t, seg_t, weight=1.0)
+                n = int(X_t.shape[0])
+                k_grid = list(range(2, min(16, n)))
+                k_best = _choose_k_by_silhouette(X_t, k_grid)
+                labels0 = _fit_agglomerative(X_t, int(k_best))
+                seg_t["cluster"] = labels0.astype(int) + int(cluster_off)
+                cluster_off += int(pd.Series(labels0).nunique())
+                seg_labeled_parts.append(seg_t)
+            seg_labeled = pd.concat(seg_labeled_parts, ignore_index=True) if seg_labeled_parts else pd.DataFrame()
+            if len(seg_labeled) > 0 and summary_df is not None and len(summary_df) > 0:
+                write_temporal_walkthrough_plot(str(p), summary_df, seg_labeled, raw, out_root="usenix_walkthrough")
+        except Exception:
+            pass
 
         # Per-scenario operational duration
         hours = _scenario_hours(raw)
@@ -2139,8 +2175,51 @@ def _worker_run_one_csv(args):
             row[f"pass_dens_ge_{thr}"] = bool(np.isfinite(core_val) and (float(core_val) >= float(thr)))
 
         return cand_df, summary_df, meta, row, eval_row
+
     except Exception as e:
-        meta = {"src_file": str(p), "error": str(e), "confirmed_any": False}
+        # Always compute GT from raw CSV if possible so TP/FP/FN/TN totals are meaningful
+        try:
+            raw = pd.read_csv(p)
+            hours = float(_scenario_hours(raw))
+            _payload = raw.get("payload", pd.Series([], dtype=str)).astype(str).str.lower()
+            _adva = raw.get("AdvA", pd.Series([], dtype=str)).astype(str)
+            gt_mask = _payload.apply(lambda s: any(t in s for t in ADV_PAYLOAD_TAGS))
+            gt_adv_mac_count = int(len(set(_adva.loc[gt_mask].tolist())))
+        except Exception:
+            hours = 0.0
+            gt_adv_mac_count = 0
+
+        meta = {
+            "src_file": str(p),
+            "error": str(e),
+            "confirmed_any": False,
+            "gt_adv_mac_count": int(gt_adv_mac_count),
+        }
+
+        # With an exception, we treat prediction as negative (no confirmation)
+        gt_pos = bool(int(gt_adv_mac_count) > 0)
+        pred_pos = False
+
+        eval_row = {
+            "src_file": str(p),
+            "hours": float(hours),
+            "ttd_s": np.nan,
+            "silhouette": np.nan,
+            "purity": np.nan,
+            "gt_pos": bool(gt_pos),
+            "pred_pos": bool(pred_pos),
+            "tp": int(gt_pos and pred_pos),
+            "fp": int((not gt_pos) and pred_pos),
+            "fn": int(gt_pos and (not pred_pos)),
+            "tn": int((not gt_pos) and (not pred_pos)),
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "n_flagged_clusters": 0,
+            "fp_h": float("nan") if hours <= 0 else _safe_div(int((not gt_pos) and pred_pos), hours),
+            "fn_h": float("nan") if hours <= 0 else _safe_div(int(gt_pos and (not pred_pos)), hours),
+        }
+
         tx_s, rot_s, tx_tok, rot_tok = _parse_tx_rot_from_filename(p)
         row = {
             "src_file": str(p),
@@ -2150,25 +2229,7 @@ def _worker_run_one_csv(args):
             "tx_tok": tx_tok,
             "rot_tok": rot_tok,
         }
-        eval_row = {
-            "src_file": str(p),
-            "hours": np.nan,
-            "ttd_s": np.nan,
-            "silhouette": np.nan,
-            "purity": np.nan,
-            "gt_pos": False,
-            "pred_pos": False,
-            "tp": 0,
-            "fp": 0,
-            "fn": 0,
-            "tn": 0,
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "n_flagged_clusters": 0,
-            "fp_h": np.nan,
-            "fn_h": np.nan,
-        }
+
         return pd.DataFrame(), pd.DataFrame(), meta, row, eval_row
 
 
@@ -2238,7 +2299,6 @@ def _run_csv_list(csvs: list[Path], label: str) -> None:
     out_adv_mac_pct_cdf_pdf = f"aircatch_{safe_label}_adv_mac_pct_cdf__{tag}.pdf"
     out_core_cdf_flagged_pdf = f"aircatch_{safe_label}_core_density_cdf_flagged_vs_not__{tag}.pdf"
     out_core_cdf_advmacs_pdf = f"aircatch_{safe_label}_core_density_cdf_adv_mac_pct_gt0_vs_0__{tag}.pdf"
-    out_core_cdf_gt_pdf = f"aircatch_{safe_label}_core_density_cdf_gt_frac_gt0_vs_0__{tag}.pdf"
 
     meta_df.to_csv(out_meta, index=False)
     if len(checks_df) > 0:
@@ -2251,7 +2311,6 @@ def _run_csv_list(csvs: list[Path], label: str) -> None:
     if len(summary_all) > 0 and len(checks_df) > 0:
         _write_core_density_flagged_vs_not_cdf_pdf(summary_all, checks_df, out_core_cdf_flagged_pdf)
         _write_core_density_adv_present_vs_not_cdf_pdf(summary_all, adv_presence_col="adv_mac_pct", out_pdf=out_core_cdf_advmacs_pdf)
-        # _write_core_density_adv_present_vs_not_cdf_pdf(summary_all, adv_presence_col="gt_frac", out_pdf=out_core_cdf_gt_pdf)
 
     if len(advmax_df) > 0:
         advmax_df.to_csv(out_advmax, index=False)
@@ -2263,6 +2322,9 @@ def _run_csv_list(csvs: list[Path], label: str) -> None:
     _write_paper_report_txt(eval_rows, out_eval_txt)
     _write_eval_plots(eval_rows, out_eval_prefix)
 
+    # NEW: FP/FN heatmaps over (tx,rot) from existing eval_rows
+    _write_fp_fn_heatmaps_from_eval_rows(eval_rows, out_prefix=out_eval_prefix)
+
     print("\n=== Outputs ===")
     print(f"Wrote: {out_meta}")
     if len(checks_df) > 0:
@@ -2272,7 +2334,6 @@ def _run_csv_list(csvs: list[Path], label: str) -> None:
         if len(summary_all) > 0:
             print(f"Wrote: {out_core_cdf_flagged_pdf}")
             print(f"Wrote: {out_core_cdf_advmacs_pdf}")
-            print(f"Wrote: {out_core_cdf_gt_pdf}")
     if len(advmax_df) > 0:
         print(f"Wrote: {out_advmax}")
         print(f"Wrote: {out_advmax_png}")
@@ -2362,6 +2423,1204 @@ def _sweep_block_and_density(csvs: list[Path], *, block_grid: list[float], dens_
     return pd.DataFrame(rows)
 
 
+# =========================
+# Temporal walkthrough plots (USENIX-style)
+# =========================
+
+def _scenario_name_from_src_file(src_file: str) -> str:
+    """Extract a stable scenario name (folder or stem) for output grouping."""
+    p = Path(str(src_file))
+    # Prefer the scenario folder name if present
+    parts = list(p.parts)
+    for i, part in enumerate(parts):
+        if part.startswith("scenarios_"):
+            safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", part)
+            return safe
+    safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", p.stem)
+    return safe
+
+
+def _haversine_m(lat1, lon1, lat2, lon2) -> float:
+    """Great-circle distance in meters."""
+    # WGS84 mean earth radius
+    R = 6371000.0
+    lat1 = np.deg2rad(lat1)
+    lon1 = np.deg2rad(lon1)
+    lat2 = np.deg2rad(lat2)
+    lon2 = np.deg2rad(lon2)
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = np.sin(dlat / 2.0) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0) ** 2
+    c = 2.0 * np.arctan2(np.sqrt(a), np.sqrt(1.0 - a))
+    return float(R * c)
+
+
+def _compute_speed_series_mps(df_raw: pd.DataFrame) -> pd.DataFrame:
+    """Return per-sample speed estimate from mobile_lat/lon and mobile_timestamp.
+
+    Output columns:
+      - timestamp (BLE time)
+      - speed_mps_inst (instantaneous per GPS interval)
+      - speed_kmh_60s (approx 60s trailing-average speed in km/h)
+
+    Falls back to empty if required columns are missing.
+    """
+    need = ["timestamp", "mobile_timestamp", "mobile_lat", "mobile_lon"]
+    if df_raw is None or any(c not in df_raw.columns for c in need):
+        return pd.DataFrame(columns=["timestamp", "speed_mps_inst", "speed_kmh_60s"])
+
+    d = df_raw[need].copy()
+    d["timestamp"] = pd.to_numeric(d["timestamp"], errors="coerce")
+    d["mobile_timestamp"] = pd.to_numeric(d["mobile_timestamp"], errors="coerce")
+    d["mobile_lat"] = pd.to_numeric(d["mobile_lat"], errors="coerce")
+    d["mobile_lon"] = pd.to_numeric(d["mobile_lon"], errors="coerce")
+    d = d.dropna().sort_values("mobile_timestamp")
+
+    # De-dup GPS timestamps to avoid zero dt
+    d = d.drop_duplicates(subset=["mobile_timestamp"], keep="first")
+    if len(d) < 2:
+        return pd.DataFrame(columns=["timestamp", "speed_mps_inst", "speed_kmh_60s"])
+
+    lat = d["mobile_lat"].to_numpy(dtype=float)
+    lon = d["mobile_lon"].to_numpy(dtype=float)
+    t = d["mobile_timestamp"].to_numpy(dtype=float)
+
+    dist_m = np.array([
+        _haversine_m(lat[i], lon[i], lat[i + 1], lon[i + 1]) for i in range(len(lat) - 1)
+    ], dtype=float)
+    dt = np.diff(t)
+    # guard against non-monotonic / zero dt
+    dt = np.where(dt <= 0, np.nan, dt)
+    sp_mps = dist_m / dt
+
+    # center time at midpoint of the GPS interval; map to BLE timestamp using nearest sample
+    t_mid = 0.5 * (t[:-1] + t[1:])
+
+    mt = d["mobile_timestamp"].to_numpy(dtype=float)
+    bt = d["timestamp"].to_numpy(dtype=float)
+    idx = np.searchsorted(mt, t_mid, side="left")
+    idx = np.clip(idx, 0, len(mt) - 1)
+    ble_t = bt[idx]
+
+    out = pd.DataFrame({"timestamp": ble_t, "mobile_t_mid": t_mid, "speed_mps_inst": sp_mps})
+    out = out[np.isfinite(out["speed_mps_inst"])].copy()
+    if len(out) == 0:
+        return pd.DataFrame(columns=["timestamp", "speed_mps_inst", "speed_kmh_60s"])
+
+    # 60-second trailing average (time-based). Use mobile time for smoothing stability.
+    out = out.sort_values("mobile_t_mid")
+    out["speed_kmh_inst"] = out["speed_mps_inst"].astype(float) * 3.6
+
+    # Rolling over ~60s worth of samples; if sparse GPS, this becomes a small window.
+    # Use median dt to convert 60s into number of samples.
+    med_dt = float(np.nanmedian(np.diff(out["mobile_t_mid"].values))) if len(out) > 2 else float("nan")
+    if np.isfinite(med_dt) and med_dt > 0:
+        win_n = int(max(1, round(60.0 / med_dt)))
+    else:
+        win_n = 3
+
+    out["speed_kmh_60s"] = out["speed_kmh_inst"].rolling(window=win_n, min_periods=1).mean()
+
+    return out[["timestamp", "speed_mps_inst", "speed_kmh_60s"]]
+
+
+def _bin_speed_by_windows(speed_df: pd.DataFrame, *, window_s: float = WINDOW_S) -> pd.DataFrame:
+    """Bin speed into the same seg windows used for clustering (WINDOW_S by default)."""
+    if speed_df is None or len(speed_df) == 0:
+        return pd.DataFrame(columns=["seg_id", "t_mid", "speed_kmh"]) 
+
+    d = speed_df.copy()
+    d["timestamp"] = pd.to_numeric(d["timestamp"], errors="coerce")
+    # Prefer smoothed km/h if present
+    if "speed_kmh_60s" in d.columns:
+        d["speed_kmh"] = pd.to_numeric(d["speed_kmh_60s"], errors="coerce")
+    elif "speed_mps" in d.columns:
+        d["speed_kmh"] = pd.to_numeric(d["speed_mps"], errors="coerce") * 3.6
+    elif "speed_mps_inst" in d.columns:
+        d["speed_kmh"] = pd.to_numeric(d["speed_mps_inst"], errors="coerce") * 3.6
+    else:
+        d["speed_kmh"] = np.nan
+
+    d = d.dropna(subset=["timestamp", "speed_kmh"]).copy()
+    if len(d) == 0:
+        return pd.DataFrame(columns=["seg_id", "t_mid", "speed_kmh"]) 
+
+    d["seg_id"] = (d["timestamp"] // float(window_s)).astype(int)
+    g = d.groupby("seg_id", as_index=False)
+    out = g.agg(speed_kmh=("speed_kmh", "mean"), t_mid=("timestamp", "median"))
+    out = out.sort_values("seg_id")
+    return out
+
+
+def write_temporal_walkthrough_plot(
+    src_file: str,
+    summary_df: pd.DataFrame,
+    seg_df: pd.DataFrame,
+    raw_df: pd.DataFrame,
+    *,
+    out_root: str = "usenix_walkthrough",
+) -> Optional[Path]:
+    """Create a temporal walkthrough plot for one CSV.
+
+    X: per-cluster mean transmit time (mean of (t_start+t_end)/2 over segments)
+    Y: per-cluster core density (core_mac_density_scaled)
+
+    Markers distinguish adversary-present clusters vs benign clusters using hatch.
+    Speed is plotted on a secondary y-axis as window-mean speed.
+
+    Saves a PDF into out_root/<scenario_name>/.
+    """
+    if summary_df is None or len(summary_df) == 0 or seg_df is None or len(seg_df) == 0:
+        return None
+
+    dsum = summary_df.copy()
+    if "core_mac_density_scaled" not in dsum.columns:
+        return None
+
+    # Compute per-segment mid time
+    seg = seg_df.copy()
+    if "t_start" not in seg.columns or "t_end" not in seg.columns or "cluster" not in seg.columns:
+        return None
+
+    seg["t_mid"] = 0.5 * (pd.to_numeric(seg["t_start"], errors="coerce") + pd.to_numeric(seg["t_end"], errors="coerce"))
+
+    # Per-cluster mean transmit time (in seconds, relative to file start)
+    t0 = float(np.nanmin(pd.to_numeric(seg["t_mid"], errors="coerce").values))
+    per_c = seg.groupby("cluster", as_index=False).agg(tx_mean_s=("t_mid", "mean"))
+    per_c["tx_mean_s"] = pd.to_numeric(per_c["tx_mean_s"], errors="coerce") - t0
+
+    # Join with density and adversary presence
+    dsum["cluster"] = dsum["cluster"].astype(int)
+    per_c["cluster"] = per_c["cluster"].astype(int)
+    plot_df = per_c.merge(dsum[["cluster", "core_mac_density_scaled", "adv_mac_pct", "gt_any", "dev_type"]], on="cluster", how="left")
+
+    plot_df["core_mac_density_scaled"] = pd.to_numeric(plot_df["core_mac_density_scaled"], errors="coerce")
+    plot_df["adv_mac_pct"] = pd.to_numeric(plot_df.get("adv_mac_pct", 0.0), errors="coerce").fillna(0.0)
+
+    # adversary-present := any tagged MAC within this cluster (adv_mac_pct>0)
+    plot_df["is_adv"] = plot_df["adv_mac_pct"].astype(float) > 0.0
+
+    plot_df = plot_df[np.isfinite(plot_df["tx_mean_s"]) & np.isfinite(plot_df["core_mac_density_scaled"])].copy()
+    if len(plot_df) == 0:
+        return None
+
+    # Speed series binned to windows
+    speed_df = _compute_speed_series_mps(raw_df)
+    speed_win = _bin_speed_by_windows(speed_df, window_s=float(WINDOW_S))
+    if len(speed_win) > 0:
+        speed_win["t_rel_s"] = pd.to_numeric(speed_win["t_mid"], errors="coerce") - t0
+
+    # --- NEW: determine contiguous source_file contexts to shade x-axis ---
+    ctx_spans = []
+    if raw_df is not None and "source_file" in raw_df.columns and "timestamp" in raw_df.columns:
+        rr = raw_df[["timestamp", "source_file"]].copy()
+        rr["timestamp"] = pd.to_numeric(rr["timestamp"], errors="coerce")
+        # Prefer smoothed km/h if present
+        rr = rr.dropna(subset=["timestamp"]).sort_values("timestamp")
+        rr["ctx"] = rr["source_file"].astype(str).apply(lambda s: Path(str(s)).stem)
+        if len(rr) > 0:
+            # collapse into contiguous runs by ctx
+            t_rel = rr["timestamp"].astype(float) - float(t0)
+            ctx = rr["ctx"].astype(str).values
+            t_rel = t_rel.values
+            run_start = 0
+            for i in range(1, len(rr)):
+                if ctx[i] != ctx[i - 1]:
+                    ctx_spans.append((str(ctx[run_start]), float(t_rel[run_start]), float(t_rel[i - 1])))
+                    run_start = i
+            ctx_spans.append((str(ctx[run_start]), float(t_rel[run_start]), float(t_rel[len(rr) - 1])))
+
+    # Output folder
+    scenario = _scenario_name_from_src_file(src_file)
+    out_dir = Path(out_root) / scenario
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    safe_src = re.sub(r"[^A-Za-z0-9_.-]+", "_", Path(src_file).stem)
+    out_pdf = out_dir / f"walkthrough__{safe_src}__dens_vs_time.pdf"
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(7.2, 3.8))
+
+    # --- NEW: background shading by context ---
+    if ctx_spans:
+        # light alternating palette
+        ctx_colors = ["#E8F0FE", "#EAF7EF", "#FFF3E0", "#F3E8FF", "#FCE8E6"]
+        for i, (ctx_name, x0, x1) in enumerate(ctx_spans):
+            if not (np.isfinite(x0) and np.isfinite(x1)):
+                continue
+            if x1 < x0:
+                x0, x1 = x1, x0
+            # ensure a visible span even for small runs
+            if (x1 - x0) < 1e-6:
+                x1 = x0 + 1e-6
+            ax.axvspan(x0, x1, color=ctx_colors[i % len(ctx_colors)], alpha=0.35, lw=0)
+            # annotate context name near the top of plot (y in axes coords)
+            xm = 0.5 * (x0 + x1)
+            ax.text(
+                xm,
+                0.98,
+                ctx_name,
+                transform=ax.get_xaxis_transform(),
+                ha="center",
+                va="top",
+                fontsize=7,
+                color="black",
+            )
+
+    cmap = plt.get_cmap("tab20")
+    clusters = sorted(plot_df["cluster"].astype(int).unique().tolist())
+    color_map = {c: cmap(i % 20) for i, c in enumerate(clusters)}
+
+    # Bennign vs adversary: hatch via marker face/edge style
+    # (matplotlib scatter does not support hatch reliably; use filled vs unfilled markers)
+    adv = plot_df[plot_df["is_adv"]].copy()
+    ben = plot_df[~plot_df["is_adv"]].copy()
+
+    # Benign: filled circles
+    for c, g in ben.groupby("cluster"):
+        ax.scatter(
+            g["tx_mean_s"].values,
+            g["core_mac_density_scaled"].values,
+            s=55,
+            color=color_map.get(int(c), "gray"),
+            edgecolors="black",
+            linewidths="0.4",
+            marker="o",
+            alpha=0.85,
+        )
+
+    # Adversary: filled stars (distinct marker + stronger edge)
+    for c, g in adv.groupby("cluster"):
+        ax.scatter(
+            g["tx_mean_s"].values,
+            g["core_mac_density_scaled"].values,
+            s=110,
+            color=color_map.get(int(c), "red"),
+            edgecolors="black",
+            linewidths="0.6",
+            marker="*",
+            alpha=0.95,
+        )
+
+    # Secondary axis: speed
+    ax2 = ax.twinx()
+    if len(speed_win) > 0 and "t_rel_s" in speed_win.columns:
+        ax2.plot(
+            speed_win["t_rel_s"].values,
+            speed_win["speed_kmh"].values,
+            color="black",
+            linewidth=1.2,
+            linestyle="--",
+            alpha=0.75,
+        )
+        ax2.set_ylabel("Avg. Speed (km/h)")
+
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Core Density")
+    ax.grid(alpha=0.25)
+
+    # Remove scenario label (was showing as title-like header)
+    # ax.text(...)
+
+    # Keep legend inside axes only (no figure header)
+    from matplotlib.lines import Line2D
+    legend_elems = [
+        Line2D([0], [0], marker='o', color='w', label='benign cluster', markerfacecolor='gray', markeredgecolor='black', markersize=7),
+        Line2D([0], [0], marker='*', color='w', label='adversary-present cluster', markerfacecolor='red', markeredgecolor='black', markersize=10),
+        Line2D([0], [0], color='black', lw=1.2, linestyle='--', label='user speed'),
+    ]
+
+    # Legend completely outside the plot area on the top with ncols=3
+    ax.legend(handles=legend_elems, loc="upper center", bbox_to_anchor=(0.5, 1.15), fontsize=8, frameon=True, ncol=3)
+    # Ensure we do not create a figure-level legend/top margin strip
+    # (remove any existing fig.legend / subplots_adjust usage)
+
+    fig.tight_layout()
+    try:
+        fig.savefig(out_pdf)
+    finally:
+        plt.close(fig)
+
+    return out_pdf
+
+
+# =========================
+# Multi-scenario helper (aggregate across controlled subfolders)
+# =========================
+
+def _adv_setting_from_src_file(src_file: str) -> str:
+    """Infer adversary-count setting from scenario folder naming (adv0..adv4)."""
+    s = str(src_file)
+    m = re.search(r"__adv(\d+)_", s)
+    if m:
+        return f"adv{int(m.group(1))}"
+    m = re.search(r"adv(\d+)", s)
+    if m:
+        return f"adv{int(m.group(1))}"
+    return "adv?"
+
+
+def _aggregate_eval_rows_by_adv_setting(eval_rows: list[dict]) -> pd.DataFrame:
+    """Aggregate per-CSV eval rows into per-(adv_setting) totals and rates."""
+    if not eval_rows:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(eval_rows).copy()
+    if "src_file" not in df.columns:
+        return pd.DataFrame()
+
+    df["adv_setting"] = df["src_file"].astype(str).apply(_adv_setting_from_src_file)
+    for c in ["tp", "fp", "fn", "tn", "hours"]:
+        if c not in df.columns:
+            df[c] = 0
+        df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0)
+
+    out = []
+    for adv_setting, g in df.groupby("adv_setting"):
+        tp = int(g["tp"].sum())
+        fp = int(g["fp"].sum())
+        fn = int(g["fn"].sum())
+        tn = int(g["tn"].sum())
+        prec = _safe_div(tp, tp + fp)
+        rec = _safe_div(tp, tp + fn)
+        f1 = _safe_div(2.0 * prec * rec, prec + rec) if (prec + rec) else 0.0
+        out.append({
+            "adv_setting": str(adv_setting),
+            "tp": tp,
+            "fp": fp,
+            "fn": fn,
+            "tn": tn,
+            "precision": float(prec),
+            "recall": float(rec),
+            "f1": float(f1),
+        })
+
+    res = pd.DataFrame(out)
+    order = {f"adv{i}": i for i in range(0, 5)}
+    res["_ord"] = res["adv_setting"].map(order).fillna(999).astype(int)
+    res = res.sort_values(["_ord", "adv_setting"]).drop(columns=["_ord"])
+    return res
+
+
+def _write_usenix_stacked_metrics_plot(df_by_scenario: pd.DataFrame, out_pdf: str) -> None:
+    """Grouped bar plot: TP/FP/TN/FN per scenario as percentages with value labels (incl. zeros).
+
+    Legend is placed above the plot (outside axes) with 4 columns.
+    """
+    if df_by_scenario is None or len(df_by_scenario) == 0:
+        return
+
+    d = df_by_scenario.copy().sort_values("scenario")
+
+    # Pretty scenario names for plots
+    def _pretty_scenario(s: str) -> str:
+        s0 = str(s)
+        m = {
+            "Airport": "Airport",
+            "Car_Trip": "Car Trip",
+            "HtoW": "Home to Work",
+            "WtoH": "Work to Home",
+            "SDR_Adv": "SDR Adv",
+        }
+        return m.get(s0, s0.replace("_", " "))
+
+    scenarios_raw = d["scenario"].astype(str).tolist()
+    scenarios = [_pretty_scenario(s) for s in scenarios_raw]
+
+    tp = d["tp"].astype(float).values
+    fp = d["fp"].astype(float).values
+    tn = d["tn"].astype(float).values
+    fn = d["fn"].astype(float).values
+
+    # Convert to percentages per scenario (so bars are comparable across scenarios)
+    denom = (tp + fp + tn + fn)
+    denom = np.where(denom <= 0, 1.0, denom)
+    tp = 100.0 * tp / denom
+    fp = 100.0 * fp / denom
+    tn = 100.0 * tn / denom
+    fn = 100.0 * fn / denom
+
+    x0 = np.arange(len(scenarios), dtype=float)
+    w = 0.18
+
+    fig, ax = plt.subplots(figsize=(8.6, 3.9))
+
+    b_tp = ax.bar(x0 - 1.5 * w, tp, width=w, color="#4C78A8", edgecolor="black", linewidth=0.3, label="TP")
+    b_fp = ax.bar(x0 - 0.5 * w, fp, width=w, color="#E45756", edgecolor="black", linewidth=0.3, hatch="//", label="FP")
+    b_tn = ax.bar(x0 + 0.5 * w, tn, width=w, color="#D9D9D9", edgecolor="black", linewidth=0.3, label="TN")
+    b_fn = ax.bar(x0 + 1.5 * w, fn, width=w, color="#F58518", edgecolor="black", linewidth=0.3, hatch="\\\\", label="FN")
+
+    ax.set_ylabel("% of scenarios")
+    ax.set_ylim(0.0, 105.0)
+    ax.grid(axis="y", alpha=0.25)
+
+    # Metric tick labels per bar
+    metric_offsets = [-1.5 * w, -0.5 * w, 0.5 * w, 1.5 * w]
+    metric_names = ["TP", "FP", "TN", "FN"]
+
+    xticks = []
+    xticklabels = []
+    for i in range(len(scenarios)):
+        for off, mname in zip(metric_offsets, metric_names):
+            xticks.append(float(x0[i] + off))
+            xticklabels.append(mname)
+
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xticklabels, fontsize=8)
+
+    # Scenario labels once per group (plain text; no extra axis/spine)
+    for i in range(len(scenarios)):
+        ax.text(
+            float(x0[i]),
+            -0.22,
+            str(scenarios[i]),
+            transform=ax.get_xaxis_transform(),
+            ha="center",
+            va="top",
+            fontsize=8,
+        )
+
+    # Legend above plot (outside)
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.02), ncol=4, frameon=True, fontsize=8)
+
+    # Add bottom margin for scenario labels and top margin for legend
+    fig.tight_layout(rect=(0.0, 0.10, 1.0, 0.92))
+    try:
+        fig.savefig(out_pdf)
+    finally:
+        plt.close(fig)
+
+
+def _pretty_scenario_name_for_plots(s: str) -> str:
+    s0 = str(s)
+    m = {
+        "Airport": "Airport",
+        "Car_Trip": "Car Trip",
+        "HtoW": "Home to Work",
+        "WtoH": "Work to Home",
+        "SDR_Adv": "SDR Adv",
+    }
+    return m.get(s0, s0.replace("_", " "))
+
+
+def _write_core_density_adv_present_vs_not_cdf_across_scenarios(
+    *,
+    controlled_root: str,
+    subfolders: list[str],
+    adv_presence_col: str,
+    out_dir: str,
+) -> None:
+    """Across scenarios: compare core-density CDFs for adv-present vs adv-absent clusters.
+
+    Produces:
+      1) overlay PDF (all scenarios in one axis; solid=adv-present, dashed=adv-absent)
+      2) multi-panel PDF (one subplot per scenario)
+    """
+    outp = Path(out_dir)
+    outp.mkdir(parents=True, exist_ok=True)
+
+    scenario_data = []
+
+    for sub in subfolders:
+        csvs = _list_csvs_in_controlled_subfolder(controlled_root, sub)
+        if not csvs:
+            continue
+
+        # Build a combined summary_df across all CSVs for this scenario folder
+        summaries = []
+        n_workers = min(32, max(1, mp.cpu_count()))
+        tasks = [(str(p),) for p in csvs]
+        with mp.Pool(processes=n_workers) as pool:
+            for (_, summary_df, meta, _, _) in pool.imap_unordered(_worker_run_one_csv, tasks, chunksize=1):
+                if summary_df is None or len(summary_df) == 0:
+                    continue
+                if "src_file" not in summary_df.columns:
+                    summary_df = summary_df.copy()
+                    summary_df["src_file"] = str(meta.get("src_file", ""))
+                summaries.append(summary_df)
+
+        if not summaries:
+            continue
+
+        s_all = pd.concat(summaries, ignore_index=True)
+        if "core_mac_density_scaled" not in s_all.columns or adv_presence_col not in s_all.columns:
+            continue
+
+        d = s_all.copy()
+        d["core_mac_density_scaled"] = pd.to_numeric(d["core_mac_density_scaled"], errors="coerce")
+        d[adv_presence_col] = pd.to_numeric(d[adv_presence_col], errors="coerce").fillna(0.0)
+        d = d[np.isfinite(d["core_mac_density_scaled"])].copy()
+        if len(d) == 0:
+            continue
+
+        present = d[adv_presence_col].astype(float) > 0.0
+        v_yes = d.loc[present, "core_mac_density_scaled"].astype(float).values
+        v_no = d.loc[~present, "core_mac_density_scaled"].astype(float).values
+        if v_yes.size == 0 or v_no.size == 0:
+            continue
+
+        scenario_data.append({
+            "scenario": str(sub),
+            "scenario_pretty": _pretty_scenario_name_for_plots(sub),
+            "v_yes": v_yes,
+            "v_no": v_no,
+        })
+
+    if not scenario_data:
+        return
+
+    # 1) Overlay plot
+    fig, ax = plt.subplots(figsize=(7.2, 4.2))
+    cmap = plt.get_cmap("tab10")
+    for i, item in enumerate(sorted(scenario_data, key=lambda r: r["scenario_pretty"])):
+        col = cmap(i % 10)
+        _plot_cdf(ax, item["v_yes"], label=f"{item['scenario_pretty']} (adv present)", color=col, linewidth=2.0)
+        # adv-absent: dashed, same color
+        v = np.asarray(item["v_no"], dtype=float)
+        v = v[np.isfinite(v)]
+        if v.size:
+            v = np.sort(v)
+            y = np.arange(1, v.size + 1, dtype=float) / float(v.size)
+            ax.plot(v, y, label=f"{item['scenario_pretty']} (adv absent)", color=col, linewidth=2.0, linestyle="--")
+
+    ax.set_xlabel("core_mac_density_scaled")
+    ax.set_ylabel("CDF")
+    ax.set_ylim(0.0, 1.0)
+    ax.grid(alpha=0.25)
+    ax.legend(loc="lower right", fontsize=8, ncol=1, frameon=True)
+    fig.tight_layout()
+    out_overlay = outp / f"core_density_cdf_adv_present_vs_absent__overlay__{adv_presence_col}.pdf"
+    try:
+        fig.savefig(out_overlay)
+    finally:
+        plt.close(fig)
+
+    # 2) Multi-panel plot (one per scenario)
+    n = len(scenario_data)
+    ncols = 2
+    nrows = int(np.ceil(n / ncols))
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(7.6, 3.2 * nrows), sharex=True, sharey=True)
+    axes = np.atleast_1d(axes).ravel()
+
+    for ax_i, item in zip(axes, sorted(scenario_data, key=lambda r: r["scenario_pretty"])):
+        _plot_cdf(ax_i, item["v_yes"], label="adv present", color="crimson", linewidth=2.0)
+        # adv absent: green dashed
+        v = np.asarray(item["v_no"], dtype=float)
+        v = v[np.isfinite(v)]
+        if v.size:
+            v = np.sort(v)
+            y = np.arange(1, v.size + 1, dtype=float) / float(v.size)
+            ax_i.plot(v, y, label="adv absent", color="seagreen", linewidth=2.0, linestyle="--")
+
+        ax_i.set_title(item["scenario_pretty"], fontsize=10)
+        ax_i.grid(alpha=0.25)
+
+    # turn off unused axes
+    for j in range(len(scenario_data), len(axes)):
+        axes[j].axis("off")
+
+    for ax_i in axes[: min(len(axes), len(scenario_data))]:
+        ax_i.set_xlabel("core_mac_density_scaled")
+        ax_i.set_ylabel("CDF")
+
+    # single legend (top)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=2, frameon=True, fontsize=9)
+    fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.93))
+
+    out_grid = outp / f"core_density_cdf_adv_present_vs_absent__grid__{adv_presence_col}.pdf"
+    try:
+        fig.savefig(out_grid)
+    finally:
+        plt.close(fig)
+
+
+def _write_tp_rate_bars_by_tx_rot(eval_rows: list[dict], *, scenario: str, out_pdf: str) -> None:
+    """TP percentage per (tx,rot) for adv1 (one attacker) within one scenario.
+
+    y := 100 * TP / (TP+FN) for adv1 only (i.e., among positives).
+    """
+    if not eval_rows:
+        return
+
+    df = pd.DataFrame(eval_rows).copy()
+    if "src_file" not in df.columns:
+        return
+
+    df["adv_setting"] = df["src_file"].astype(str).apply(_adv_setting_from_src_file)
+    df = df[df["adv_setting"] == "adv1"].copy()
+    if len(df) == 0:
+        return
+
+    # parse tx/rot
+    txs, rots, tx_toks, rot_toks = [], [], [], []
+    for s in df["src_file"].astype(str).tolist():
+        tx_s, rot_s, tx_tok, rot_tok = _parse_tx_rot_from_filename(Path(s))
+        txs.append(tx_s)
+        rots.append(rot_s)
+        tx_toks.append(tx_tok)
+        rot_toks.append(rot_tok)
+    df["tx_tok"] = tx_toks
+    df["rot_tok"] = rot_toks
+
+    # Keep only rows with parsable tx/rot
+    df = df[(df["tx_tok"].astype(str) != "") & (df["rot_tok"].astype(str) != "")].copy()
+    if len(df) == 0:
+        return
+
+    for c in ["tp", "fn", "gt_pos"]:
+        if c not in df.columns:
+            df[c] = 0
+    df["tp"] = pd.to_numeric(df["tp"], errors="coerce").fillna(0).astype(int)
+    df["fn"] = pd.to_numeric(df["fn"], errors="coerce").fillna(0).astype(int)
+
+    # Aggregate TP/(TP+FN) per tuple
+    df["tuple"] = list(zip(df["tx_tok"].astype(str), df["rot_tok"].astype(str)))
+    g = df.groupby("tuple", as_index=False).agg(tp=("tp", "sum"), fn=("fn", "sum"))
+    g["tp_pct"] = g.apply(lambda r: 100.0 * _safe_div(float(r["tp"]), float(r["tp"] + r["fn"])) if (r["tp"] + r["fn"]) > 0 else 0.0, axis=1)
+
+    # Sort by tx then rot (seconds)
+    def _tok_to_s(tok: str) -> float:
+        return _parse_s_to_seconds(tok)
+
+    g["tx_s"] = g["tuple"].apply(lambda t: _tok_to_s(t[0]))
+    g["rot_s"] = g["tuple"].apply(lambda t: _tok_to_s(t[1]))
+    g = g.sort_values(["tx_s", "rot_s"]).reset_index(drop=True)
+
+    labels = [f"({t[0]},{t[1]})" for t in g["tuple"].tolist()]
+    y = g["tp_pct"].astype(float).values
+
+    fig, ax = plt.subplots(figsize=(max(8.5, 0.35 * len(labels)), 3.6))
+    ax.bar(np.arange(len(labels)), y, color="#4C78A8", edgecolor="black", linewidth=0.3)
+    ax.set_ylim(0.0, 105.0)
+    ax.set_ylabel("TP% (adv1 only)")
+    ax.set_xlabel("(tx, rot)")
+    ax.set_xticks(np.arange(len(labels)))
+    ax.set_xticklabels(labels, rotation=60, ha="right", fontsize=7)
+    ax.grid(axis="y", alpha=0.25)
+    ax.set_title(f"{_pretty_scenario_name_for_plots(scenario)}: TP% by (tx,rot) for 1 attacker")
+
+    for i, v in enumerate(y):
+        ax.text(i, (0.8 if v == 0 else v + 0.8), f"{v:.0f}%", ha="center", va="bottom", fontsize=7, rotation=90)
+
+    fig.tight_layout()
+    try:
+        fig.savefig(out_pdf)
+    finally:
+        plt.close(fig)
+
+
+def _write_detection_grouped_bars_by_tx_rot(eval_rows: list[dict], *, scenario: str, out_pdf: str) -> None:
+    """Grouped 0/100 detection bars per (tx,rot) comparing adv1/adv2/adv4.
+
+    y := 100 if detected (tp==1 or pred_pos==True on gt_pos) else 0, aggregated as mean*100.
+    """
+    if not eval_rows:
+        return
+
+    df = pd.DataFrame(eval_rows).copy()
+    if "src_file" not in df.columns:
+        return
+
+    df["adv_setting"] = df["src_file"].astype(str).apply(_adv_setting_from_src_file)
+    df = df[df["adv_setting"].isin(["adv1", "adv2", "adv4"])].copy()
+    if len(df) == 0:
+        return
+
+    # parse tx/rot
+    txs, rots, tx_toks, rot_toks = [], [], [], []
+    for s in df["src_file"].astype(str).tolist():
+        tx_s, rot_s, tx_tok, rot_tok = _parse_tx_rot_from_filename(Path(s))
+        txs.append(tx_s)
+        rots.append(rot_s)
+        tx_toks.append(tx_tok)
+        rot_toks.append(rot_tok)
+    df["tx_tok"] = tx_toks
+    df["rot_tok"] = rot_toks
+
+    df = df[(df["tx_tok"].astype(str) != "") & (df["rot_tok"].astype(str) != "")].copy()
+    if len(df) == 0:
+        return
+
+    # detection success per row: 1 if TP else 0 (only meaningful for positives)
+    if "gt_pos" not in df.columns:
+        df["gt_pos"] = False
+    if "tp" not in df.columns:
+        df["tp"] = 0
+    df["gt_pos"] = df["gt_pos"].astype(bool)
+    df["tp"] = pd.to_numeric(df["tp"], errors="coerce").fillna(0).astype(int)
+    df = df[df["gt_pos"]].copy()
+    if len(df) == 0:
+        return
+
+    df["tuple"] = list(zip(df["tx_tok"].astype(str), df["rot_tok"].astype(str)))
+    df["det_ok"] = (df["tp"] > 0).astype(int)
+
+    g = df.groupby(["tuple", "adv_setting"], as_index=False).agg(det_rate=("det_ok", "mean"))
+
+    # pivot to columns adv1/adv2/adv4
+    pv = g.pivot_table(index="tuple", columns="adv_setting", values="det_rate", aggfunc="mean", fill_value=0.0)
+
+    # Ensure columns
+    for c in ["adv1", "adv2", "adv4"]:
+        if c not in pv.columns:
+            pv[c] = 0.0
+    pv = pv[["adv1", "adv2", "adv4"]]
+
+    # Sort by tx then rot
+    def _tok_to_s(tok: str) -> float:
+        return _parse_s_to_seconds(tok)
+
+    idx = list(pv.index)
+    order = sorted(idx, key=lambda t: (_tok_to_s(t[0]), _tok_to_s(t[1])))
+    pv = pv.reindex(order)
+
+    labels = [f"({t[0]},{t[1]})" for t in pv.index]
+    x = np.arange(len(labels), dtype=float)
+    w = 0.25
+
+    fig, ax = plt.subplots(figsize=(max(9.0, 0.38 * len(labels)), 3.8))
+
+    y1 = 100.0 * pv["adv1"].astype(float).values
+    y2 = 100.0 * pv["adv2"].astype(float).values
+    y4 = 100.0 * pv["adv4"].astype(float).values
+
+    ax.bar(x - w, y1, width=w, color="#4C78A8", edgecolor="black", linewidth=0.3, label="1 attacker (adv1)")
+    ax.bar(x,      y2, width=w, color="#F58518", edgecolor="black", linewidth=0.3, label="2 attackers (adv2)")
+    ax.bar(x + w,  y4, width=w, color="#54A24B", edgecolor="black", linewidth=0.3, label="4 attackers (adv4)")
+
+    ax.set_ylim(0.0, 105.0)
+    ax.set_ylabel("Detection (0/100)")
+    ax.set_xlabel("(tx, rot)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=60, ha="right", fontsize=7)
+    ax.grid(axis="y", alpha=0.25)
+    ax.set_title(f"{_pretty_scenario_name_for_plots(scenario)}: Detection by (tx,rot) and attacker count")
+    ax.legend(loc="upper right", fontsize=8, frameon=True)
+
+    fig.tight_layout()
+    try:
+        fig.savefig(out_pdf)
+    finally:
+        plt.close(fig)
+
+
+def run_all_controlled_subfolders_and_plot(*, out_dir: str = "usenix_multiscenario") -> None:
+    """Run _run_csv_list over CONTROLLED_SUBFOLDERS and create aggregated plots.
+
+    Produces one grouped bar plot per adversary-count setting (adv0..adv4) across scenarios.
+    """
+    outp = Path(out_dir)
+    outp.mkdir(parents=True, exist_ok=True)
+
+    results_rows = []
+    non_tp_rows = []
+
+    # Run each scenario folder sequentially (keeps output files distinct)
+    for sub in CONTROLLED_SUBFOLDERS:
+        csvs = _list_csvs_in_controlled_subfolder(CONTROLLED_ROOT, sub)
+        if not csvs:
+            continue
+
+        label = f"batch_{sub}"
+        # Run and also capture eval_rows by reusing worker directly (avoid re-parsing txt)
+        eval_rows = []
+
+        n_workers = min(32, max(1, mp.cpu_count()))
+        tasks = [(str(p),) for p in csvs]
+        with mp.Pool(processes=n_workers) as pool:
+            for (_, _, meta, _, eval_row) in pool.imap_unordered(_worker_run_one_csv, tasks, chunksize=1):
+                if "src_file" not in eval_row or not eval_row.get("src_file"):
+                    eval_row = dict(eval_row)
+                    eval_row["src_file"] = str(meta.get("src_file", ""))
+                eval_rows.append(eval_row)
+
+        # Write per-scenario FP/FN heatmaps (tx x rot) using existing results
+        try:
+            safe_sub = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(sub))
+            out_prefix = str(outp / f"aircatch_{safe_sub}_eval")
+            _write_fp_fn_heatmaps_from_eval_rows(eval_rows, out_prefix=out_prefix)
+            print(f"Wrote: {out_prefix}__fp_heatmap.pdf")
+            print(f"Wrote: {out_prefix}__fn_heatmap.pdf")
+        except Exception as e:
+            print(f"[WARN] heatmap failed for {sub}: {e}")
+
+        by_adv = _aggregate_eval_rows_by_adv_setting(eval_rows)
+        if len(by_adv) == 0:
+            continue
+
+        by_adv["scenario"] = str(sub)
+        results_rows.append(by_adv)
+
+        # Save non-TP cases per scenario as well
+        try:
+            safe_sub = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(sub))
+            out_csv_non_tp = str(outp / f"aircatch_{safe_sub}__non_tp_cases.csv")
+            _write_non_tp_case_report(eval_rows, out_csv=out_csv_non_tp)
+            print(f"Wrote: {out_csv_non_tp}")
+        except Exception as e:
+            print(f"[WARN] non-TP report failed for {sub}: {e}")
+
+        non_tp_rows.extend(eval_rows)
+
+        # NEW: TP% plot for adv1 (1 attacker)
+        try:
+            safe_sub = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(sub))
+            out_pdf = outp / f"aircatch_{safe_sub}__tp_pct_by_tx_rot__adv1.pdf"
+            _write_tp_rate_bars_by_tx_rot(eval_rows, scenario=str(sub), out_pdf=str(out_pdf))
+            print(f"Wrote: {out_pdf}")
+        except Exception as e:
+            print(f"[WARN] TP% plot failed for {sub}: {e}")
+
+        # NEW: grouped 0/100 detection plot for adv1/adv2/adv4
+        try:
+            safe_sub = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(sub))
+            out_pdf = outp / f"aircatch_{safe_sub}__det_by_tx_rot__adv1_adv2_adv4.pdf"
+            _write_detection_grouped_bars_by_tx_rot(eval_rows, scenario=str(sub), out_pdf=str(out_pdf))
+            print(f"Wrote: {out_pdf}")
+        except Exception as e:
+            print(f"[WARN] det plot failed for {sub}: {e}")
+
+    # Write combined non-TP report across all scenarios
+    try:
+        out_csv_non_tp_all = str(outp / "aircatch_multiscenario__non_tp_cases.csv")
+        _write_non_tp_case_report(non_tp_rows, out_csv=out_csv_non_tp_all)
+        print(f"Wrote: {out_csv_non_tp_all}")
+    except Exception as e:
+        print(f"[WARN] combined non-TP report failed: {e}")
+
+    if not results_rows:
+        return
+
+    all_df = pd.concat(results_rows, ignore_index=True)
+
+    # Save raw aggregation
+    out_csv = outp / "aircatch_multiscenario_agg_by_adv_setting.csv"
+    all_df.to_csv(out_csv, index=False)
+
+    # One plot per adv setting across scenarios (grouped bars)
+    for adv_setting, g in all_df.groupby("adv_setting"):
+        g = g.sort_values("scenario")
+        out_pdf = outp / f"aircatch_usenix_grouped__{adv_setting}.pdf"
+        _write_usenix_stacked_metrics_plot(g, str(out_pdf))
+
+    # NEW: core density CDFs across scenarios (adv present vs absent)
+    _write_core_density_adv_present_vs_not_cdf_across_scenarios(
+        controlled_root=CONTROLLED_ROOT,
+        subfolders=CONTROLLED_SUBFOLDERS,
+        adv_presence_col="adv_mac_pct",
+        out_dir=str(outp),
+    )
+
+
+def _adv_setting_from_path(p: str) -> str:
+    m = re.search(r"__adv(\d+)_", str(p))
+    return f"adv{int(m.group(1))}" if m else "adv?"
+
+
+def _sweep_density_and_persistence_for_adv0_adv1(
+    csvs: list[Path],
+    *,
+    label: str,
+    dens_grid: list[float],
+    persist_grid_s: list[float],
+    window_grid_s: list[float],
+    block_grid_s: list[float],
+) -> pd.DataFrame:
+    """Targeted sweep (optimized).
+
+    Uses a single shared mp.Pool and evaluates all (csv, config) tasks.
+    """
+    if not csvs:
+        return pd.DataFrame()
+
+    # Build config list
+    configs = []
+    for blk in block_grid_s:
+        for win in window_grid_s:
+            for dens in dens_grid:
+                for pers in persist_grid_s:
+                    configs.append((float(win), float(dens), float(pers), float(blk)))
+
+    tasks = []
+    for p in csvs:
+        ps = str(p)
+        for (win, dens, pers, blk) in configs:
+            tasks.append((ps, win, dens, pers, blk))
+
+    n_workers = min(32, max(1, mp.cpu_count()))
+
+    rows = []
+
+    # Aggregate per config key
+    agg = {}
+
+    with mp.Pool(processes=n_workers) as pool:
+        for r in pool.imap_unordered(_sweep_worker_eval_one_csv_for_config, tasks, chunksize=1):
+            k = (r["window_s"], r["dens_min"], r["periodic_min_persistence_s"], r["periodic_block_s"])
+            st = agg.get(k)
+            if st is None:
+                st = {
+                    "label": str(label),
+                    "window_s": float(r["window_s"]),
+                    "dens_min": float(r["dens_min"]),
+                    "periodic_min_persistence_s": float(r["periodic_min_persistence_s"]),
+                    "periodic_block_s": float(r["periodic_block_s"]),
+                    "periodic_step_s": float(r["periodic_block_s"]),
+                    "adv0_tp": 0,
+                    "adv0_fp": 0,
+                    "adv0_fn": 0,
+                    "adv0_tn": 0,
+                    "adv1_tp": 0,
+                    "adv1_fp": 0,
+                    "adv1_fn": 0,
+                    "adv1_tn": 0,
+                }
+                agg[k] = st
+
+            if r["adv_setting"] == "adv0":
+                st["adv0_tp"] += int(r["tp"])
+                st["adv0_fp"] += int(r["fp"])
+                st["adv0_fn"] += int(r["fn"])
+                st["adv0_tn"] += int(r["tn"])
+            elif r["adv_setting"] == "adv1":
+                st["adv1_tp"] += int(r["tp"])
+                st["adv1_fp"] += int(r["fp"])
+                st["adv1_fn"] += int(r["fn"])
+                st["adv1_tn"] += int(r["tn"])
+
+    for st in agg.values():
+        adv0_total = int(st["adv0_tp"] + st["adv0_fp"] + st["adv0_fn"] + st["adv0_tn"])
+        adv1_total = int(st["adv1_tp"] + st["adv1_fp"] + st["adv1_fn"] + st["adv1_tn"])
+
+        adv0_tn_rate = float(_safe_div(st["adv0_tn"], adv0_total)) if adv0_total > 0 else 0.0
+        adv1_tp_rate = float(_safe_div(st["adv1_tp"], adv1_total)) if adv1_total > 0 else 0.0
+
+        adv0_ok = bool(st["adv0_fp"] == 0 and st["adv0_tp"] == 0 and st["adv0_fn"] == 0 and adv0_total > 0)
+        adv1_ok = bool(st["adv1_fn"] == 0 and st["adv1_tn"] == 0 and st["adv1_fp"] == 0 and adv1_total > 0)
+
+        score = 0.0
+        if adv0_ok:
+            score += 10.0
+        score += 2.0 * adv0_tn_rate
+        if adv1_ok:
+            score += 10.0
+        score += 2.0 * adv1_tp_rate
+
+        rows.append({
+            **st,
+            "adv0_total": adv0_total,
+            "adv1_total": adv1_total,
+            "adv0_tn_rate": float(adv0_tn_rate),
+            "adv1_tp_rate": float(adv1_tp_rate),
+            "adv0_ok": bool(adv0_ok),
+            "adv1_ok": bool(adv1_ok),
+            "score": float(score),
+        })
+
+    out = pd.DataFrame(rows)
+    if len(out) > 0:
+        out = out.sort_values(["score", "adv0_ok", "adv1_ok"], ascending=[False, False, False])
+    return out
+
+
+# =========================
+# Sweep acceleration helpers
+# =========================
+
+# Per-process CSV cache to reduce repeated disk I/O during sweeps
+_SWEEP_CSV_CACHE: dict[str, pd.DataFrame] = {}
+
+
+def _sweep_worker_eval_one_csv_for_config(args):
+    """Evaluate one CSV under one config.
+
+    args := (csv_path, WINDOW_S, DENSITY_MIN, PERIODIC_MIN_PERSISTENCE_S, PERIODIC_BLOCK_S)
+    PERIODIC_STEP_S is set equal to PERIODIC_BLOCK_S.
+
+    Returns a small dict with tp/fp/fn/tn plus config fields.
+    """
+    p_str, win_s, dens_min, pers_min_s, block_s = args
+    p = Path(str(p_str))
+
+    # Cache raw CSV per worker process
+    key = str(p)
+    raw = _SWEEP_CSV_CACHE.get(key)
+    if raw is None:
+        raw = pd.read_csv(p)
+        _SWEEP_CSV_CACHE[key] = raw
+
+    # Apply config (globals)
+    global WINDOW_S, DENSITY_MIN, PERIODIC_MIN_PERSISTENCE_S, PERIODIC_BLOCK_S, PERIODIC_STEP_S
+    WINDOW_S = int(win_s)
+    DENSITY_MIN = float(dens_min)
+    PERIODIC_MIN_PERSISTENCE_S = float(pers_min_s)
+    PERIODIC_BLOCK_S = float(block_s)
+    PERIODIC_STEP_S = float(block_s)
+
+    cand_df, summary_df, meta = _run_one_csv(p)
+    det = _compute_detection_metrics(meta, cand_df)
+
+    return {
+        "src_file": str(p),
+        "adv_setting": _adv_setting_from_path(str(p)),
+        "tp": int(det.get("tp", 0)),
+        "fp": int(det.get("fp", 0)),
+        "fn": int(det.get("fn", 0)),
+        "tn": int(det.get("tn", 0)),
+        "window_s": float(win_s),
+        "dens_min": float(dens_min),
+        "periodic_min_persistence_s": float(pers_min_s),
+        "periodic_block_s": float(block_s),
+    }
+
+
+def _write_non_tp_case_report(eval_rows: list[dict], *, out_csv: str) -> None:
+    """Write per-CSV details for all non-TP cases.
+
+    Includes detection parameters (WINDOW_S, DENSITY_MIN, PERIODIC_*), parsed (tx,rot) from filename,
+    and the confusion category.
+    """
+    if not eval_rows:
+        return
+
+    df = pd.DataFrame(eval_rows).copy()
+    if "src_file" not in df.columns:
+        return
+
+    # Ensure gt/pred/metrics exist
+    if "gt_pos" not in df.columns or "pred_pos" not in df.columns:
+        # derive from fields typically present in eval_row
+        df["gt_pos"] = pd.to_numeric(df.get("gt_adv_mac_count", 0), errors="coerce").fillna(0).astype(int) > 0
+        df["pred_pos"] = df.get("confirmed_any", False).fillna(False).astype(bool)
+
+    df["gt_pos"] = df["gt_pos"].astype(bool)
+    df["pred_pos"] = df["pred_pos"].astype(bool)
+
+    # Confusion label
+    def _conf(r):
+        gt = bool(r["gt_pos"])
+        pr = bool(r["pred_pos"])
+        if gt and pr:
+            return "TP"
+        if (not gt) and pr:
+            return "FP"
+        if gt and (not pr):
+            return "FN"
+        return "TN"
+
+    df["confusion"] = df.apply(_conf, axis=1)
+
+    # Keep only non-TP
+    df = df[df["confusion"] != "TP"].copy()
+    if len(df) == 0:
+        # still write header-only file for reproducibility
+        Path(out_csv).write_text("src_file,confusion\n", encoding="utf-8")
+        return
+
+    # Parse tx/rot
+    txs, rots, tx_toks, rot_toks = [], [], [], []
+    for s in df["src_file"].astype(str).tolist():
+        tx_s, rot_s, tx_tok, rot_tok = _parse_tx_rot_from_filename(Path(s))
+        txs.append(tx_s)
+        rots.append(rot_s)
+        tx_toks.append(tx_tok)
+        rot_toks.append(rot_tok)
+    df["tx_s"] = txs
+    df["rot_s"] = rots
+    df["tx_tok"] = tx_toks
+    df["rot_tok"] = rot_toks
+
+    # Attach current run parameters (constants)
+    df["WINDOW_S"] = int(WINDOW_S)
+    df["DENSITY_MIN"] = float(DENSITY_MIN) if DENSITY_MIN is not None else np.nan
+    df["PERIODIC_MODE"] = bool(PERIODIC_MODE)
+    df["PERIODIC_BLOCK_S"] = float(PERIODIC_BLOCK_S)
+    df["PERIODIC_STEP_S"] = float(PERIODIC_STEP_S)
+    df["PERIODIC_MIN_PERSISTENCE_S"] = float(PERIODIC_MIN_PERSISTENCE_S)
+
+    # Best-effort: add a per-CSV core density value.
+    # Preferred: per-CSV maximum core_mac_density_scaled over candidate rows (if present in eval_rows).
+    # Fallback: any per-CSV density-like columns in eval_rows.
+    df["core_density"] = np.nan
+
+    # 1) If candidate-level rows were attached into eval_rows (rare), use per-src_file max.
+    if "core_mac_density_scaled" in df.columns:
+        try:
+            v = pd.to_numeric(df["core_mac_density_scaled"], errors="coerce")
+            df["core_density"] = v
+        except Exception:
+            pass
+
+    # 2) Try other known per-CSV density-like fields.
+    if df["core_density"].isna().all():
+        for c in [
+            "advmax_core_mac_density_scaled",
+            "best_core_mac_density_scaled",
+            "max_core_mac_density_scaled",
+            "cand_core_mac_density_scaled",
+        ]:
+            if c in df.columns:
+                df["core_density"] = pd.to_numeric(df[c], errors="coerce")
+                break
+
+    # 3) Robust fallback: read candidate check CSV next to out_csv and take per-src_file max (decision candidates).
+    if df["core_density"].isna().all():
+        try:
+            outp = Path(out_csv).resolve().parent
+            # match files like aircatch_<scenario>_candidate_checks__dens<...>.csv
+            cand_csvs = sorted(outp.glob("aircatch_*_candidate_checks__dens*.csv"))
+            if cand_csvs:
+                # Use the largest file as the most likely to be the latest run.
+                cand_csv = max(cand_csvs, key=lambda p: p.stat().st_size)
+                cdf = pd.read_csv(cand_csv)
+                if "src_file" in cdf.columns and "core_mac_density_scaled" in cdf.columns:
+                    cdf["core_mac_density_scaled"] = pd.to_numeric(cdf["core_mac_density_scaled"], errors="coerce")
+                    g = cdf.groupby("src_file", as_index=False)["core_mac_density_scaled"].max()
+                    g = g.rename(columns={"core_mac_density_scaled": "core_density"})
+                    df = df.merge(g, on="src_file", how="left", suffixes=("", "_from_cands"))
+                    if "core_density_from_cands" in df.columns:
+                        # prefer candidate-derived max
+                        df["core_density"] = df["core_density_from_cands"].combine_first(df["core_density"])
+                        df = df.drop(columns=["core_density_from_cands"])
+        except Exception:
+            pass
+
+    # Select columns
+    keep = [
+        "src_file",
+        "confusion",
+        "gt_pos",
+        "pred_pos",
+        "tp",
+        "fp",
+        "fn",
+        "tn",
+        "precision",
+        "recall",
+        "f1",
+        "hours",
+        "ttd_s",
+        "tx_tok",
+        "rot_tok",
+        "tx_s",
+        "rot_s",
+        "core_density",
+        "WINDOW_S",
+        "DENSITY_MIN",
+        "PERIODIC_MODE",
+        "PERIODIC_BLOCK_S",
+        "PERIODIC_STEP_S",
+        "PERIODIC_MIN_PERSISTENCE_S",
+    ]
+    for c in keep:
+        if c not in df.columns:
+            df[c] = np.nan
+
+    out_df = df[keep].copy()
+    out_df.to_csv(out_csv, index=False)
+
+
 def main():
     ap = argparse.ArgumentParser(description="AirCatch batch/single runner")
     ap.add_argument(
@@ -2379,12 +3638,17 @@ def main():
     ap.add_argument("--sweep-density-grid", type=str, default="", help="Optional comma-separated density grid (overrides DENSITY_GRID)")
     ap.add_argument("--sweep-block-density", action="store_true", help="Grid-search PERIODIC_BLOCK_S and DENSITY_MIN (step=0.8*block)")
     ap.add_argument("--sweep-block-grid", type=str, default="", help="Comma-separated block sizes in seconds (e.g., 300,450,600,900)")
+    ap.add_argument("--run-multiscenario", action="store_true", help="Run evaluation over CONTROLLED_SUBFOLDERS and aggregate metrics.")
 
     args = ap.parse_args()
 
     global DENSITY_MIN
     if args.density_min is not None:
         DENSITY_MIN = float(args.density_min)
+
+    if args.run_multiscenario:
+        run_all_controlled_subfolders_and_plot(out_dir="usenix_multiscenario")
+        return
 
     if args.input:
         p = Path(args.input).expanduser()
@@ -2395,14 +3659,16 @@ def main():
         _run_csv_list(csvs, label=label)
         return
 
-    base = Path(CONTROLLED_ROOT) / CONTROLLED_SUBFOLDER
-    csvs = _list_csvs_in_controlled_subfolder(CONTROLLED_ROOT, CONTROLLED_SUBFOLDER)
+    # Default batch path
+    sf = CONTROLLED_SUBFOLDER[0] if isinstance(CONTROLLED_SUBFOLDER, (list, tuple)) else CONTROLLED_SUBFOLDER
+    base = Path(CONTROLLED_ROOT) / str(sf)
+    csvs = _list_csvs_in_controlled_subfolder(CONTROLLED_ROOT, sf)
     if not csvs:
         raise FileNotFoundError(f"No CSVs found under {base}")
 
     if args.sweep_block_density:
         # Default grid: around typical realtime chunk sizes
-        block_grid = [300.0, 450.0, 600.0, 750.0, 900.0]
+        block_grid = [60, 120, 300.0, 600.0, 900.0, 1200]
         if args.sweep_block_grid.strip():
             try:
                 block_grid = [float(x) for x in args.sweep_block_grid.split(",") if x.strip()]
@@ -2443,24 +3709,54 @@ def main():
             except Exception:
                 dens_grid = DENSITY_GRID
 
-        df = _sweep_density_min(csvs, label=f"batch_{CONTROLLED_SUBFOLDER}", dens_grid=dens_grid)
-        out = f"aircatch_sweep_density__block{PERIODIC_BLOCK_S}_step{PERIODIC_STEP_S}.csv"
-        df.to_csv(out, index=False)
+        # Targeted sweep grids (reduced to 256 total runs)
+        # Keep the same start/end values for window and block grids.
+        # Persist grid: keep only two uniformly spaced interior values.
+        persist_grid_s = [1800, 3600]  # between 1800 and 7200
 
-        # Find exact target if present
-        target = df[(df["tp"] == 23) & (df["fp"] == 0) & (df["fn"] == 0) & (df["tn"] == 0)]
-        if len(target) > 0:
-            best = target.sort_values("dens_min").iloc[0]
-            print(f"FOUND target: DENSITY_MIN={best['dens_min']} TP=23 FP=0 FN=0 TN=0")
-        else:
-            # Otherwise, best by F1 then lowest FP
-            best = df.sort_values(["f1", "fp"], ascending=[False, True]).iloc[0]
-            print(f"BEST (by F1 then FP): DENSITY_MIN={best['dens_min']} TP={best['tp']} FP={best['fp']} FN={best['fn']} TN={best['tn']}")
+        # Window grid: pick 4 values, keeping min/max
+        window_grid_s = [600, 1200]
 
-        print(f"Wrote: {out}")
+        # Block grid: pick 4 values, keeping min/max
+        block_grid_s = [60, 120, 300.0, 600.0, 900.0, 1200]
+
+        # Density grid: pick 8 values, including min/max; evenly spaced indices
+        if len(dens_grid) >= 8:
+            idx = np.linspace(0, len(dens_grid) - 1, 8)
+            dens_grid = [float(dens_grid[int(round(i))]) for i in idx]
+        dens_grid = sorted({float(x) for x in dens_grid})
+
+        # Sanity: print planned run count
+        planned = len(block_grid_s) * len(window_grid_s) * len(dens_grid) * len(persist_grid_s)
+        print(f"[SWEEP] planned_runs={planned} (block={len(block_grid_s)} window={len(window_grid_s)} dens={len(dens_grid)} persist={len(persist_grid_s)})")
+
+        df = _sweep_density_and_persistence_for_adv0_adv1(
+            csvs,
+            label=f"batch_{CONTROLLED_SUBFOLDER}",
+            dens_grid=dens_grid,
+            persist_grid_s=persist_grid_s,
+            window_grid_s=window_grid_s,
+            block_grid_s=block_grid_s,
+        )
+
+        # Always write next to this script so output location is deterministic
+        script_dir = Path(__file__).resolve().parent
+        out_path = script_dir / "aircatch_sweep_block_window_dens_persist.csv"
+        df.to_csv(out_path, index=False)
+
+        if len(df) > 0:
+            best = df.iloc[0]
+            print(
+                "BEST (adv0 TN-only, adv1 TP-only prioritized): "
+                f"BLOCK_S={best['periodic_block_s']} STEP_S={best['periodic_step_s']} "
+                f"WINDOW_S={best['window_s']} DENSITY_MIN={best['dens_min']} PERIODIC_MIN_PERSISTENCE_S={best['periodic_min_persistence_s']} "
+                f"adv0_ok={best['adv0_ok']} adv1_ok={best['adv1_ok']} score={best['score']:.3f}"
+            )
+
+        print(f"Wrote: {str(out_path)}")
         return
 
-    _run_csv_list(csvs, label=f"batch_{CONTROLLED_SUBFOLDER}")
+    _run_csv_list(csvs, label=f"batch_{sf}")
 
 
 if __name__ == "__main__":

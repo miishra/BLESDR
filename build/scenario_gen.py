@@ -1255,7 +1255,28 @@ def main() -> int:
     n_samsung = len(sel.samsung_privids)
     counts_part = f"adv{n_adv}_apple{n_apple}_google{n_google}_samsung{n_samsung}_tile{n_tile}"
 
-    outdir = os.path.join(args.outdir, f"scenarios_{base}__{counts_part}__{stamp}")
+    # --- NEW: include selected adversary tag identifiers in folder name (if any) ---
+    def _safe_token(s: str) -> str:
+        s = str(s).strip().lower()
+        s = re.sub(r"[^a-z0-9]+", "", s)
+        return s
+
+    adv_part = ""
+    if sel.adv_tags:
+        # keep order, de-dup
+        seen = set()
+        toks = []
+        for t in sel.adv_tags:
+            tt = _safe_token(t)
+            if not tt or tt in seen:
+                continue
+            seen.add(tt)
+            # shorten to keep path length reasonable
+            toks.append(tt[:12])
+        if toks:
+            adv_part = "__advtag-" + "-".join(toks)
+
+    outdir = os.path.join(args.outdir, f"scenarios_{base}__{counts_part}{adv_part}__{stamp}")
     os.makedirs(outdir, exist_ok=True)
     print(f"\n[i] Writing scenario CSVs to: {outdir}")
 

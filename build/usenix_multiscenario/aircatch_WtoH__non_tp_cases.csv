@@ -1,0 +1,4 @@
+src_file,confusion,gt_pos,pred_pos,tp,fp,fn,tn,precision,recall,f1,hours,ttd_s,tx_tok,rot_tok,tx_s,rot_s,core_density,WINDOW_S,DENSITY_MIN,PERIODIC_MODE,PERIODIC_BLOCK_S,PERIODIC_STEP_S,PERIODIC_MIN_PERSISTENCE_S
+controlled/WtoH/scenarios_Work_to_home__adv0_apple0_google0_samsung0_tile0__20260130_042543/background_only.csv,FP,False,True,0,1,0,0,0.0,0.0,0.0,1.7450529344214334,3900.0,,,,,,300,1.0,True,1500.0,1200.0,1700.0
+controlled/WtoH/scenarios_Work_to_home__adv1_apple0_google0_samsung0_tile0__advtag-4c001219fc__20260130_042653/scenario_tx-1min_rot-5min.csv,FN,True,False,0,0,1,0,0.0,0.0,0.0,1.7450529344214334,3900.0,1min,5min,60.0,300.0,,300,1.0,True,1500.0,1200.0,1700.0
+controlled/WtoH/scenarios_Work_to_home__adv1_apple0_google0_samsung0_tile0__advtag-4c001219fe__20260130_042621/scenario_tx-1min_rot-15min.csv,FN,True,False,0,0,1,0,0.0,0.0,0.0,1.7450529344214334,3900.0,1min,15min,60.0,900.0,,300,1.0,True,1500.0,1200.0,1700.0
