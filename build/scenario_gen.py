@@ -54,7 +54,7 @@ import pickle
 # ---------------------------
 
 TX_PERIODS_SEC = [2, 10, 15, 30, 60]  # 2s, 10s, 15s, 30s, 1m
-ROT_PERIODS_SEC = [2, 10, 30, 60, 300, 900]     # 2s, 10s, 30s, 1m, 5m, 15m
+ROT_PERIODS_SEC = [2, 10, 15, 30, 60]     # 2s, 10s, 15s, 30s, 1m
 PERSIST_SEC_DEFAULT = 20 * 60                   # 20 minutes
 
 
@@ -1118,7 +1118,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
 
     ap.add_argument("--input", required=True, help="Path to input SDR capture CSV.")
-    ap.add_argument("--outdir", default="controlled/HtoW/", help="Output folder (default: auto-named).")
+    ap.add_argument("--outdir", default="controlled/SDR_Adv/", help="Output folder (default: auto-named).")
 
     ap.add_argument("--timestamp-col", default="timestamp", help="Timestamp column name.")
     ap.add_argument("--mac-col", default="AdvA", help="MAC column name.")
@@ -1131,7 +1131,7 @@ def main() -> int:
              'Example: "4c001219ff,abcd1234".'
     )
 
-    ap.add_argument("--persist-minutes", type=int, default=3000, help="Persistence threshold in minutes (default 30).")
+    ap.add_argument("--persist-minutes", type=int, default=25, help="Persistence threshold in minutes (default 30).")
     ap.add_argument("--tag-col", default=None,
                     help="Column holding tag type labels (APPLE/GOOGLE/SAMSUNG/TILE). "
                          "If omitted, script tries common names.")
@@ -1389,24 +1389,25 @@ def main() -> int:
     total = 0
     for tx in TX_PERIODS_SEC:
         for rot in ROT_PERIODS_SEC:
-            d_adv = apply_behavior_grouped(
-                df_rows=df_reintro,
-                group_key=group_key,
-                ts_col=ts_col,
-                mac_col=mac_col,
-                tx_period_sec=int(tx),
-                rot_period_sec=int(rot),
-                pseudonym_pool=pseudo_pool,
-                rng=rng,
-                also_replace_cols=mirror_cols,
-            )
+            if tx==rot:
+                d_adv = apply_behavior_grouped(
+                    df_rows=df_reintro,
+                    group_key=group_key,
+                    ts_col=ts_col,
+                    mac_col=mac_col,
+                    tx_period_sec=int(tx),
+                    rot_period_sec=int(rot),
+                    pseudonym_pool=pseudo_pool,
+                    rng=rng,
+                    also_replace_cols=mirror_cols,
+                )
 
-            out = pd.concat([df_base, d_adv], ignore_index=True)
-            out = out.sort_values(ts_col).reset_index(drop=True)
+                out = pd.concat([df_base, d_adv], ignore_index=True)
+                out = out.sort_values(ts_col).reset_index(drop=True)
 
-            out_path = os.path.join(outdir, f"scenario_tx-{_pretty_seconds(int(tx))}_rot-{_pretty_seconds(int(rot))}.csv")
-            out.to_csv(out_path, index=False)
-            total += 1
+                out_path = os.path.join(outdir, f"scenario_tx-{_pretty_seconds(int(tx))}_rot-{_pretty_seconds(int(rot))}.csv")
+                out.to_csv(out_path, index=False)
+                total += 1
 
     print(f"[✓] Done. Wrote {total} scenario CSVs.")
 

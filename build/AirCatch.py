@@ -76,7 +76,7 @@ TYPE_SEP_WEIGHT = 1.0           # strong separation between ecosystem types
 # =========================
 # (Restored to original paper/experiment defaults)
 
-WINDOW_S = 300                 # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
+WINDOW_S = 300                # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
 K_RANGE = range(3, 20)
 OVERALL_CFO_WEIGHT = 1
 
@@ -91,9 +91,9 @@ S_MIN_DENSITY = 10               # compute density only if cluster has >=10 segm
 R_MIN = 0.15                    # clamp radius in z-space for density
 EPS = 1e-9
 
-CORE_FRAC_Q = 0.15               # fraction of points to keep in core for density
-CORE_MIN_PTS = 3                # min points in core for density
-CORE_RADIUS_PCTL = 0.9         # robust clamp: use pctl of core distances as radius (reduces spikes)
+CORE_FRAC_Q = 0.2               # fraction of points to keep in core for density
+CORE_MIN_PTS = 3                 # min points in core for density
+CORE_RADIUS_PCTL = 0.95         # robust clamp: use pctl of core distances as radius (reduces spikes)
 
 CORE_DENSITY_VERSION = "v2_full_support_pctl_radius"
 
@@ -117,13 +117,13 @@ DENSITY_GRID = [0.8, 1, 1.2, 1.5]
 
 # Periodic mode (process each CSV in successive time blocks)
 PERIODIC_MODE = True
-PERIODIC_BLOCK_S = 1500   # 30 minutes
-PERIODIC_STEP_S = 1200    # non-overlapping by default, 30 minutes
+PERIODIC_BLOCK_S = 1800   # 30 minutes
+PERIODIC_STEP_S = 1800    # non-overlapping by default, 30 minutes
 
 # Periodic persistence confirmation (simple)
 # Require the same cluster to persist long enough within the file (seconds).
 # This uses the cluster's per-block persistence_s (t_end.max - t_start.min) and aggregates across blocks.
-PERIODIC_MIN_PERSISTENCE_S = 1700
+PERIODIC_MIN_PERSISTENCE_S = 2400 #1700
 
 STRICT_MIN_PERSISTENCE_S = 0
 
@@ -1909,13 +1909,68 @@ def _compute_cluster_purity_from_summary(summary_df: pd.DataFrame) -> float:
     return float(np.mean(np.maximum(g.values, 1.0 - g.values)))
 
 
-def _compute_detection_metrics(meta: dict, checks_df: pd.DataFrame) -> dict:
-    """Per-CSV detection metrics using file-level confirmed_any vs gt_adv_mac_count>0.
+def _filename_indicates_attack(src_file: str) -> bool:
+    """Heuristic GT from filename/path.
 
-    This is conservative for clustering: it treats the scenario as positive if any adversary-tagged MACs exist.
+    Positive if any attacker token is present:
+      - adv1/adv2/adv3/adv4
+      - apple1+, google1+, samsung1+, tile1+
+
+    adv0/apple0/... alone is not positive.
     """
-    gt_pos = bool(int(meta.get("gt_adv_mac_count", 0) or 0) > 0)
-    pred_pos = bool(meta.get("confirmed_any", False))
+    s = str(src_file)
+    if re.search(r"__adv([1-9])\b", s):
+        return True
+    if re.search(r"\badv([1-9])\b", s):
+        return True
+    if re.search(r"(apple|google|samsung|tile)([1-9])", s):
+        return True
+    return False
+
+
+def _compute_gt_pos_from_meta(meta: dict) -> bool:
+    """GT := (filename says attack) OR (gt_adv_mac_count>0 fallback)."""
+    src = str(meta.get("src_file", "")) if isinstance(meta, dict) else ""
+    if _filename_indicates_attack(src):
+        return True
+    try:
+        return int((meta or {}).get("gt_adv_mac_count", 0) or 0) > 0
+    except Exception:
+        return False
+
+
+def _compute_detection_metrics(meta: dict, checks_df: pd.DataFrame) -> dict:
+    """Per-CSV detection metrics using file-level confirmed_any vs GT.
+
+    GT := (filename indicates attacker) OR (gt_adv_mac_count>0).
+    """
+    gt_pos = bool(_compute_gt_pos_from_meta(meta))
+    pred_pos = bool((meta or {}).get("confirmed_any", False))
+
+    # Conservative safety: require minimum persistence for a file-level positive.
+    # This is primarily to suppress dense but non-persistent benign clusters.
+    try:
+        min_persist = float(STRICT_MIN_PERSISTENCE_S)
+    except Exception:
+        min_persist = 0.0
+
+    if min_persist > 0 and checks_df is not None and len(checks_df) > 0:
+        try:
+            # If any flagged candidate has persistence_s >= threshold, keep positive; else suppress.
+            if "persistence_s" in checks_df.columns:
+                pvals = pd.to_numeric(checks_df["persistence_s"], errors="coerce")
+                ok_persist = bool(np.nanmax(pvals.values) >= min_persist) if np.isfinite(pvals).any() else False
+            else:
+                ok_persist = False
+        except Exception:
+            ok_persist = False
+
+        if meta is not None and isinstance(meta, dict):
+            pred_pos = bool(meta.get("confirmed_any", False))
+            if pred_pos and (not ok_persist):
+                # suppress prediction if no candidate is sufficiently persistent
+                meta["confirmed_any"] = False
+                meta["persist_confirmed"] = False
 
     tp = int(gt_pos and pred_pos)
     fp = int((not gt_pos) and pred_pos)
@@ -2156,12 +2211,23 @@ def _worker_run_one_csv(args):
         det = _compute_detection_metrics(meta, cand_df)
         ttd_s = _compute_ttd_seconds(meta)
 
+        # NEW: per-CSV max candidate core density (for reports/debugging)
+        try:
+            if cand_df is not None and len(cand_df) > 0 and "core_mac_density_scaled" in cand_df.columns:
+                _cd = pd.to_numeric(cand_df["core_mac_density_scaled"], errors="coerce")
+                core_density_max = float(np.nanmax(_cd.values)) if np.isfinite(_cd).any() else np.nan
+            else:
+                core_density_max = np.nan
+        except Exception:
+            core_density_max = np.nan
+
         eval_row = {
             "src_file": str(p),
             "hours": float(hours),
             "ttd_s": float(ttd_s) if np.isfinite(ttd_s) else np.nan,
             "silhouette": float(sil) if np.isfinite(sil) else np.nan,
             "purity": float(purity) if np.isfinite(purity) else np.nan,
+            "core_density_max": float(core_density_max) if np.isfinite(core_density_max) else np.nan,
             **det,
         }
         eval_row["fp_h"] = _safe_div(eval_row["fp"], hours)
@@ -2177,7 +2243,7 @@ def _worker_run_one_csv(args):
         return cand_df, summary_df, meta, row, eval_row
 
     except Exception as e:
-        # Always compute GT from raw CSV if possible so TP/FP/FN/TN totals are meaningful
+        # Always compute GT from raw CSV if possible so evaluation matches definition.
         try:
             raw = pd.read_csv(p)
             hours = float(_scenario_hours(raw))
@@ -2197,7 +2263,7 @@ def _worker_run_one_csv(args):
         }
 
         # With an exception, we treat prediction as negative (no confirmation)
-        gt_pos = bool(int(gt_adv_mac_count) > 0)
+        gt_pos = bool(_compute_gt_pos_from_meta(meta))
         pred_pos = False
 
         eval_row = {
@@ -2206,6 +2272,7 @@ def _worker_run_one_csv(args):
             "ttd_s": np.nan,
             "silhouette": np.nan,
             "purity": np.nan,
+            "core_density_max": np.nan,
             "gt_pos": bool(gt_pos),
             "pred_pos": bool(pred_pos),
             "tp": int(gt_pos and pred_pos),
@@ -3539,18 +3606,14 @@ def _write_non_tp_case_report(eval_rows: list[dict], *, out_csv: str) -> None:
     df["PERIODIC_STEP_S"] = float(PERIODIC_STEP_S)
     df["PERIODIC_MIN_PERSISTENCE_S"] = float(PERIODIC_MIN_PERSISTENCE_S)
 
-    # Best-effort: add a per-CSV core density value.
-    # Preferred: per-CSV maximum core_mac_density_scaled over candidate rows (if present in eval_rows).
-    # Fallback: any per-CSV density-like columns in eval_rows.
-    df["core_density"] = np.nan
-
-    # 1) If candidate-level rows were attached into eval_rows (rare), use per-src_file max.
-    if "core_mac_density_scaled" in df.columns:
-        try:
-            v = pd.to_numeric(df["core_mac_density_scaled"], errors="coerce")
-            df["core_density"] = v
-        except Exception:
-            pass
+    # Core density: prefer per-CSV max candidate density captured during the run.
+    # (Set by _worker_run_one_csv as core_density_max)
+    if "core_density_max" in df.columns:
+        df["core_density"] = pd.to_numeric(df.get("core_density_max", np.nan), errors="coerce")
+    else:
+        # keep existing behavior but ensure column exists
+        if "core_density" not in df.columns:
+            df["core_density"] = np.nan
 
     # 2) Try other known per-CSV density-like fields.
     if df["core_density"].isna().all():
@@ -3606,6 +3669,7 @@ def _write_non_tp_case_report(eval_rows: list[dict], *, out_csv: str) -> None:
         "tx_s",
         "rot_s",
         "core_density",
+        "core_density_max",
         "WINDOW_S",
         "DENSITY_MIN",
         "PERIODIC_MODE",
