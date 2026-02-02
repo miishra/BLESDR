@@ -76,7 +76,7 @@ TYPE_SEP_WEIGHT = 1.0           # strong separation between ecosystem types
 # =========================
 # (Restored to original paper/experiment defaults)
 
-WINDOW_S = 300                # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
+WINDOW_S = 120                # seconds per time bucket (e.g., 300=5min, 120=2min, 900=15min)
 K_RANGE = range(3, 20)
 OVERALL_CFO_WEIGHT = 1
 
@@ -91,6 +91,18 @@ S_MIN_DENSITY = 10               # compute density only if cluster has >=10 segm
 R_MIN = 0.15                    # clamp radius in z-space for density
 EPS = 1e-9
 
+# =========================
+# Core radius modes
+# =========================
+# "pctl"  : percentile of distances in core (current default)
+# "mad"   : MAD-based radius (robust, tight)
+# "std"   : standard-deviation-based radius (looser, FP-prone)
+
+CORE_RADIUS_MODE = "std"   # {"pctl", "mad", "std"}
+
+CORE_RADIUS_MAD_K = 3    # radius = k * MAD (in z-space)
+CORE_RADIUS_STD_K = 1.5    # radius = k * std (in z-space)   #1.5
+
 CORE_FRAC_Q = 0.2               # fraction of points to keep in core for density
 CORE_MIN_PTS = 3                 # min points in core for density
 CORE_RADIUS_PCTL = 0.95         # robust clamp: use pctl of core distances as radius (reduces spikes)
@@ -104,12 +116,12 @@ CFO_COLS_SEG = ["CFO", "CFO_00", "CFO_11", "CFO_10", "CFO_01"]
 
 # Final strict decision thresholds (ALL must pass)
 DUR_MIN = MIN_DURATION_S
-UNIQUE_MACS_MIN = 15
+UNIQUE_MACS_MIN = 2
 
 _HEX_DIGITS = "0123456789abcdefABCDEF"
 
 # Density threshold applied on CORE density scaled
-DENSITY_MIN = 1  # 1.8
+DENSITY_MIN = 1.15  # 1.8
 
 # Grid of density thresholds used for per-scenario (adv-max) pass/fail reporting
 # (kept separate from DENSITY_MIN so we can sweep thresholds without rerunning.)
@@ -117,8 +129,8 @@ DENSITY_GRID = [0.8, 1, 1.2, 1.5]
 
 # Periodic mode (process each CSV in successive time blocks)
 PERIODIC_MODE = True
-PERIODIC_BLOCK_S = 1800   # 30 minutes
-PERIODIC_STEP_S = 1800    # non-overlapping by default, 30 minutes
+PERIODIC_BLOCK_S = 2400   # 40 minutes
+PERIODIC_STEP_S = 2400    # non-overlapping by default, 30 minutes
 
 # Periodic persistence confirmation (simple)
 # Require the same cluster to persist long enough within the file (seconds).
@@ -830,18 +842,40 @@ def compute_cluster_geometry(X: np.ndarray, seg: pd.DataFrame) -> pd.DataFrame:
         })
     return pd.DataFrame(out)
 
+def _compute_core_radius(d_core: np.ndarray) -> float:
+    """
+    Compute core radius using the selected CORE_RADIUS_MODE.
+    d_core := distances from medoid to points in the selected core.
+    """
+    if d_core is None or len(d_core) == 0:
+        return 0.0
+
+    d_core = np.asarray(d_core, dtype=float)
+    d_core = d_core[np.isfinite(d_core)]
+    if d_core.size == 0:
+        return 0.0
+
+    if CORE_RADIUS_MODE == "mad":
+        med = np.median(d_core)
+        mad = np.median(np.abs(d_core - med))
+        # MAD → sigma scaling (normal)
+        sigma = 1.4826 * mad
+        return CORE_RADIUS_MAD_K * sigma
+
+    elif CORE_RADIUS_MODE == "std":
+        return CORE_RADIUS_STD_K * float(np.std(d_core))
+
+    elif CORE_RADIUS_MODE == "pctl":
+        return float(np.percentile(d_core, CORE_RADIUS_PCTL * 100.0))
+
+    else:
+        raise ValueError(f"Unknown CORE_RADIUS_MODE: {CORE_RADIUS_MODE}")
 
 def compute_core_density(X_space: np.ndarray, seg_with_cluster: pd.DataFrame,
                          q: float = CORE_FRAC_Q, min_core: int = CORE_MIN_PTS) -> pd.DataFrame:
     """Compute core density around densest region.
 
-    v2 changes:
-      - MAC diversity uses FULL cluster support (unique_macs / total_segments)
-        instead of (core_unique_macs / core_segments), avoiding small-core inflation.
-      - core_radius uses a robust percentile of distances within the chosen core.
-
-    Safety:
-      - Prevent trivial single-MAC / tiny-support clusters from producing inflated density.
+    NOTE: This function must be pure per-cluster; do not use any variables after the loop.
     """
     rows = []
     for cid, idxs in seg_with_cluster.groupby("cluster").groups.items():
@@ -861,12 +895,9 @@ def compute_core_density(X_space: np.ndarray, seg_with_cluster: pd.DataFrame,
         core_local = np.argsort(d)[:core_k]
         core_global = [idxs[i] for i in core_local]
 
-        # robust radius: percentile over core distances (less sensitive than max)
+        # robust radius via selectable mode
         if core_k > 1:
-            try:
-                core_radius = float(np.percentile(d[core_local], CORE_RADIUS_PCTL * 100.0))
-            except Exception:
-                core_radius = float(np.max(d[core_local]))
+            core_radius = _compute_core_radius(d[core_local])
         else:
             core_radius = 0.0
 
@@ -885,7 +916,6 @@ def compute_core_density(X_space: np.ndarray, seg_with_cluster: pd.DataFrame,
         total_segments = int(n)
         core_segments = int(core_k)
 
-        # Base density
         mac_div_full = unique_macs / max(total_segments, 1)
         core_mac_density = mac_div_full / (core_radius_clamped + EPS)
         core_mac_density_scaled = core_mac_density
@@ -905,6 +935,7 @@ def compute_core_density(X_space: np.ndarray, seg_with_cluster: pd.DataFrame,
             "core_mac_density": float(core_mac_density),
             "core_mac_density_scaled": float(core_mac_density_scaled),
             "core_density_version": CORE_DENSITY_VERSION,
+            "core_radius_mode": CORE_RADIUS_MODE,
         })
 
     return pd.DataFrame(rows)
@@ -1069,33 +1100,40 @@ def rank_adversary_clusters(summary_df: pd.DataFrame, top_n: int = 10) -> pd.Dat
 
 
 def _strict_decision(row: pd.Series) -> tuple[bool, dict]:
-    """Return (ok, components) for strict confirmation.
+    """Strict candidate decision.
 
-    confirm := (persistence >= STRICT_MIN_PERSISTENCE_S) AND
-               (core density >= DENSITY_MIN)
+    A candidate is valid only if ALL pass:
+      - duration (persistence_s preferred, else duration_cov)
+      - unique_macs
+      - density
+
+    This is the ONLY gate that can contribute to file-level confirmed_any.
     """
-    dur_val = row.get("persistence_s", np.nan)
-    if dur_val is None or (isinstance(dur_val, float) and np.isnan(dur_val)):
-        dur_val = row.get("duration_span", np.nan)
-    if dur_val is None or (isinstance(dur_val, float) and np.isnan(dur_val)):
-        dur_val = row.get("duration_cov", 0.0)
+    # duration
+    persist = row.get("persistence_s", np.nan)
+    dur_cov = row.get("duration_cov", np.nan)
+    dur_val = float(persist) if np.isfinite(persist) else float(dur_cov)
+    dur_ok = bool(np.isfinite(dur_val) and dur_val >= float(DUR_MIN))
 
-    dur_ok = bool(float(dur_val) >= float(STRICT_MIN_PERSISTENCE_S))
+    # unique macs
+    unique_macs = int(row.get("unique_macs", 0) or 0)
+    unique_ok = bool(unique_macs >= int(UNIQUE_MACS_MIN))
 
+    # density
     dens = float(row.get("core_mac_density_scaled", np.nan))
-    dens_ok = bool(np.isfinite(dens) and (dens >= float(DENSITY_MIN))) if DENSITY_MIN is not None else True
+    dens_ok = bool(np.isfinite(dens) and dens >= float(DENSITY_MIN))
 
-    # Never allow a 1-MAC (or 1-segment) cluster to pass density gating
-    if int(row.get("unique_macs", 0) or 0) < 2 or int(row.get("segments", 0) or 0) < int(CORE_MIN_PTS):
+    # Hard safety: never allow trivial clusters
+    if int(row.get("unique_macs", 0)) < 2 or int(row.get("segments", 0)) < int(CORE_MIN_PTS):
         dens_ok = False
 
-    ok = bool(dur_ok and dens_ok)
+    decision_ok = bool(dur_ok and unique_ok and dens_ok)
 
-    return ok, {
-        "dur_ok": dur_ok,
-        "unique_ok": bool(float(row.get("unique_macs", 0.0)) >= UNIQUE_MACS_MIN),
-        "dens_ok": dens_ok,
-        "decision_ok": ok,
+    return decision_ok, {
+        "dur_ok": bool(dur_ok),
+        "unique_ok": bool(unique_ok),
+        "dens_ok": bool(dens_ok),
+        "decision_ok": bool(decision_ok),
     }
 
 
@@ -1943,12 +1981,43 @@ def _compute_detection_metrics(meta: dict, checks_df: pd.DataFrame) -> dict:
     """Per-CSV detection metrics using file-level confirmed_any vs GT.
 
     GT := (filename indicates attacker) OR (gt_adv_mac_count>0).
+
+    IMPORTANT:
+      - A file-level positive must be supported by at least one candidate with decision_ok==True.
+      - Do not allow "seen" densities from rejected clusters to influence pred_pos.
     """
     gt_pos = bool(_compute_gt_pos_from_meta(meta))
+
+    # Base prediction from meta
     pred_pos = bool((meta or {}).get("confirmed_any", False))
 
-    # Conservative safety: require minimum persistence for a file-level positive.
-    # This is primarily to suppress dense but non-persistent benign clusters.
+    # Recompute a strict, invariant-safe pred_pos based only on decision_ok candidates if available.
+    # This prevents ghost densities from rejected clusters influencing the final decision.
+    core_density_seen_max = float("nan")
+    core_density_valid_max = 0.0
+    any_decision_ok = False
+
+    if checks_df is not None and len(checks_df) > 0 and "core_mac_density_scaled" in checks_df.columns:
+        d_all = pd.to_numeric(checks_df["core_mac_density_scaled"], errors="coerce")
+        core_density_seen_max = float(np.nanmax(d_all.values)) if np.isfinite(d_all).any() else float("nan")
+
+        if "decision_ok" in checks_df.columns:
+            ok_mask = checks_df["decision_ok"].astype(bool)
+            any_decision_ok = bool(ok_mask.any())
+            if any_decision_ok:
+                d_ok = pd.to_numeric(checks_df.loc[ok_mask, "core_mac_density_scaled"], errors="coerce")
+                core_density_valid_max = float(np.nanmax(d_ok.values)) if np.isfinite(d_ok).any() else 0.0
+            else:
+                core_density_valid_max = 0.0
+
+    # If no decision_ok clusters exist, the file-level prediction must be negative.
+    if (checks_df is not None) and (len(checks_df) > 0) and ("decision_ok" in checks_df.columns) and (not any_decision_ok):
+        pred_pos = False
+        if isinstance(meta, dict):
+            meta["confirmed_any"] = False
+            meta["strict_confirmed"] = False
+
+    # Conservative optional persistence suppression (kept), but never allow it to create a positive.
     try:
         min_persist = float(STRICT_MIN_PERSISTENCE_S)
     except Exception:
@@ -1956,7 +2025,6 @@ def _compute_detection_metrics(meta: dict, checks_df: pd.DataFrame) -> dict:
 
     if min_persist > 0 and checks_df is not None and len(checks_df) > 0:
         try:
-            # If any flagged candidate has persistence_s >= threshold, keep positive; else suppress.
             if "persistence_s" in checks_df.columns:
                 pvals = pd.to_numeric(checks_df["persistence_s"], errors="coerce")
                 ok_persist = bool(np.nanmax(pvals.values) >= min_persist) if np.isfinite(pvals).any() else False
@@ -1965,12 +2033,15 @@ def _compute_detection_metrics(meta: dict, checks_df: pd.DataFrame) -> dict:
         except Exception:
             ok_persist = False
 
-        if meta is not None and isinstance(meta, dict):
-            pred_pos = bool(meta.get("confirmed_any", False))
-            if pred_pos and (not ok_persist):
-                # suppress prediction if no candidate is sufficiently persistent
-                meta["confirmed_any"] = False
-                meta["persist_confirmed"] = False
+        if pred_pos and (not ok_persist) and isinstance(meta, dict):
+            meta["confirmed_any"] = False
+            meta["persist_confirmed"] = False
+            pred_pos = False
+
+    # Invariant: if no decision_ok candidates, valid max density must be 0 and pred must be False.
+    if (checks_df is not None) and (len(checks_df) > 0) and ("decision_ok" in checks_df.columns) and (not any_decision_ok):
+        assert float(core_density_valid_max) == 0.0
+        assert bool(pred_pos) is False
 
     tp = int(gt_pos and pred_pos)
     fp = int((not gt_pos) and pred_pos)
@@ -1981,8 +2052,12 @@ def _compute_detection_metrics(meta: dict, checks_df: pd.DataFrame) -> dict:
     rec = _safe_div(tp, tp + fn)
     f1 = _safe_div(2.0 * prec * rec, prec + rec) if (prec + rec) else 0.0
 
-    # For completeness: how many clusters were flagged inside this file
     n_flagged_clusters = int((checks_df["decision_ok"].astype(bool).sum()) if (checks_df is not None and len(checks_df) and "decision_ok" in checks_df.columns) else 0)
+
+    # Gate diagnostics (helps interpret core_density_valid_max=0)
+    n_dur_ok = int((checks_df["dur_ok"].astype(bool).sum()) if (checks_df is not None and len(checks_df) and "dur_ok" in checks_df.columns) else 0)
+    n_unique_ok = int((checks_df["unique_ok"].astype(bool).sum()) if (checks_df is not None and len(checks_df) and "unique_ok" in checks_df.columns) else 0)
+    n_dens_ok = int((checks_df["dens_ok"].astype(bool).sum()) if (checks_df is not None and len(checks_df) and "dens_ok" in checks_df.columns) else 0)
 
     return {
         "gt_pos": gt_pos,
@@ -1995,35 +2070,14 @@ def _compute_detection_metrics(meta: dict, checks_df: pd.DataFrame) -> dict:
         "recall": float(rec),
         "f1": float(f1),
         "n_flagged_clusters": n_flagged_clusters,
+        "n_dur_ok": n_dur_ok,
+        "n_unique_ok": n_unique_ok,
+        "n_dens_ok": n_dens_ok,
+        "n_decision_ok": n_flagged_clusters,
+        # Debugging visibility
+        "core_density_seen_max": float(core_density_seen_max) if np.isfinite(core_density_seen_max) else np.nan,
+        "core_density_valid_max": float(core_density_valid_max) if np.isfinite(core_density_valid_max) else 0.0,
     }
-
-
-def _compute_ttd_seconds(meta: dict) -> float:
-    """Time-to-detect (TTD) from beginning of the file to first correct flag.
-
-    Prefer periodic persistence confirmation time (track-based). Fallback to block strict-confirmed.
-    """
-    # Preferred: track-based confirmation time
-    if isinstance(meta, dict) and meta.get("periodic", False):
-        t0 = float(meta.get("t0", np.nan))
-        t_conf = float(meta.get("ttd_confirm_time", np.nan))
-        if np.isfinite(t0) and np.isfinite(t_conf) and t_conf >= t0:
-            return float(t_conf - t0)
-
-    # Fallback: legacy strict-confirmed block timing
-    blocks = meta.get("blocks") if isinstance(meta, dict) else None
-    if not isinstance(blocks, list) or len(blocks) == 0:
-        return float("nan")
-
-    b = [x for x in blocks if isinstance(x, dict) and ("block_start" in x) and ("strict_confirmed" in x)]
-    if not b:
-        return float("nan")
-    b = sorted(b, key=lambda r: float(r.get("block_start", 0.0)))
-    t0 = float(b[0].get("block_start", 0.0))
-    for r in b:
-        if bool(r.get("strict_confirmed", False)):
-            return max(0.0, float(r.get("block_start", 0.0)) - t0)
-    return float("nan")
 
 
 def _write_paper_report_txt(per_csv_rows: list[dict], out_txt: str) -> None:
@@ -2211,15 +2265,9 @@ def _worker_run_one_csv(args):
         det = _compute_detection_metrics(meta, cand_df)
         ttd_s = _compute_ttd_seconds(meta)
 
-        # NEW: per-CSV max candidate core density (for reports/debugging)
-        try:
-            if cand_df is not None and len(cand_df) > 0 and "core_mac_density_scaled" in cand_df.columns:
-                _cd = pd.to_numeric(cand_df["core_mac_density_scaled"], errors="coerce")
-                core_density_max = float(np.nanmax(_cd.values)) if np.isfinite(_cd).any() else np.nan
-            else:
-                core_density_max = np.nan
-        except Exception:
-            core_density_max = np.nan
+        # Compute density maxima CONSISTENTLY
+        core_density_seen_max = float(det.get("core_density_seen_max", np.nan))
+        core_density_valid_max = float(det.get("core_density_valid_max", 0.0))
 
         eval_row = {
             "src_file": str(p),
@@ -2227,8 +2275,12 @@ def _worker_run_one_csv(args):
             "ttd_s": float(ttd_s) if np.isfinite(ttd_s) else np.nan,
             "silhouette": float(sil) if np.isfinite(sil) else np.nan,
             "purity": float(purity) if np.isfinite(purity) else np.nan,
-            "core_density_max": float(core_density_max) if np.isfinite(core_density_max) else np.nan,
-            **det,
+            # These replace the old ambiguous core_density_max
+            "core_density_seen_max": float(core_density_seen_max) if np.isfinite(core_density_seen_max) else np.nan,
+            "core_density_valid_max": float(core_density_valid_max) if np.isfinite(core_density_valid_max) else 0.0,
+            # Back-compat: keep core_density_max but define it as VALID max only
+            "core_density_max": float(core_density_valid_max) if np.isfinite(core_density_valid_max) else 0.0,
+            **{k: v for k, v in det.items() if k not in {"core_density_seen_max", "core_density_valid_max"}},
         }
         eval_row["fp_h"] = _safe_div(eval_row["fp"], hours)
         eval_row["fn_h"] = _safe_div(eval_row["fn"], hours)
@@ -3102,176 +3154,6 @@ def _write_core_density_adv_present_vs_not_cdf_across_scenarios(
         plt.close(fig)
 
 
-def _write_tp_rate_bars_by_tx_rot(eval_rows: list[dict], *, scenario: str, out_pdf: str) -> None:
-    """TP percentage per (tx,rot) for adv1 (one attacker) within one scenario.
-
-    y := 100 * TP / (TP+FN) for adv1 only (i.e., among positives).
-    """
-    if not eval_rows:
-        return
-
-    df = pd.DataFrame(eval_rows).copy()
-    if "src_file" not in df.columns:
-        return
-
-    df["adv_setting"] = df["src_file"].astype(str).apply(_adv_setting_from_src_file)
-    df = df[df["adv_setting"] == "adv1"].copy()
-    if len(df) == 0:
-        return
-
-    # parse tx/rot
-    txs, rots, tx_toks, rot_toks = [], [], [], []
-    for s in df["src_file"].astype(str).tolist():
-        tx_s, rot_s, tx_tok, rot_tok = _parse_tx_rot_from_filename(Path(s))
-        txs.append(tx_s)
-        rots.append(rot_s)
-        tx_toks.append(tx_tok)
-        rot_toks.append(rot_tok)
-    df["tx_tok"] = tx_toks
-    df["rot_tok"] = rot_toks
-
-    # Keep only rows with parsable tx/rot
-    df = df[(df["tx_tok"].astype(str) != "") & (df["rot_tok"].astype(str) != "")].copy()
-    if len(df) == 0:
-        return
-
-    for c in ["tp", "fn", "gt_pos"]:
-        if c not in df.columns:
-            df[c] = 0
-    df["tp"] = pd.to_numeric(df["tp"], errors="coerce").fillna(0).astype(int)
-    df["fn"] = pd.to_numeric(df["fn"], errors="coerce").fillna(0).astype(int)
-
-    # Aggregate TP/(TP+FN) per tuple
-    df["tuple"] = list(zip(df["tx_tok"].astype(str), df["rot_tok"].astype(str)))
-    g = df.groupby("tuple", as_index=False).agg(tp=("tp", "sum"), fn=("fn", "sum"))
-    g["tp_pct"] = g.apply(lambda r: 100.0 * _safe_div(float(r["tp"]), float(r["tp"] + r["fn"])) if (r["tp"] + r["fn"]) > 0 else 0.0, axis=1)
-
-    # Sort by tx then rot (seconds)
-    def _tok_to_s(tok: str) -> float:
-        return _parse_s_to_seconds(tok)
-
-    g["tx_s"] = g["tuple"].apply(lambda t: _tok_to_s(t[0]))
-    g["rot_s"] = g["tuple"].apply(lambda t: _tok_to_s(t[1]))
-    g = g.sort_values(["tx_s", "rot_s"]).reset_index(drop=True)
-
-    labels = [f"({t[0]},{t[1]})" for t in g["tuple"].tolist()]
-    y = g["tp_pct"].astype(float).values
-
-    fig, ax = plt.subplots(figsize=(max(8.5, 0.35 * len(labels)), 3.6))
-    ax.bar(np.arange(len(labels)), y, color="#4C78A8", edgecolor="black", linewidth=0.3)
-    ax.set_ylim(0.0, 105.0)
-    ax.set_ylabel("TP% (adv1 only)")
-    ax.set_xlabel("(tx, rot)")
-    ax.set_xticks(np.arange(len(labels)))
-    ax.set_xticklabels(labels, rotation=60, ha="right", fontsize=7)
-    ax.grid(axis="y", alpha=0.25)
-    ax.set_title(f"{_pretty_scenario_name_for_plots(scenario)}: TP% by (tx,rot) for 1 attacker")
-
-    for i, v in enumerate(y):
-        ax.text(i, (0.8 if v == 0 else v + 0.8), f"{v:.0f}%", ha="center", va="bottom", fontsize=7, rotation=90)
-
-    fig.tight_layout()
-    try:
-        fig.savefig(out_pdf)
-    finally:
-        plt.close(fig)
-
-
-def _write_detection_grouped_bars_by_tx_rot(eval_rows: list[dict], *, scenario: str, out_pdf: str) -> None:
-    """Grouped 0/100 detection bars per (tx,rot) comparing adv1/adv2/adv4.
-
-    y := 100 if detected (tp==1 or pred_pos==True on gt_pos) else 0, aggregated as mean*100.
-    """
-    if not eval_rows:
-        return
-
-    df = pd.DataFrame(eval_rows).copy()
-    if "src_file" not in df.columns:
-        return
-
-    df["adv_setting"] = df["src_file"].astype(str).apply(_adv_setting_from_src_file)
-    df = df[df["adv_setting"].isin(["adv1", "adv2", "adv4"])].copy()
-    if len(df) == 0:
-        return
-
-    # parse tx/rot
-    txs, rots, tx_toks, rot_toks = [], [], [], []
-    for s in df["src_file"].astype(str).tolist():
-        tx_s, rot_s, tx_tok, rot_tok = _parse_tx_rot_from_filename(Path(s))
-        txs.append(tx_s)
-        rots.append(rot_s)
-        tx_toks.append(tx_tok)
-        rot_toks.append(rot_tok)
-    df["tx_tok"] = tx_toks
-    df["rot_tok"] = rot_toks
-
-    df = df[(df["tx_tok"].astype(str) != "") & (df["rot_tok"].astype(str) != "")].copy()
-    if len(df) == 0:
-        return
-
-    # detection success per row: 1 if TP else 0 (only meaningful for positives)
-    if "gt_pos" not in df.columns:
-        df["gt_pos"] = False
-    if "tp" not in df.columns:
-        df["tp"] = 0
-    df["gt_pos"] = df["gt_pos"].astype(bool)
-    df["tp"] = pd.to_numeric(df["tp"], errors="coerce").fillna(0).astype(int)
-    df = df[df["gt_pos"]].copy()
-    if len(df) == 0:
-        return
-
-    df["tuple"] = list(zip(df["tx_tok"].astype(str), df["rot_tok"].astype(str)))
-    df["det_ok"] = (df["tp"] > 0).astype(int)
-
-    g = df.groupby(["tuple", "adv_setting"], as_index=False).agg(det_rate=("det_ok", "mean"))
-
-    # pivot to columns adv1/adv2/adv4
-    pv = g.pivot_table(index="tuple", columns="adv_setting", values="det_rate", aggfunc="mean", fill_value=0.0)
-
-    # Ensure columns
-    for c in ["adv1", "adv2", "adv4"]:
-        if c not in pv.columns:
-            pv[c] = 0.0
-    pv = pv[["adv1", "adv2", "adv4"]]
-
-    # Sort by tx then rot
-    def _tok_to_s(tok: str) -> float:
-        return _parse_s_to_seconds(tok)
-
-    idx = list(pv.index)
-    order = sorted(idx, key=lambda t: (_tok_to_s(t[0]), _tok_to_s(t[1])))
-    pv = pv.reindex(order)
-
-    labels = [f"({t[0]},{t[1]})" for t in pv.index]
-    x = np.arange(len(labels), dtype=float)
-    w = 0.25
-
-    fig, ax = plt.subplots(figsize=(max(9.0, 0.38 * len(labels)), 3.8))
-
-    y1 = 100.0 * pv["adv1"].astype(float).values
-    y2 = 100.0 * pv["adv2"].astype(float).values
-    y4 = 100.0 * pv["adv4"].astype(float).values
-
-    ax.bar(x - w, y1, width=w, color="#4C78A8", edgecolor="black", linewidth=0.3, label="1 attacker (adv1)")
-    ax.bar(x,      y2, width=w, color="#F58518", edgecolor="black", linewidth=0.3, label="2 attackers (adv2)")
-    ax.bar(x + w,  y4, width=w, color="#54A24B", edgecolor="black", linewidth=0.3, label="4 attackers (adv4)")
-
-    ax.set_ylim(0.0, 105.0)
-    ax.set_ylabel("Detection (0/100)")
-    ax.set_xlabel("(tx, rot)")
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=60, ha="right", fontsize=7)
-    ax.grid(axis="y", alpha=0.25)
-    ax.set_title(f"{_pretty_scenario_name_for_plots(scenario)}: Detection by (tx,rot) and attacker count")
-    ax.legend(loc="upper right", fontsize=8, frameon=True)
-
-    fig.tight_layout()
-    try:
-        fig.savefig(out_pdf)
-    finally:
-        plt.close(fig)
-
-
 def run_all_controlled_subfolders_and_plot(*, out_dir: str = "usenix_multiscenario") -> None:
     """Run _run_csv_list over CONTROLLED_SUBFOLDERS and create aggregated plots.
 
@@ -3547,6 +3429,11 @@ def _write_non_tp_case_report(eval_rows: list[dict], *, out_csv: str) -> None:
 
     Includes detection parameters (WINDOW_S, DENSITY_MIN, PERIODIC_*), parsed (tx,rot) from filename,
     and the confusion category.
+
+    Also includes:
+      - core_density_seen_max: max density among *all* candidates (including rejected)
+      - core_density_valid_max: max density among decision_ok==True candidates
+      - n_dur_ok / n_unique_ok / n_dens_ok / n_decision_ok: gate-pass counts
     """
     if not eval_rows:
         return
@@ -3557,7 +3444,6 @@ def _write_non_tp_case_report(eval_rows: list[dict], *, out_csv: str) -> None:
 
     # Ensure gt/pred/metrics exist
     if "gt_pos" not in df.columns or "pred_pos" not in df.columns:
-        # derive from fields typically present in eval_row
         df["gt_pos"] = pd.to_numeric(df.get("gt_adv_mac_count", 0), errors="coerce").fillna(0).astype(int) > 0
         df["pred_pos"] = df.get("confirmed_any", False).fillna(False).astype(bool)
 
@@ -3581,7 +3467,6 @@ def _write_non_tp_case_report(eval_rows: list[dict], *, out_csv: str) -> None:
     # Keep only non-TP
     df = df[df["confusion"] != "TP"].copy()
     if len(df) == 0:
-        # still write header-only file for reproducibility
         Path(out_csv).write_text("src_file,confusion\n", encoding="utf-8")
         return
 
@@ -3606,48 +3491,23 @@ def _write_non_tp_case_report(eval_rows: list[dict], *, out_csv: str) -> None:
     df["PERIODIC_STEP_S"] = float(PERIODIC_STEP_S)
     df["PERIODIC_MIN_PERSISTENCE_S"] = float(PERIODIC_MIN_PERSISTENCE_S)
 
-    # Core density: prefer per-CSV max candidate density captured during the run.
-    # (Set by _worker_run_one_csv as core_density_max)
-    if "core_density_max" in df.columns:
-        df["core_density"] = pd.to_numeric(df.get("core_density_max", np.nan), errors="coerce")
-    else:
-        # keep existing behavior but ensure column exists
-        if "core_density" not in df.columns:
-            df["core_density"] = np.nan
+    # Standardize density fields
+    if "core_density_valid_max" not in df.columns and "core_density_max" in df.columns:
+        df["core_density_valid_max"] = pd.to_numeric(df.get("core_density_max", np.nan), errors="coerce")
+    if "core_density_seen_max" not in df.columns:
+        df["core_density_seen_max"] = pd.to_numeric(df.get("core_density_seen_max", np.nan), errors="coerce")
 
-    # 2) Try other known per-CSV density-like fields.
-    if df["core_density"].isna().all():
-        for c in [
-            "advmax_core_mac_density_scaled",
-            "best_core_mac_density_scaled",
-            "max_core_mac_density_scaled",
-            "cand_core_mac_density_scaled",
-        ]:
-            if c in df.columns:
-                df["core_density"] = pd.to_numeric(df[c], errors="coerce")
-                break
+    # Back-compat display columns
+    if "core_density_max" not in df.columns:
+        df["core_density_max"] = pd.to_numeric(df.get("core_density_valid_max", np.nan), errors="coerce")
 
-    # 3) Robust fallback: read candidate check CSV next to out_csv and take per-src_file max (decision candidates).
-    if df["core_density"].isna().all():
-        try:
-            outp = Path(out_csv).resolve().parent
-            # match files like aircatch_<scenario>_candidate_checks__dens<...>.csv
-            cand_csvs = sorted(outp.glob("aircatch_*_candidate_checks__dens*.csv"))
-            if cand_csvs:
-                # Use the largest file as the most likely to be the latest run.
-                cand_csv = max(cand_csvs, key=lambda p: p.stat().st_size)
-                cdf = pd.read_csv(cand_csv)
-                if "src_file" in cdf.columns and "core_mac_density_scaled" in cdf.columns:
-                    cdf["core_mac_density_scaled"] = pd.to_numeric(cdf["core_mac_density_scaled"], errors="coerce")
-                    g = cdf.groupby("src_file", as_index=False)["core_mac_density_scaled"].max()
-                    g = g.rename(columns={"core_mac_density_scaled": "core_density"})
-                    df = df.merge(g, on="src_file", how="left", suffixes=("", "_from_cands"))
-                    if "core_density_from_cands" in df.columns:
-                        # prefer candidate-derived max
-                        df["core_density"] = df["core_density_from_cands"].combine_first(df["core_density"])
-                        df = df.drop(columns=["core_density_from_cands"])
-        except Exception:
-            pass
+    # core_density := valid max (what drives pred_pos)
+    df["core_density"] = pd.to_numeric(df.get("core_density_valid_max", np.nan), errors="coerce")
+
+    # Gate pass counts if present (from eval rows)
+    for c in ["n_dur_ok", "n_unique_ok", "n_dens_ok", "n_decision_ok"]:
+        if c not in df.columns:
+            df[c] = pd.to_numeric(df.get(c, np.nan), errors="coerce")
 
     # Select columns
     keep = [
@@ -3668,8 +3528,17 @@ def _write_non_tp_case_report(eval_rows: list[dict], *, out_csv: str) -> None:
         "rot_tok",
         "tx_s",
         "rot_s",
+        # densities
         "core_density",
         "core_density_max",
+        "core_density_seen_max",
+        "core_density_valid_max",
+        # gate counts
+        "n_dur_ok",
+        "n_unique_ok",
+        "n_dens_ok",
+        "n_decision_ok",
+        # params
         "WINDOW_S",
         "DENSITY_MIN",
         "PERIODIC_MODE",
